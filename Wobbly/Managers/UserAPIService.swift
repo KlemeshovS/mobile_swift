@@ -290,6 +290,8 @@ class UserAPIService {
     }
     
     private func configureRequest(_ request: inout URLRequest) {
+        request.setValue("ios", forHTTPHeaderField: "X-Client-Platform")
+
         if AppEnvironment.current.requiresStagingKey {
             if let key = AppEnvironment.stagingKey {
                 request.setValue(key, forHTTPHeaderField: "X-Staging-Key")
