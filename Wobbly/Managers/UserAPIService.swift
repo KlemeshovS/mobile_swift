@@ -141,7 +141,7 @@ class UserAPIService {
     private init() {}
     
     // MARK: - Новые методы авторизации
-
+//1111111
     /// Получить текущую сессию (проверка валидности токена)
     func getSession() async throws -> SessionResponse {
         let token = try requireToken()
@@ -437,7 +437,7 @@ class UserAPIService {
     }
     
     
-    // MARK: - 4. Обновление только участия в рейтинге (НОВЫЙ МЕТОД)
+    // MARK: - 4. Обновление только участия в рейтинге
     func updateMyRating(participateInRating: Bool) async throws -> MyProfileResponse {
         return try await performAuthenticatedRequest { token in
             guard let url = URL(string: "\(self.baseURL)/me/rating") else {
