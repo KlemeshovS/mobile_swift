@@ -15,6 +15,7 @@ struct UserProfileView: View {
     let onRegisterSuccess: ((String, Int) -> Void)?
     let onDisappear: (() -> Void)?
     let daysData: [String: DrinkLevel]
+    let onDeleteAccount: (() -> Void)?
 
     @ObservedObject private var languageManager = LanguageManager.shared
     @State private var userName: String = ""
@@ -32,37 +33,101 @@ struct UserProfileView: View {
     
     @State private var avatarLocalImage: UIImage?
     @State private var isEditingAvatar = false
+    
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(hex: "1E1E2E").opacity(0.98),
-                    Color(hex: "2A2A3A").opacity(0.98)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-
-            if isLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-            } else {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        if sessionType == .guest {
-                            guestView
-                        } else {
-                            authenticatedView
+        NavigationView {
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(hex: "1E1E2E").opacity(0.98),
+                        Color(hex: "2A2A3A").opacity(0.98)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                } else {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            if sessionType == .guest {
+                                guestView
+                            } else {
+                                authenticatedView
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 20)
+                        .padding(.bottom, 30)
+                    }
+                }
+            }
+            .navigationTitle(NSLocalizedString("user_profile_title", comment: ""))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        onClose?()
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.white)
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if sessionType == .authenticated, onDeleteAccount != nil {
+                        Menu {
+                            Button(role: .destructive) {
+                                showDeleteConfirmation = true
+                            } label: {
+                                Label(NSLocalizedString("delete_account", comment: ""), systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis")
+                                .foregroundColor(.white)
                         }
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 20)
-                    .padding(.bottom, 30)
                 }
             }
         }
+        .overlay(
+            Group {
+                if showDeleteConfirmation {
+                    // Затемнённый фон
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .onTapGesture { showDeleteConfirmation = false }
+                    
+                    // Само окно подтверждения
+                    VStack(spacing: 20) {
+                        Text(NSLocalizedString("delete_account_confirmation_title", comment: ""))
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        Text(NSLocalizedString("delete_account_confirmation_message", comment: ""))
+                            .font(.body)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button(NSLocalizedString("delete_account_confirm", comment: "")) {
+                            showDeleteConfirmation = false
+                            onDeleteAccount?()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                        .tint(.red)
+                    }
+                    .padding(24)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(20)
+                    .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 10)
+                    .padding(.horizontal, 30) // Ширина окна
+                }
+            }
+        )
         .onAppear {
             loadSessionAndUserData()
             loadAvatarFromDisk()
@@ -168,7 +233,6 @@ struct UserProfileView: View {
     
     // MARK: - Работа с аватаром
     
-    // В UserProfileView добавьте:
     private func saveAvatarLocally(_ image: UIImage) {
         guard let data = image.jpegData(compressionQuality: 0.8) else { return }
         let filename = getAvatarFilePath()
@@ -313,6 +377,18 @@ struct UserProfileView: View {
                 .disabled(isSaving)
             }
         }
+ /*       .confirmationDialog(
+            NSLocalizedString("delete_account_confirmation_title", comment: ""),
+            isPresented: $showDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(NSLocalizedString("delete_account_confirm", comment: ""), role: .destructive) {
+                onDeleteAccount?()
+            }
+            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) { }
+        } message: {
+            Text(NSLocalizedString("delete_account_confirmation_message", comment: ""))
+        } */
     }
     
     private var unlockedAchievementsCount: Int {
@@ -343,7 +419,6 @@ struct UserProfileView: View {
             return
         }
         
-        // Проверка на допустимые символы (только латиница, цифры, подчёркивания, дефисы)
         let allowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-")
         if trimmed.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
             editErrorMessage = NSLocalizedString("error_username_invalid_characters", comment: "")
@@ -374,7 +449,7 @@ struct UserProfileView: View {
                 
                 if let error = editErrorMessage {
                     Text(error)
-                        .font(.subheadline)          // или .system(size: 14)
+                        .font(.subheadline)
                         .foregroundColor(.red)
                         .padding(.horizontal, 30)
                 }
@@ -420,7 +495,12 @@ struct UserProfileView: View {
                 } else {
                     userName = ""
                 }
-                participateInRanking = session.participateInRating
+                // Если имя не задано, принудительно включаем участие в рейтинге
+                if currentUsername == nil || currentUsername!.isEmpty {
+                    participateInRanking = true
+                } else {
+                    participateInRanking = session.participateInRating
+                }
                 isLoading = false
             }
         } catch {
@@ -487,7 +567,6 @@ struct UserProfileView: View {
                 }
             }
         } else {
-            // Save without name (rating off)
             isSaving = true
             Task {
                 do {
@@ -519,7 +598,7 @@ struct UserProfileView: View {
             }
         } catch {
             await MainActor.run {
-                participateInRanking.toggle() // revert
+                participateInRanking.toggle()
             }
         }
     }
@@ -588,8 +667,6 @@ struct UserProfileView: View {
         }
     }
   
-  
-    
     private func showError(message: String) {
         errorMessage = message
         showErrorAlert = true

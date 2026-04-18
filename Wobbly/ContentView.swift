@@ -101,7 +101,8 @@ struct ContentView: View {
                 onDisappear: {
                     hasShownNamePrompt = true
                 },
-                daysData: legacyDaysData
+                daysData: legacyDaysData,
+                onDeleteAccount: nil
             )
         }
         
@@ -145,38 +146,23 @@ struct ContentView: View {
         }
         .ignoresSafeArea(.keyboard)
         .onAppear {
-            print("===== ЗАПУСК ПРИЛОЖЕНИЯ =====")
-            print("👤 Имя пользователя: \(UserDefaults.standard.string(forKey: "userName") ?? "nil")")
-            print("🏆 Участие в рейтинге: \(UserDefaults.standard.bool(forKey: "userParticipateInRating"))")
-            print("🌍 Окружение: \(AppEnvironment.current)")
+            // 1. Загружаем локальные данные сразу (без ожидания сети)
+            loadCalendarData()
             
+            // 2. Остальную инициализацию выполняем асинхронно в фоне
             Task {
-                // Восстанавливаем сессию (получаем guest или authenticated токен)
                 await AuthService.shared.restoreSession()
                 
-                // Загружаем данные календаря на главном потоке
                 await MainActor.run {
-                    loadCalendarData()
+                    _ = ScoreSyncManager.shared
+                    checkTutorialStatus()
+                    setupAI()
+                    let streakManager = StreakHistoryManager.shared
+                    streakManager.recalculateMaxStreaksFromData(daysData: legacyDaysData)
+                    recalculateAllAchievements()
+                    ScoreSyncManager.shared.forceSendScore()
+                    DataDebugger.debugAllData(daysData)
                 }
-                
-                // Инициализация синглтона ScoreSyncManager (подписка на уведомления)
-                _ = ScoreSyncManager.shared
-                
-                // Проверка туториала (зависит от загруженных данных)
-                checkTutorialStatus()
-                
-                // Настройка AI мотивации
-                setupAI()
-                
-                // Пересчёт стриков и ачивок
-                let streakManager = StreakHistoryManager.shared
-                streakManager.recalculateMaxStreaksFromData(daysData: legacyDaysData)
-                recalculateAllAchievements()
-                
-                // Принудительная отправка счёта при запуске (если сессия позволяет)
-                ScoreSyncManager.shared.forceSendScore()
-                
-                DataDebugger.debugAllData(daysData)
             }
         }
     }

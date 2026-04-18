@@ -141,7 +141,7 @@ class UserAPIService {
     private init() {}
     
     // MARK: - Новые методы авторизации
-//1111111
+
     /// Получить текущую сессию (проверка валидности токена)
     func getSession() async throws -> SessionResponse {
         let token = try requireToken()
@@ -551,6 +551,31 @@ class UserAPIService {
             }
         } catch {
             throw UserAPIError.networkError(error)
+        }
+    }
+    // MARK: - Удаление аккаунта
+    func deleteAccount() async throws {
+        return try await performAuthenticatedRequest { token in
+            guard let url = URL(string: "\(self.baseURL)/me") else {
+                throw UserAPIError.invalidResponse
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "DELETE"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            self.configureRequest(&request)
+            
+            let (_, response) = try await self.session.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw UserAPIError.invalidResponse
+            }
+            switch httpResponse.statusCode {
+            case 204:
+                return ()
+            case 403:
+                throw UserAPIError.authRequiredForRating
+            default:
+                throw self.handleAPIError(data: Data(), response: httpResponse)
+            }
         }
     }
 }

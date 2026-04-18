@@ -34,7 +34,7 @@ struct SettingsBottomMenu: View {
             
             VStack(spacing: 0) {
                 // Заголовок с кнопкой назад, если не main
-                if currentScreen != .main {
+                if currentScreen != .main && currentScreen != .userProfile {
                     HStack {
                         Button(action: {
                             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
@@ -53,13 +53,12 @@ struct SettingsBottomMenu: View {
                         
                         Spacer()
                         
-                        Text(currentScreen == .about ? NSLocalizedString("about", comment: "") : NSLocalizedString("user_profile_title", comment: ""))
+                        Text(currentScreen == .about ? NSLocalizedString("about", comment: "") : "")
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.white)
                         
                         Spacer()
                         
-                        // Заглушка для симметрии
                         Color.clear
                             .frame(width: 60, height: 30)
                     }
@@ -102,14 +101,25 @@ struct SettingsBottomMenu: View {
                         },
                         onRegisterSuccess: { username, userId in
                             print("👤 Профиль обновлён: \(username ?? "none")")
-                            // После сохранения профиля можно отправить текущий счёт
-                            Task {
-                                let score = ProgressCalculator.calculate(from: daysData).current
-                                try? await UserAPIService.shared.updateMyScore(score: score)
-                            }
                         },
                         onDisappear: nil,
-                        daysData: daysData
+                        daysData: daysData,                     // ← сначала daysData
+                        onDeleteAccount: {                      // ← потом onDeleteAccount
+                            Task {
+                                do {
+                                    try await AuthService.shared.deleteAccount()
+                                    await MainActor.run {
+                                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                                            isShowing = false
+                                        }
+                                    }
+                                } catch {
+                                    await MainActor.run {
+                                        print("❌ Ошибка удаления: \(error.localizedDescription)")
+                                    }
+                                }
+                            }
+                        }
                     )
                 }
             }
