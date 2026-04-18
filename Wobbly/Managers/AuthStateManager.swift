@@ -7,6 +7,10 @@
 
 import Foundation
 
+enum AuthProvider: String {
+    case google, apple, yandex
+}
+
 enum SessionType {
     case guest
     case authenticated
@@ -48,6 +52,16 @@ class AuthStateManager {
         }
     }
     
+    var authProvider: AuthProvider? {
+        get {
+            guard let raw = defaults.string(forKey: "authProvider") else { return nil }
+            return AuthProvider(rawValue: raw)
+        }
+        set {
+            defaults.set(newValue?.rawValue, forKey: "authProvider")
+        }
+    }
+    
     func saveGuestSession(accessToken: String, userId: Int) {
         self.accessToken = accessToken
         self.refreshToken = nil
@@ -55,11 +69,12 @@ class AuthStateManager {
         self.sessionType = .guest
     }
     
-    func saveAuthenticatedSession(accessToken: String, refreshToken: String, userId: Int) {
+    func saveAuthenticatedSession(accessToken: String, refreshToken: String, userId: Int, provider: AuthProvider) {
         self.accessToken = accessToken
         self.refreshToken = refreshToken
         self.userId = userId
         self.sessionType = .authenticated
+        self.authProvider = provider
     }
     
     func updateTokens(accessToken: String, refreshToken: String) {
@@ -72,5 +87,6 @@ class AuthStateManager {
         refreshToken = nil
         userId = nil
         sessionType = .guest
+        authProvider = nil
     }
 }

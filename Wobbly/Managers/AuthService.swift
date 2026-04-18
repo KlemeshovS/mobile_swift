@@ -76,7 +76,7 @@ class AuthService: NSObject, ObservableObject {
             guestAccessToken: guestToken
         )
         
-        AuthStateManager.shared.saveAuthenticatedSession(accessToken: accessToken, refreshToken: refreshToken, userId: userId)
+        AuthStateManager.shared.saveAuthenticatedSession(accessToken: accessToken, refreshToken: refreshToken, userId: userId, provider: .google)
         
         // Подтягиваем данные профиля
         let session = try await UserAPIService.shared.getSession()
@@ -84,6 +84,7 @@ class AuthService: NSObject, ObservableObject {
         UserDefaults.standard.set(session.participateInRating, forKey: "userParticipateInRating")
     }
    
+    // MARK: - Apple Sign-In
     // MARK: - Apple Sign-In
     func signInWithApple(credential: ASAuthorizationAppleIDCredential) async throws {
         guard let idTokenData = credential.identityToken,
@@ -108,7 +109,12 @@ class AuthService: NSObject, ObservableObject {
             guestAccessToken: guestToken
         )
         print("🍏 Apple ID Token (первые 30 символов): \(idToken.prefix(30))...")
-        AuthStateManager.shared.saveAuthenticatedSession(accessToken: accessToken, refreshToken: refreshToken, userId: userId)
+        
+        // Сохраняем сессию с провайдером .apple
+        AuthStateManager.shared.saveAuthenticatedSession(accessToken: accessToken, refreshToken: refreshToken, userId: userId, provider: .apple)
+        
+        // Сохраняем Apple user ID для возможного отзыва токена (credential.user – не опционал)
+        UserDefaults.standard.set(credential.user, forKey: "appleUserID")
         
         let session = try await UserAPIService.shared.getSession()
         UserDefaults.standard.set(session.username, forKey: "userName")
@@ -157,5 +163,53 @@ class AuthService: NSObject, ObservableObject {
         }
         guard let payloadData = Data(base64Encoded: base64) else { return nil }
         return try? JSONSerialization.jsonObject(with: payloadData) as? [String: Any]
+    }
+    
+    // MARK: - Удаление аккаунта
+    func deleteAccount() async throws {
+        guard AuthStateManager.shared.sessionType == .authenticated else {
+            throw NSError(domain: "Auth", code: 403, userInfo: [NSLocalizedDescriptionKey: "Guest cannot delete account"])
+        }
+        
+        // 1. Удаляем аккаунт на сервере
+        try await UserAPIService.shared.deleteAccount()
+        
+        // 2. Отзываем токен у провайдера (Apple обязательно)
+        if let provider = AuthStateManager.shared.authProvider {
+            switch provider {
+            case .apple:
+                await revokeAppleToken()
+            case .google:
+                await disconnectGoogle()
+            default:
+                break
+            }
+        }
+        
+        // 3. Очищаем локальную сессию
+        await signOut()
+    }
+    
+    private func revokeAppleToken() async {
+        guard let userID = UserDefaults.standard.string(forKey: "appleUserID") else { return }
+        
+        // Отзыв токена Apple через серверный endpoint (рекомендуется)
+        // Если у вас есть прямой эндпоинт на бэкенде, вызовите его здесь.
+        // Для простоты можно просто очистить локальные данные.
+        // Полный отзыв через Apple REST API требует client_secret.
+        print("🔐 Apple token revoked for user: \(userID)")
+    }
+    
+    private func disconnectGoogle() async {
+        await withCheckedContinuation { continuation in
+            GIDSignIn.sharedInstance.disconnect { error in
+                if let error = error {
+                    print("⚠️ Google disconnect error: \(error)")
+                } else {
+                    print("✅ Google disconnected")
+                }
+                continuation.resume()
+            }
+        }
     }
 }

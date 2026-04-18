@@ -126,7 +126,8 @@ struct RatingsView: View {
                     ScoreSyncManager.shared.forceSendScore()
                 },
                 onDisappear: nil,
-                daysData: daysData
+                daysData: daysData,
+                onDeleteAccount: nil
             )
         }
         .onAppear {
@@ -332,9 +333,11 @@ struct RatingsView: View {
     
     // MARK: - Проверка профиля (GET /me)
     private func checkProfileAndLoad() {
-        // Если нет вообще никакого токена – показываем окно входа
         guard AuthStateManager.shared.accessToken != nil else {
-            showNamePrompt = true
+            // Если нет интернета, не показываем окно ввода имени
+            if Reachability.isConnectedToNetwork() {
+                showNamePrompt = true
+            }
             return
         }
         
@@ -346,9 +349,10 @@ struct RatingsView: View {
                     self.userName = profile.username ?? ""
                     self.participateInRating = profile.participateInRating
                     
-                    // 🔥 Ключевое изменение: показываем окно, если гость ИЛИ участие выключено
                     if AuthStateManager.shared.sessionType == .guest || !profile.participateInRating {
-                        showNamePrompt = true
+                        if Reachability.isConnectedToNetwork() {
+                            showNamePrompt = true
+                        }
                     }
                     
                     isLoadingProfile = false
@@ -357,8 +361,10 @@ struct RatingsView: View {
                 }
             } catch {
                 await MainActor.run {
-                    // При ошибке (скорее всего, гость) тоже показываем окно
-                    showNamePrompt = true
+                    // При ошибке (скорее всего, нет сети) не показываем окно
+                    if Reachability.isConnectedToNetwork() {
+                        showNamePrompt = true
+                    }
                     isLoadingProfile = false
                     loadData()
                 }
