@@ -47,6 +47,7 @@ enum UserAPIError: Error, LocalizedError {
     case googleAuthInvalid
     case appleAuthInvalid
     case authRequiredForRating
+    case guestCannotEnableRating
     case ratingDisabledForScore
     
     var errorDescription: String? {
@@ -87,6 +88,8 @@ enum UserAPIError: Error, LocalizedError {
             return NSLocalizedString("error_apple_auth_invalid", comment: "")
         case .authRequiredForRating:
             return NSLocalizedString("error_auth_required_for_rating", comment: "")
+        case .guestCannotEnableRating:
+            return NSLocalizedString("error_guest_cannot_enable_rating", comment: "")
         case .ratingDisabledForScore:
             return NSLocalizedString("error_rating_disabled_for_score", comment: "")
         }
@@ -334,6 +337,14 @@ class UserAPIService {
                 return UserAPIError.validationError
             case "INTERNAL_SERVER_ERROR":
                 return UserAPIError.internalServerError
+            case "AUTH_REQUIRED_FOR_RATING":
+                return UserAPIError.authRequiredForRating
+            case "AUTH_REQUIRED_FOR_USERNAME":
+                return UserAPIError.authRequiredForRating
+            case "GUEST_CANNOT_ENABLE_RATING":
+                return UserAPIError.guestCannotEnableRating
+            case "RATING_DISABLED_FOR_SCORE":
+                return UserAPIError.ratingDisabledForScore
             default:
                 return UserAPIError.unknownError(code: errorResponse.code, message: errorResponse.message)
             }

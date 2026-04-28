@@ -596,6 +596,11 @@ struct UserProfileView: View {
             await MainActor.run {
                 UserDefaults.standard.set(participate, forKey: "userParticipateInRating")
             }
+        } catch UserAPIError.authRequiredForRating, UserAPIError.guestCannotEnableRating {
+            await MainActor.run {
+                participateInRanking = false
+                showError(message: NSLocalizedString("error_auth_required_for_rating", comment: ""))
+            }
         } catch {
             await MainActor.run {
                 participateInRanking.toggle()
