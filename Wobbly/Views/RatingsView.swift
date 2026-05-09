@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct RatingsView: View {
     var onShowTopThreePopup: (Int, Bool) -> Void
@@ -19,6 +20,7 @@ struct RatingsView: View {
     // Состояния для попапа топ-3
     @State private var showTopThreePopup = false
     @State private var selectedTopThreePlace: Int = 1
+    @State private var selectedTopThreeAvatarUrl: String? = nil
     
     // Состояния для окна ввода имени
     @State private var userName: String = ""
@@ -26,14 +28,10 @@ struct RatingsView: View {
     @State private var showNamePrompt = false
     @State private var isLoadingProfile = false
     
-    // Состояние для отслеживания получения токена
-    @State private var isEnsuringToken = false
-    
     private let segments = ["top_100", "bottom_100"]
     
     var body: some View {
         ZStack {
-            // Фоновый градиент
             LinearGradient(
                 colors: [Color(hex: "000000"), Color(hex: "4B3A91")],
                 startPoint: .top,
@@ -42,7 +40,6 @@ struct RatingsView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Кастомные табы
                 customTabView
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
@@ -101,7 +98,9 @@ struct RatingsView: View {
                     
                     VStack {
                         Spacer()
-                        TopThreePopupView(place: selectedTopThreePlace, isTop: selectedSegment == 0)
+                        TopThreePopupView(place: selectedTopThreePlace,
+                                          isTop: selectedSegment == 0,
+                                          avatarUrl: selectedTopThreeAvatarUrl)
                             .onTapGesture {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                     showTopThreePopup = false
@@ -115,9 +114,7 @@ struct RatingsView: View {
         )
         .sheet(isPresented: $showNamePrompt) {
             UserProfileView(
-                onClose: {
-                    showNamePrompt = false
-                },
+                onClose: { showNamePrompt = false },
                 onRegisterSuccess: { username, userId in
                     showNamePrompt = false
                     self.userName = username
@@ -131,7 +128,6 @@ struct RatingsView: View {
             )
         }
         .onAppear {
-            // Восстанавливаем сессию, если нужно
             Task {
                 if AuthStateManager.shared.accessToken == nil {
                     await AuthService.shared.restoreSession()
@@ -143,7 +139,7 @@ struct RatingsView: View {
         }
     }
     
-    // MARK: - Кастомные табы
+    // MARK: - Кастомные табы (без изменений)
     private var customTabView: some View {
         GeometryReader { geometry in
             let tabCount = CGFloat(segments.count)
@@ -152,18 +148,12 @@ struct RatingsView: View {
             ZStack(alignment: .leading) {
                 Capsule()
                     .fill(Color(hex: "2D2B55").opacity(0.3))
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    )
+                    .overlay(Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1))
                     .shadow(color: .black.opacity(0.3), radius: 12, x: 0, y: 4)
                 
                 Capsule()
                     .fill(Color(hex: "2D2B55").opacity(0.9))
-                    .overlay(
-                        Capsule()
-                            .stroke(selectedSegment == 0 ? darkGreen : darkRed, lineWidth: 1.5)
-                    )
+                    .overlay(Capsule().stroke(selectedSegment == 0 ? darkGreen : darkRed, lineWidth: 1.5))
                     .shadow(color: (selectedSegment == 0 ? darkGreen : darkRed).opacity(0.4), radius: 10, x: 0, y: 0)
                     .frame(width: tabWidth - 8)
                     .offset(x: (CGFloat(selectedSegment) * tabWidth) + 4, y: 0)
@@ -193,13 +183,8 @@ struct RatingsView: View {
         .padding(.horizontal, 12)
     }
     
-    private var darkGreen: Color {
-        Color(red: 0.2, green: 0.4, blue: 0.2)
-    }
-    
-    private var darkRed: Color {
-        Color(red: 0.4, green: 0.2, blue: 0.2)
-    }
+    private var darkGreen: Color { Color(red: 0.2, green: 0.4, blue: 0.2) }
+    private var darkRed: Color { Color(red: 0.4, green: 0.2, blue: 0.2) }
     
     // MARK: - Виджет топ-3
     private func topThreeView(items: [LeaderboardItem]) -> some View {
@@ -209,7 +194,10 @@ struct RatingsView: View {
                     item: item,
                     place: index + 1,
                     isTop: selectedSegment == 0,
-                    onTap: onShowTopThreePopup
+                    onTap: { place, isTop in
+                        selectedTopThreeAvatarUrl = item.avatarUrl   // запоминаем
+                        onShowTopThreePopup(place, isTop)            // вызываем переданное замыкание (без avatarUrl)
+                    }
                 )
             }
         }
@@ -219,28 +207,33 @@ struct RatingsView: View {
     // MARK: - Ряд лидерборда
     private func leaderboardRow(item: LeaderboardItem, position: Int) -> some View {
         let isCurrentUser = (item.username == userName)
+        let highlightColor: Color = isCurrentUser ? (item.score >= 0 ? .green : .red.opacity(0.8)) : .white.opacity(0.1)
+        let highlightBgColor: Color = isCurrentUser ? (item.score >= 0 ? Color.green.opacity(0.1) : Color.red.opacity(0.05)) : Color.white.opacity(0.05)
         
-        let highlightColor: Color
-        let highlightBgColor: Color
+        let avatarURL = makeFullURL(path: item.avatarUrl)
         
-        if isCurrentUser {
-            if item.score >= 0 {
-                highlightColor = .green
-                highlightBgColor = Color.green.opacity(0.1)
-            } else {
-                highlightColor = .red.opacity(0.8)
-                highlightBgColor = Color.red.opacity(0.05)
-            }
-        } else {
-            highlightColor = .white.opacity(0.1)
-            highlightBgColor = Color.white.opacity(0.05)
-        }
-        
-        return HStack {
+        return HStack(spacing: 8) {
             Text("\(position).")
                 .font(.headline)
                 .foregroundColor(isCurrentUser ? highlightColor : .white.opacity(0.7))
-                .frame(width: 40, alignment: .leading)
+                .frame(width: 30, alignment: .leading) // уменьшено для экономии места
+            
+            if let url = avatarURL {
+                KFImage(url)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 30, height: 30)
+                    .clipShape(Circle())
+            } else {
+                Circle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 30, height: 30)
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 15))
+                    )
+            }
             
             Text(item.username)
                 .font(.headline)
@@ -261,6 +254,26 @@ struct RatingsView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(isCurrentUser ? highlightColor : Color.white.opacity(0.1), lineWidth: isCurrentUser ? 2 : 1)
         )
+    }
+    
+    private func cupImageName(for position: Int, isTop: Bool) -> String {
+        let prefix = isTop ? "cup" : "anti_cup"
+        switch position {
+        case 1: return "\(prefix)_gold"
+        case 2: return "\(prefix)_silver"
+        case 3: return "\(prefix)_bronze"
+        default: return ""
+        }
+    }
+    
+    private func makeFullURL(path: String?) -> URL? {
+        guard let path = path else { return nil }
+        if path.hasPrefix("http") {
+            return URL(string: path)
+        }
+        let base = AppEnvironment.current.baseURL
+            .replacingOccurrences(of: "/api/v1", with: "")
+        return URL(string: base + path)
     }
     
     private func scoreColor(for score: Int) -> Color {
@@ -307,11 +320,9 @@ struct RatingsView: View {
         }
     }
     
-    // MARK: - Загрузка рейтингов
     private func loadData() {
         isLoading = true
         error = nil
-        
         Task {
             do {
                 if selectedSegment == 0 {
@@ -319,9 +330,7 @@ struct RatingsView: View {
                 } else {
                     bottomItems = try await UserAPIService.shared.fetchBottom100()
                 }
-                await MainActor.run {
-                    isLoading = false
-                }
+                await MainActor.run { isLoading = false }
             } catch {
                 await MainActor.run {
                     self.error = error
@@ -331,16 +340,11 @@ struct RatingsView: View {
         }
     }
     
-    // MARK: - Проверка профиля (GET /me)
     private func checkProfileAndLoad() {
         guard AuthStateManager.shared.accessToken != nil else {
-            // Если нет интернета, не показываем окно ввода имени
-            if Reachability.isConnectedToNetwork() {
-                showNamePrompt = true
-            }
+            if Reachability.isConnectedToNetwork() { showNamePrompt = true }
             return
         }
-        
         isLoadingProfile = true
         Task {
             do {
@@ -348,23 +352,16 @@ struct RatingsView: View {
                 await MainActor.run {
                     self.userName = profile.username ?? ""
                     self.participateInRating = profile.participateInRating
-                    
                     if AuthStateManager.shared.sessionType == .guest || !profile.participateInRating {
-                        if Reachability.isConnectedToNetwork() {
-                            showNamePrompt = true
-                        }
+                        if Reachability.isConnectedToNetwork() { showNamePrompt = true }
                     }
-                    
                     isLoadingProfile = false
                     loadData()
                     ScoreSyncManager.shared.forceSendScore()
                 }
             } catch {
                 await MainActor.run {
-                    // При ошибке (скорее всего, нет сети) не показываем окно
-                    if Reachability.isConnectedToNetwork() {
-                        showNamePrompt = true
-                    }
+                    if Reachability.isConnectedToNetwork() { showNamePrompt = true }
                     isLoadingProfile = false
                     loadData()
                 }
@@ -383,14 +380,22 @@ struct TopThreeCardView: View {
     @State private var isGlowing = false
     
     var body: some View {
-        VStack(spacing: 8) {
-            Image(cupImageName)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 50)
-                .shadow(color: cupGlowColor.opacity(0.8), radius: isGlowing ? 3 : 1, x: 0, y: 0)
-                .shadow(color: cupGlowColor.opacity(0.6), radius: isGlowing ? 4 : 3, x: 0, y: 0)
-                .animation(Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isGlowing)
+        VStack(spacing: 4) {
+            // Аватар
+            let avatarURL = makeFullURL(path: item.avatarUrl)
+            if let url = avatarURL {
+                KFImage(url)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+            } else {
+                Image(cupImageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+            }
 
             Text(item.username)
                 .font(.headline)
@@ -414,9 +419,7 @@ struct TopThreeCardView: View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
         )
-        .onTapGesture {
-            onTap(place, isTop)
-        }
+        .onTapGesture { onTap(place, isTop) }
         .onAppear {
             withAnimation(Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 isGlowing = true
@@ -446,15 +449,39 @@ struct TopThreeCardView: View {
     private var scoreColor: Color {
         item.score >= 0 ? Color.mint : Color.pink
     }
+    
+    private func makeFullURL(path: String?) -> URL? {
+        guard let path = path else { return nil }
+        if path.hasPrefix("http") { return URL(string: path) }
+        let base = AppEnvironment.current.baseURL.replacingOccurrences(of: "/api/v1", with: "")
+        return URL(string: base + path)
+    }
 }
 
 // MARK: - Попап для топ-3
 struct TopThreePopupView: View {
     let place: Int
     let isTop: Bool
+    var avatarUrl: String? = nil
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
+            // Аватар или кубок (без белой обводки)
+            let url = makeFullURL(path: avatarUrl)
+            if let url = url {
+                KFImage(url)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 60, height: 60)
+                    .clipShape(Circle())
+            } else {
+                Image(cupImageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 60, height: 60)
+                    .clipShape(Circle())
+            }
+
             Text(title)
                 .font(.headline)
                 .fontWeight(.bold)
@@ -485,6 +512,25 @@ struct TopThreePopupView: View {
         .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
     }
 
+    private var cupImageName: String {
+        let prefix = isTop ? "cup" : "anti_cup"
+        switch place {
+        case 1: return "\(prefix)_gold"
+        case 2: return "\(prefix)_silver"
+        case 3: return "\(prefix)_bronze"
+        default: return ""
+        }
+    }
+    
+    private var cupGlowColor: Color {
+        switch place {
+        case 1: return .yellow
+        case 2: return Color(white: 0.8)
+        case 3: return Color(red: 0.8, green: 0.5, blue: 0.2)
+        default: return .clear
+        }
+    }
+
     private var title: String {
         let key = isTop ? "top_\(place)_place_title" : "bottom_\(place)_place_title"
         return NSLocalizedString(key, comment: "")
@@ -493,5 +539,12 @@ struct TopThreePopupView: View {
     private var description: String {
         let key = isTop ? "top_\(place)_place_description" : "bottom_\(place)_place_description"
         return NSLocalizedString(key, comment: "")
+    }
+    
+    private func makeFullURL(path: String?) -> URL? {
+        guard let path = path else { return nil }
+        if path.hasPrefix("http") { return URL(string: path) }
+        let base = AppEnvironment.current.baseURL.replacingOccurrences(of: "/api/v1", with: "")
+        return URL(string: base + path)
     }
 }

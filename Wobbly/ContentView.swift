@@ -673,7 +673,7 @@ struct MainContentView: View {
     @Binding var showExplanation: Bool
     @Binding var explanationTitle: String
     @Binding var explanationText: String
-    
+        
     var onShowTopThreePopup: (Int, Bool) -> Void
 
     

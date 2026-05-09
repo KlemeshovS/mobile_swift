@@ -20,6 +20,7 @@ struct SessionResponse: Codable {
     let participateInRating: Bool
     let sessionType: String          // "guest" или "authenticated"
     let provider: String?            // "google", "apple", "yandex" или nil
+    let avatarUrl: String?           // <-- добавлено
 }
 
 struct RefreshResponse: Codable {
@@ -48,6 +49,8 @@ enum UserAPIError: Error, LocalizedError {
     case appleAuthInvalid
     case authRequiredForRating
     case ratingDisabledForScore
+    case avatarTooLarge                 // <-- добавлено
+    case avatarInvalidImage            // <-- добавлено
     
     var errorDescription: String? {
         switch self {
@@ -89,6 +92,10 @@ enum UserAPIError: Error, LocalizedError {
             return NSLocalizedString("error_auth_required_for_rating", comment: "")
         case .ratingDisabledForScore:
             return NSLocalizedString("error_rating_disabled_for_score", comment: "")
+        case .avatarTooLarge:
+            return NSLocalizedString("error_avatar_too_large", comment: "Аватар слишком большой") // <-- добавлено
+        case .avatarInvalidImage:
+            return NSLocalizedString("error_avatar_invalid_image", comment: "Неподдерживаемый формат изображения") // <-- добавлено
         }
     }
 }
@@ -105,6 +112,7 @@ struct MeResponse: Codable {
     let id: Int
     let username: String?
     let participateInRating: Bool
+    let avatarUrl: String?           // <-- добавлено
 }
 
 // Для удобства использования в приложении
@@ -112,6 +120,7 @@ struct MyProfileResponse {
     let id: Int
     let username: String?
     let participateInRating: Bool
+    let avatarUrl: String?           // <-- добавлено
 }
 
 struct ScoreResponse: Codable {
@@ -123,6 +132,7 @@ struct ScoreResponse: Codable {
 struct LeaderboardItem: Codable, Identifiable {
     let username: String
     let score: Int
+    let avatarUrl: String?           // <-- добавлено
 
     var id: String { username }
 }
@@ -334,6 +344,10 @@ class UserAPIService {
                 return UserAPIError.validationError
             case "INTERNAL_SERVER_ERROR":
                 return UserAPIError.internalServerError
+            case "AVATAR_TOO_LARGE":                         // <-- добавлено
+                return UserAPIError.avatarTooLarge
+            case "AVATAR_INVALID_IMAGE":                     // <-- добавлено
+                return UserAPIError.avatarInvalidImage
             default:
                 return UserAPIError.unknownError(code: errorResponse.code, message: errorResponse.message)
             }
@@ -395,7 +409,10 @@ class UserAPIService {
             switch httpResponse.statusCode {
             case 200:
                 let decoded = try JSONDecoder().decode(MeResponse.self, from: data)
-                return MyProfileResponse(id: decoded.id, username: decoded.username, participateInRating: decoded.participateInRating)
+                return MyProfileResponse(id: decoded.id,
+                                         username: decoded.username,
+                                         participateInRating: decoded.participateInRating,
+                                         avatarUrl: decoded.avatarUrl)    // <-- добавлено
             case 401:
                 throw UserAPIError.invalidToken
             default:
@@ -429,7 +446,10 @@ class UserAPIService {
             switch httpResponse.statusCode {
             case 200:
                 let decoded = try JSONDecoder().decode(MeResponse.self, from: data)
-                return MyProfileResponse(id: decoded.id, username: decoded.username, participateInRating: decoded.participateInRating)
+                return MyProfileResponse(id: decoded.id,
+                                         username: decoded.username,
+                                         participateInRating: decoded.participateInRating,
+                                         avatarUrl: decoded.avatarUrl)    // <-- добавлено
             case 401:
                 throw UserAPIError.invalidToken
             default:
@@ -461,7 +481,10 @@ class UserAPIService {
             switch httpResponse.statusCode {
             case 200:
                 let decoded = try JSONDecoder().decode(MeResponse.self, from: data)
-                return MyProfileResponse(id: decoded.id, username: decoded.username, participateInRating: decoded.participateInRating)
+                return MyProfileResponse(id: decoded.id,
+                                         username: decoded.username,
+                                         participateInRating: decoded.participateInRating,
+                                         avatarUrl: decoded.avatarUrl)    // <-- добавлено
             case 401:
                 throw UserAPIError.invalidToken
             default:
@@ -498,6 +521,77 @@ class UserAPIService {
             default:
                 throw self.handleAPIError(data: data, response: httpResponse)
             }
+        }
+    }
+    
+    // MARK: - Avatar
+    func uploadAvatar(imageData: Data, mimeType: String) async throws -> MyProfileResponse {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/me/avatar") else {
+            throw UserAPIError.invalidResponse
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        configureRequest(&request)
+        
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        let filename = mimeType == "image/jpeg" ? "avatar.jpg" : "avatar.png"
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 200, 201:
+            let decoded = try JSONDecoder().decode(MeResponse.self, from: data)
+            return MyProfileResponse(id: decoded.id,
+                                     username: decoded.username,
+                                     participateInRating: decoded.participateInRating,
+                                     avatarUrl: decoded.avatarUrl)
+        case 401:
+            throw UserAPIError.invalidToken
+        default:
+            throw handleAPIError(data: data, response: httpResponse)
+        }
+    }
+    
+    func deleteAvatar() async throws -> MyProfileResponse {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/me/avatar") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        configureRequest(&request)
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 200:
+            let decoded = try JSONDecoder().decode(MeResponse.self, from: data)
+            return MyProfileResponse(id: decoded.id,
+                                     username: decoded.username,
+                                     participateInRating: decoded.participateInRating,
+                                     avatarUrl: decoded.avatarUrl)
+        case 401:
+            throw UserAPIError.invalidToken
+        default:
+            throw handleAPIError(data: data, response: httpResponse)
         }
     }
     
