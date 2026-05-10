@@ -48,6 +48,7 @@ enum UserAPIError: Error, LocalizedError {
     case googleAuthInvalid
     case appleAuthInvalid
     case authRequiredForRating
+    case guestCannotEnableRating
     case ratingDisabledForScore
     case avatarTooLarge                 // <-- добавлено
     case avatarInvalidImage            // <-- добавлено
@@ -90,6 +91,8 @@ enum UserAPIError: Error, LocalizedError {
             return NSLocalizedString("error_apple_auth_invalid", comment: "")
         case .authRequiredForRating:
             return NSLocalizedString("error_auth_required_for_rating", comment: "")
+        case .guestCannotEnableRating:
+            return NSLocalizedString("error_guest_cannot_enable_rating", comment: "")
         case .ratingDisabledForScore:
             return NSLocalizedString("error_rating_disabled_for_score", comment: "")
         case .avatarTooLarge:
