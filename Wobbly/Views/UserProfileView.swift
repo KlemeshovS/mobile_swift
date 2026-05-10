@@ -32,7 +32,7 @@ struct UserProfileView: View {
     @State private var editErrorMessage: String?
     
     @State private var avatarLocalImage: UIImage?
-    @State private var isEditingAvatar = false
+    @State private var avatarUrl: String? = nil
     
     @State private var showDeleteConfirmation = false
 
@@ -97,12 +97,10 @@ struct UserProfileView: View {
         .overlay(
             Group {
                 if showDeleteConfirmation {
-                    // Затемнённый фон
                     Color.black.opacity(0.4)
                         .ignoresSafeArea()
                         .onTapGesture { showDeleteConfirmation = false }
                     
-                    // Само окно подтверждения
                     VStack(spacing: 20) {
                         Text(NSLocalizedString("delete_account_confirmation_title", comment: ""))
                             .font(.headline)
@@ -124,13 +122,15 @@ struct UserProfileView: View {
                     .background(Color(.systemBackground))
                     .cornerRadius(20)
                     .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 10)
-                    .padding(.horizontal, 30) // Ширина окна
+                    .padding(.horizontal, 30)
                 }
             }
         )
         .onAppear {
-            loadSessionAndUserData()
-            loadAvatarFromDisk()
+            Task {
+                await loadSessionAndUserData()
+                loadAvatarFromDisk()
+            }
         }
         .onDisappear {
             onDisappear?()
@@ -184,7 +184,7 @@ struct UserProfileView: View {
                                 do {
                                     try await AuthService.shared.signInWithApple(credential: credential)
                                     await MainActor.run {
-                                        loadSessionAndUserData()
+                                        Task { await loadSessionAndUserData() }
                                         onRegisterSuccess?(currentUsername ?? "", AuthStateManager.shared.userId ?? 0)
                                     }
                                 } catch {
@@ -266,20 +266,80 @@ struct UserProfileView: View {
         }
     }
     
+    private func uploadAvatarToServer(_ image: UIImage) async {
+        let resized = resizeImage(image, maxDimension: 1024)
+        guard let jpegData = resized.jpegData(compressionQuality: 0.8) else { return }
+        
+        do {
+            let profile = try await UserAPIService.shared.uploadAvatar(imageData: jpegData, mimeType: "image/jpeg")
+            await MainActor.run {
+                self.avatarUrl = profile.avatarUrl
+            }
+        } catch {
+            await MainActor.run {
+                showError(message: "Не удалось загрузить аватар: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func deleteAvatarFromServer() async {
+        do {
+            let profile = try await UserAPIService.shared.deleteAvatar()
+            await MainActor.run {
+                self.avatarUrl = nil
+                deleteAvatarFile()
+            }
+        } catch {
+            await MainActor.run {
+                showError(message: "Не удалось удалить аватар: \(error.localizedDescription)")
+                loadAvatarFromDisk()
+            }
+        }
+    }
+    
+    private func resizeImage(_ image: UIImage, maxDimension: CGFloat = 1024) -> UIImage {
+        let size = image.size
+        let widthRatio = maxDimension / size.width
+        let heightRatio = maxDimension / size.height
+        let scale = min(widthRatio, heightRatio)
+        guard scale < 1 else { return image }
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        UIGraphicsBeginImageContextWithOptions(newSize, true, 1.0)
+        image.draw(in: CGRect(origin: .zero, size: newSize))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage ?? image
+    }
+    
+    private func makeFullURL(path: String?) -> URL? {
+        guard let path = path else { return nil }
+        if path.hasPrefix("http") {
+            return URL(string: path)
+        }
+        let base = AppEnvironment.current.baseURL
+            .replacingOccurrences(of: "/api/v1", with: "")
+        return URL(string: base + path)
+    }
+    
     // MARK: - Authenticated View
     private var authenticatedView: some View {
         VStack(spacing: 24) {
             // Avatar
             AvatarView(
-                imageUrl: nil,
+                imageUrl: makeFullURL(path: avatarUrl),
                 localImage: $avatarLocalImage,
                 size: 100,
                 editable: true,
                 onImageChanged: { image in
                     if let image = image {
                         saveAvatarLocally(image)
+                        Task {
+                            await uploadAvatarToServer(image)
+                        }
                     } else {
-                        deleteAvatarFile()
+                        Task {
+                            await deleteAvatarFromServer()
+                        }
                     }
                 }
             )
@@ -307,7 +367,6 @@ struct UserProfileView: View {
             }
             
             if currentUsername == nil || currentUsername!.isEmpty {
-                // Show input field if no name
                 VStack(alignment: .leading, spacing: 8) {
                     Text(NSLocalizedString("user_name_label", comment: ""))
                         .font(.system(size: 16, weight: .medium))
@@ -377,18 +436,6 @@ struct UserProfileView: View {
                 .disabled(isSaving)
             }
         }
- /*       .confirmationDialog(
-            NSLocalizedString("delete_account_confirmation_title", comment: ""),
-            isPresented: $showDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(NSLocalizedString("delete_account_confirm", comment: ""), role: .destructive) {
-                onDeleteAccount?()
-            }
-            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) { }
-        } message: {
-            Text(NSLocalizedString("delete_account_confirmation_message", comment: ""))
-        } */
     }
     
     private var unlockedAchievementsCount: Int {
@@ -473,15 +520,16 @@ struct UserProfileView: View {
     }
     
     // MARK: - Data loading
-    private func loadSessionAndUserData() {
+    private func loadSessionAndUserData() async {
         isLoading = true
+        if AuthStateManager.shared.accessToken == nil {
+            await AuthService.shared.restoreSession()
+        }
         sessionType = AuthStateManager.shared.sessionType
         if sessionType == .authenticated {
-            Task {
-                await loadUserDataFromServer()
-            }
+            await loadUserDataFromServer()
         } else {
-            isLoading = false
+            await MainActor.run { isLoading = false }
         }
     }
     
@@ -492,15 +540,12 @@ struct UserProfileView: View {
                 currentUsername = session.username
                 if let name = session.username, !name.isEmpty {
                     userName = name
+                    participateInRanking = session.participateInRating
                 } else {
                     userName = ""
-                }
-                // Если имя не задано, принудительно включаем участие в рейтинге
-                if currentUsername == nil || currentUsername!.isEmpty {
                     participateInRanking = true
-                } else {
-                    participateInRanking = session.participateInRating
                 }
+                avatarUrl = session.avatarUrl
                 isLoading = false
             }
         } catch {
@@ -662,7 +707,7 @@ struct UserProfileView: View {
             do {
                 try await AuthService.shared.signInWithGoogle(presentingViewController: rootVC)
                 await MainActor.run {
-                    loadSessionAndUserData()
+                    Task { await loadSessionAndUserData() }
                 }
             } catch {
                 await MainActor.run {
