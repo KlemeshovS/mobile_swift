@@ -14,7 +14,7 @@ struct RatingsView: View {
     @State private var selectedSegment = 0
     @State private var topItems: [LeaderboardItem] = []
     @State private var bottomItems: [LeaderboardItem] = []
-    @State private var isLoading = false
+    @State private var isLoading = true
     @State private var error: Error?
     
     // Состояния для попапа топ-3
@@ -27,6 +27,10 @@ struct RatingsView: View {
     @State private var participateInRating: Bool = true
     @State private var showNamePrompt = false
     @State private var isLoadingProfile = false
+    
+    @State private var showProfile = false
+    
+    @State private var selectedUserItem: LeaderboardItem? = nil
     
     private let segments = ["top_100", "bottom_100"]
     
@@ -127,6 +131,24 @@ struct RatingsView: View {
                 onDeleteAccount: nil
             )
         }
+        
+        .sheet(isPresented: $showProfile) {
+            UserProfileView(
+                onClose: { showProfile = false },
+                onRegisterSuccess: { username, userId in
+                    // Можно обновить рейтинг после изменения профиля
+                    loadData()
+                },
+                onDisappear: nil,
+                daysData: daysData,
+                onDeleteAccount: nil
+            )
+        }
+        
+        .sheet(item: $selectedUserItem) { item in
+            PublicUserProfileView(item: item)
+        }
+        
         .onAppear {
             Task {
                 if AuthStateManager.shared.accessToken == nil {
@@ -195,9 +217,10 @@ struct RatingsView: View {
                     place: index + 1,
                     isTop: selectedSegment == 0,
                     onTap: { place, isTop in
-                        selectedTopThreeAvatarUrl = item.avatarUrl   // запоминаем
-                        onShowTopThreePopup(place, isTop)            // вызываем переданное замыкание (без avatarUrl)
-                    }
+                        selectedUserItem = item
+                    },
+                    isCurrentUser: item.username == userName,
+                    onProfileTap: { showProfile = true }
                 )
             }
         }
@@ -254,6 +277,14 @@ struct RatingsView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(isCurrentUser ? highlightColor : Color.white.opacity(0.1), lineWidth: isCurrentUser ? 2 : 1)
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isCurrentUser {
+                showProfile = true
+            } else {
+                selectedUserItem = item
+            }
+        }
     }
     
     private func cupImageName(for position: Int, isTop: Bool) -> String {
@@ -377,6 +408,9 @@ struct TopThreeCardView: View {
     let isTop: Bool
     let onTap: (Int, Bool) -> Void
     
+    let isCurrentUser: Bool
+    var onProfileTap: (() -> Void)? = nil
+    
     @State private var isGlowing = false
     
     var body: some View {
@@ -419,7 +453,14 @@ struct TopThreeCardView: View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
         )
-        .onTapGesture { onTap(place, isTop) }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isCurrentUser {
+                onProfileTap?()
+            } else {
+                onTap(place, isTop)
+            }
+        }
         .onAppear {
             withAnimation(Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 isGlowing = true
