@@ -188,11 +188,15 @@ struct UserProfileView: View {
                                         onRegisterSuccess?(currentUsername ?? "", AuthStateManager.shared.userId ?? 0)
                                     }
                                 } catch {
-                                    showError(message: error.localizedDescription)
+                                    if !isCancelledError(error) {
+                                        showError(message: error.localizedDescription)
+                                    }
                                 }
                             }
                         case .failure(let error):
-                            showError(message: error.localizedDescription)
+                            if !isCancelledError(error) {
+                                showError(message: error.localizedDescription)
+                            }
                         }
                     }
                 }
@@ -710,8 +714,10 @@ struct UserProfileView: View {
                     Task { await loadSessionAndUserData() }
                 }
             } catch {
-                await MainActor.run {
-                    showError(message: error.localizedDescription)
+                if !isCancelledError(error) {
+                    await MainActor.run {
+                        showError(message: error.localizedDescription)
+                    }
                 }
             }
         }
@@ -720,5 +726,18 @@ struct UserProfileView: View {
     private func showError(message: String) {
         errorMessage = message
         showErrorAlert = true
+    }
+    
+    private func isCancelledError(_ error: Error) -> Bool {
+        // Apple Sign In cancel
+        if let authError = error as? ASAuthorizationError, authError.code == .canceled {
+            return true
+        }
+        // Google Sign In cancel (код -5)
+        let nsError = error as NSError
+        if nsError.domain == "com.google.GIDSignIn" && nsError.code == -5 {
+            return true
+        }
+        return false
     }
 }
