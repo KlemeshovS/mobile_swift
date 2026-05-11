@@ -347,9 +347,16 @@ class UserAPIService {
                 return UserAPIError.validationError
             case "INTERNAL_SERVER_ERROR":
                 return UserAPIError.internalServerError
-            case "AVATAR_TOO_LARGE":                         // <-- добавлено
+            case "AUTH_REQUIRED_FOR_RATING",
+                 "AUTH_REQUIRED_FOR_USERNAME":
+                return UserAPIError.authRequiredForRating
+            case "GUEST_CANNOT_ENABLE_RATING":
+                return UserAPIError.guestCannotEnableRating
+            case "RATING_DISABLED_FOR_SCORE":
+                return UserAPIError.ratingDisabledForScore
+            case "AVATAR_TOO_LARGE":
                 return UserAPIError.avatarTooLarge
-            case "AVATAR_INVALID_IMAGE":                     // <-- добавлено
+            case "AVATAR_INVALID_IMAGE":
                 return UserAPIError.avatarInvalidImage
             default:
                 return UserAPIError.unknownError(code: errorResponse.code, message: errorResponse.message)
