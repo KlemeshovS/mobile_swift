@@ -6,6 +6,7 @@ import SwiftUI
 
 extension Notification.Name {
     static let drinkDataChanged = Notification.Name("drinkDataChanged")
+    static let followStatusChanged = Notification.Name("followStatusChanged")
 }
 
 // MARK: - Drink Levels
