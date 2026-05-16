@@ -8,6 +8,7 @@
 import SwiftUI
 import AuthenticationServices
 import GoogleSignIn
+import Kingfisher
 
 struct UserProfileView: View {
     @Environment(\.dismiss) private var dismiss
@@ -35,6 +36,11 @@ struct UserProfileView: View {
     @State private var avatarUrl: String? = nil
     
     @State private var showDeleteConfirmation = false
+    
+    @State private var myFollows: [FollowModel] = []
+    @State private var myFollowers: [FollowModel] = []
+    @State private var isLoadingFollows = false
+    @State private var selectedFollowUser: FollowModel? = nil
 
     var body: some View {
         NavigationView {
@@ -135,6 +141,9 @@ struct UserProfileView: View {
         .onDisappear {
             onDisappear?()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .followStatusChanged)) { _ in
+            Task { await loadFollowData() }
+        }
         .alert(isPresented: $showErrorAlert) {
             Alert(
                 title: Text(NSLocalizedString("error", comment: "")),
@@ -144,6 +153,9 @@ struct UserProfileView: View {
         }
         .sheet(isPresented: $isEditingName) {
             editNameSheet
+        }
+        .sheet(item: $selectedFollowUser) { follow in
+            PublicUserProfileView(follow: follow)
         }
     }
     
@@ -413,6 +425,194 @@ struct UserProfileView: View {
                 value: "\(unlockedAchievementsCount)/\(totalAchievementsCount)"
             )
             
+            // MARK: - Мои подписки
+            VStack(alignment: .leading, spacing: 0) {
+                // Заголовок плашки
+                HStack {
+                    Text(NSLocalizedString("your_friends_title", comment: ""))
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Spacer()
+                    if !myFollows.isEmpty {
+                        Text("\(myFollows.count)")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color.white.opacity(0.08))
+
+                if isLoadingFollows {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        Spacer()
+                    }
+                    .padding(.vertical, 20)
+                    .background(Color.white.opacity(0.04))
+                } else if myFollows.isEmpty {
+                    VStack(spacing: 6) {
+                        Text(NSLocalizedString("friends_empty_title", comment: "Нет подписок"))
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.6))
+                        Text(NSLocalizedString("friends_empty_hint", comment: "Перейдите в рейтинг, чтобы подписаться"))
+                            .font(.caption)
+                            .foregroundColor(Color(hex: "C7FF00").opacity(0.7))
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 20)
+                    .background(Color.white.opacity(0.04))
+                } else {
+                    VStack(spacing: 0) {
+                        ForEach(Array(myFollows.enumerated()), id: \.element.id) { index, follow in
+                            HStack(spacing: 12) {
+                                // Аватар
+                                let avatarURL = makeFullURL(path: follow.avatarUrl)
+                                if let url = avatarURL {
+                                    KFImage(url)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 36, height: 36)
+                                        .clipShape(Circle())
+                                } else {
+                                    Circle()
+                                        .fill(Color.white.opacity(0.15))
+                                        .frame(width: 36, height: 36)
+                                        .overlay(
+                                            Image(systemName: "person.fill")
+                                                .foregroundColor(.white.opacity(0.6))
+                                                .font(.system(size: 16))
+                                        )
+                                }
+
+                                Button(action: { selectedFollowUser = follow }) {
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(follow.username)
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundColor(.white)
+                                        if follow.isMutual {
+                                            Text(NSLocalizedString("user_is_friend", comment: ""))
+                                                .font(.caption2)
+                                                .foregroundColor(Color(hex: "C7FF00"))
+                                        }
+                                    }
+                                }
+                                .buttonStyle(.plain)
+
+                                Spacer()
+
+                                if follow.isMutual {
+                                    Image(systemName: "person.2.fill")
+                                        .foregroundColor(Color(hex: "C7FF00"))
+                                        .font(.system(size: 13))
+                                }
+
+                                Button(NSLocalizedString("remove_friend_button", comment: "")) {
+                                    Task { await unfollowUser(userId: follow.userId) }
+                                }
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.red.opacity(0.8))
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(Color.white.opacity(0.04))
+
+                            if index < myFollows.count - 1 {
+                                Divider()
+                                    .background(Color.white.opacity(0.08))
+                                    .padding(.leading, 64)
+                            }
+                        }
+                    }
+                }
+            }
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            )
+
+            // MARK: - Подписчики (кто на меня, но я не в ответ)
+            if !pendingFollowers.isEmpty {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Заголовок плашки
+                    HStack {
+                        Text(NSLocalizedString("followers_pending_title", comment: "Подписаны на меня"))
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Spacer()
+                        Text("\(pendingFollowers.count)")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color.white.opacity(0.08))
+
+                    VStack(spacing: 0) {
+                        ForEach(Array(pendingFollowers.enumerated()), id: \.element.id) { index, follower in
+                            HStack(spacing: 12) {
+                                let avatarURL = makeFullURL(path: follower.avatarUrl)
+                                if let url = avatarURL {
+                                    KFImage(url)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 36, height: 36)
+                                        .clipShape(Circle())
+                                } else {
+                                    Circle()
+                                        .fill(Color.white.opacity(0.15))
+                                        .frame(width: 36, height: 36)
+                                        .overlay(
+                                            Image(systemName: "person.fill")
+                                                .foregroundColor(.white.opacity(0.6))
+                                                .font(.system(size: 16))
+                                        )
+                                }
+
+                                Button(action: { selectedFollowUser = follower }) {
+                                    Text(follower.username)
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundColor(.white)
+                                }
+                                .buttonStyle(.plain)
+
+                                Spacer()
+
+                                Button(NSLocalizedString("follow_button", comment: "Подписаться")) {
+                                    Task { await followBack(username: follower.username) }
+                                }
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color(hex: "8B5CF6"))
+                                .cornerRadius(7)
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(Color.white.opacity(0.04))
+
+                            if index < pendingFollowers.count - 1 {
+                                Divider()
+                                    .background(Color.white.opacity(0.08))
+                                    .padding(.leading, 64)
+                            }
+                        }
+                    }
+                }
+                .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+            }
+            
             // Save button (only if no name yet)
             if currentUsername == nil || currentUsername!.isEmpty {
                 Button(action: saveUserData) {
@@ -439,6 +639,13 @@ struct UserProfileView: View {
                 }
                 .disabled(isSaving)
             }
+        }
+    }
+    
+    // Подписчики, на которых я ещё не подписан в ответ
+    private var pendingFollowers: [FollowModel] {
+        myFollowers.filter { follower in
+            !myFollows.contains(where: { $0.userId == follower.userId })
         }
     }
     
@@ -551,6 +758,8 @@ struct UserProfileView: View {
                 }
                 avatarUrl = session.avatarUrl
                 isLoading = false
+                // Загружаем друзей
+                Task { await loadFollowData() }
             }
         } catch {
             await MainActor.run {
@@ -740,4 +949,44 @@ struct UserProfileView: View {
         }
         return false
     }
+    
+    // MARK: - Friends
+
+    private func loadFollowData() async {
+        guard sessionType == .authenticated else { return }
+        await MainActor.run { isLoadingFollows = true }
+        defer { Task { await MainActor.run { isLoadingFollows = false } } }
+        do {
+            async let followsResp = UserAPIService.shared.getMyFollows()
+            async let followersResp = UserAPIService.shared.getMyFollowers()
+            let (follows, followers) = try await (followsResp, followersResp)
+            await MainActor.run {
+                myFollows = follows.items
+                myFollowers = followers.items
+            }
+        } catch {
+            print("❌ Ошибка загрузки подписок: \(error)")
+        }
+    }
+
+    private func unfollowUser(userId: Int) async {
+        do {
+            try await UserAPIService.shared.unfollow(userId: userId)
+            NotificationCenter.default.post(name: .followStatusChanged, object: nil)
+            await loadFollowData()
+        } catch {
+            await MainActor.run { showError(message: error.localizedDescription) }
+        }
+    }
+
+    private func followBack(username: String) async {
+        do {
+            _ = try await UserAPIService.shared.follow(username: username)
+            NotificationCenter.default.post(name: .followStatusChanged, object: nil)
+            await loadFollowData()
+        } catch {
+            await MainActor.run { showError(message: error.localizedDescription) }
+        }
+    }
+    
 }

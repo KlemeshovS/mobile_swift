@@ -3,11 +3,34 @@ import Kingfisher
 
 struct PublicUserProfileView: View {
     let item: LeaderboardItem
+    init(item: LeaderboardItem) {
+            self.item = item
+        }
+        
+        init(follow: FollowModel) {
+            self.item = LeaderboardItem(
+                userId: follow.userId,
+                username: follow.username,
+                score: 0,
+                avatarUrl: follow.avatarUrl
+            )
+        }
     @Environment(\.dismiss) private var dismiss
+    
+    @State private var followStatus: FollowStatus = .notFollowing
+    @State private var isLoadingFollow = true
+    @State private var errorMessage: String?
+    @State private var showErrorAlert = false
+    
+    enum FollowStatus {
+        case notFollowing
+        case following(isMutual: Bool)
+    }
     
     var body: some View {
         NavigationView {
             ZStack {
+                // фон (без изменений)
                 LinearGradient(
                     colors: [
                         Color(hex: "1E1E2E").opacity(0.98),
@@ -19,7 +42,7 @@ struct PublicUserProfileView: View {
                 .ignoresSafeArea()
                 
                 VStack(spacing: 24) {
-                    // Аватарка по центру
+                    // Аватарка
                     let avatarURL = makeFullURL(path: item.avatarUrl)
                     if let url = avatarURL {
                         KFImage(url)
@@ -54,6 +77,21 @@ struct PublicUserProfileView: View {
                     }
                     .padding(.horizontal, 32)
                     
+                    // Кнопка (показываем только если пользователь авторизован)
+                    if AuthStateManager.shared.sessionType == .authenticated {
+                        if isLoadingFollow {
+                            ProgressView()
+                        } else {
+                            buttonView
+                        }
+                    } else {
+                        // Гость — показываем предложение авторизоваться
+                        Text(NSLocalizedString("auth_required_for_follows", comment: ""))
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.7))
+                            .padding()
+                    }
+                    
                     Spacer()
                 }
                 .padding(.top, 10)
@@ -69,6 +107,104 @@ struct PublicUserProfileView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .alert(isPresented: $showErrorAlert) {
+            Alert(
+                title: Text(NSLocalizedString("error", comment: "")),
+                message: Text(errorMessage ?? ""),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+        .onAppear {
+            if AuthStateManager.shared.sessionType == .authenticated {
+                Task { await loadFollowStatus() }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var buttonView: some View {
+        switch followStatus {
+
+        case .notFollowing:
+            Button(action: { Task { await follow() } }) {
+                Text(NSLocalizedString("follow_button", comment: ""))
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(
+                        LinearGradient(
+                            colors: [Color(hex: "8B5CF6"), Color(hex: "4B3A91")],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal, 40)
+
+        case .following(let isMutual):
+            HStack(spacing: 16) {
+                Text(NSLocalizedString(
+                    isMutual ? "follow_status_mutual" : "follow_status_following",
+                    comment: ""
+                ))
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(.white.opacity(0.85))
+
+                Button(action: { Task { await unfollow() } }) {
+                    Text(NSLocalizedString("follow_remove_link", comment: ""))
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.red.opacity(0.85))
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .background(Color.white.opacity(0.07))
+            .cornerRadius(12)
+            .padding(.horizontal, 40)
+        }
+    }
+    
+    // MARK: - API Calls
+    
+    private func loadFollowStatus() async {
+        isLoadingFollow = true
+        defer { isLoadingFollow = false }
+        do {
+            let follows = try await UserAPIService.shared.getMyFollows()
+            if let found = follows.items.first(where: { $0.userId == item.userId }) {
+                followStatus = .following(isMutual: found.isMutual)
+            } else {
+                followStatus = .notFollowing
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+            showErrorAlert = true
+        }
+    }
+    
+    private func follow() async {
+        do {
+            let result = try await UserAPIService.shared.follow(username: item.username)
+            followStatus = .following(isMutual: result.isMutual)
+            NotificationCenter.default.post(name: .followStatusChanged, object: nil)
+        } catch {
+            errorMessage = error.localizedDescription
+            showErrorAlert = true
+        }
+    }
+    
+    private func unfollow() async {
+        do {
+            try await UserAPIService.shared.unfollow(userId: item.userId)
+            followStatus = .notFollowing
+            NotificationCenter.default.post(name: .followStatusChanged, object: nil)
+        } catch {
+            errorMessage = error.localizedDescription
+            showErrorAlert = true
+        }
     }
     
     private var scoreColor: Color {

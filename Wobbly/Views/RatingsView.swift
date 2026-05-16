@@ -31,8 +31,24 @@ struct RatingsView: View {
     @State private var showProfile = false
     
     @State private var selectedUserItem: LeaderboardItem? = nil
-    
+
+    @State private var showFriendsOnly: Bool = UserDefaults.standard.bool(forKey: "ratingsShowFriendsOnly")
+    @State private var myFollowUsernames: Set<String> = []
+    @State private var isLoadingFollows = false
+
     private let segments = ["top_100", "bottom_100"]
+    
+    private var filteredTopItems: [LeaderboardItem] {
+        guard showFriendsOnly else { return topItems }
+        if myFollowUsernames.isEmpty { return [] }
+        return topItems.filter { myFollowUsernames.contains($0.username) || $0.username == userName }
+    }
+
+    private var filteredBottomItems: [LeaderboardItem] {
+        guard showFriendsOnly else { return bottomItems }
+        if myFollowUsernames.isEmpty { return [] }
+        return bottomItems.filter { myFollowUsernames.contains($0.username) || $0.username == userName }
+    }
     
     var body: some View {
         ZStack {
@@ -47,7 +63,34 @@ struct RatingsView: View {
                 customTabView
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 12)
+
+                // Тоггл "Только мои друзья"
+                if AuthStateManager.shared.sessionType == .authenticated {
+                    HStack {
+                        Text(NSLocalizedString("ratings_friends_only_toggle", comment: ""))
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white.opacity(0.85))
+                        Spacer()
+                        if isLoadingFollows {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(0.8)
+                        } else {
+                            Toggle("", isOn: $showFriendsOnly)
+                                .toggleStyle(SwitchToggleStyle(tint: Color(hex: "8B5CF6")))
+                                .labelsHidden()
+                                .onChange(of: showFriendsOnly) { newValue in
+                                    UserDefaults.standard.set(newValue, forKey: "ratingsShowFriendsOnly")
+                                    if newValue && myFollowUsernames.isEmpty {
+                                        Task { await loadMyFollows() }
+                                    }
+                                }
+                        }
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 0)
+                }
                 
                 if isLoading {
                     Spacer()
@@ -58,9 +101,15 @@ struct RatingsView: View {
                 } else if let error = error {
                     errorView(error: error)
                 } else {
-                    let items = selectedSegment == 0 ? topItems : bottomItems
+                    let items = selectedSegment == 0 ? filteredTopItems : filteredBottomItems
                     if items.isEmpty {
-                        emptyStateView
+                        Group {
+                            if showFriendsOnly {
+                                friendsEmptyStateView
+                            } else {
+                                emptyStateView
+                            }
+                        }
                     } else {
                         ScrollView {
                             VStack(spacing: 20) {
@@ -132,11 +181,10 @@ struct RatingsView: View {
             )
         }
         
-        .sheet(isPresented: $showProfile) {
+        .sheet(isPresented: $showProfile, onDismiss: { loadData() }) {
             UserProfileView(
                 onClose: { showProfile = false },
                 onRegisterSuccess: { username, userId in
-                    // Можно обновить рейтинг после изменения профиля
                     loadData()
                 },
                 onDisappear: nil,
@@ -157,7 +205,13 @@ struct RatingsView: View {
                 await MainActor.run {
                     checkProfileAndLoad()
                 }
+                if AuthStateManager.shared.sessionType == .authenticated {
+                    await loadMyFollows()
+                }
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .followStatusChanged)) { _ in
+            Task { await loadMyFollows() }
         }
     }
     
@@ -177,8 +231,8 @@ struct RatingsView: View {
                     .fill(Color(hex: "2D2B55").opacity(0.9))
                     .overlay(Capsule().stroke(selectedSegment == 0 ? darkGreen : darkRed, lineWidth: 1.5))
                     .shadow(color: (selectedSegment == 0 ? darkGreen : darkRed).opacity(0.4), radius: 10, x: 0, y: 0)
-                    .frame(width: tabWidth - 8)
-                    .offset(x: (CGFloat(selectedSegment) * tabWidth) + 4, y: 0)
+                    .frame(width: tabWidth)
+                    .offset(x: CGFloat(selectedSegment) * tabWidth, y: 0)
                     .animation(.spring(response: 0.4, dampingFraction: 0.7), value: selectedSegment)
                 
                 HStack(spacing: 0) {
@@ -202,7 +256,7 @@ struct RatingsView: View {
             }
         }
         .frame(height: 40)
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 0)
     }
     
     private var darkGreen: Color { Color(red: 0.2, green: 0.4, blue: 0.2) }
@@ -243,6 +297,16 @@ struct RatingsView: View {
             
             if let url = avatarURL {
                 KFImage(url)
+                    .placeholder {
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 30, height: 30)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 15))
+                            )
+                    }
                     .resizable()
                     .scaledToFill()
                     .frame(width: 30, height: 30)
@@ -285,6 +349,17 @@ struct RatingsView: View {
                 selectedUserItem = item
             }
         }
+    }
+    
+    private var stagingImageOptions: KingfisherOptionsInfo {
+        guard AppEnvironment.current == .staging,
+              let key = AppEnvironment.stagingKey else { return [] }
+        let modifier = AnyModifier { request in
+            var r = request
+            r.setValue(key, forHTTPHeaderField: "X-Staging-Key")
+            return r
+        }
+        return [.requestModifier(modifier)]
     }
     
     private func cupImageName(for position: Int, isTop: Bool) -> String {
@@ -399,6 +474,36 @@ struct RatingsView: View {
             }
         }
     }
+    
+    private func loadMyFollows() async {
+        guard AuthStateManager.shared.sessionType == .authenticated else { return }
+        await MainActor.run { isLoadingFollows = true }
+        do {
+            let response = try await UserAPIService.shared.getMyFollows()
+            await MainActor.run {
+                myFollowUsernames = Set(response.items.map { $0.username })
+                isLoadingFollows = false
+            }
+        } catch {
+            await MainActor.run { isLoadingFollows = false }
+        }
+    }
+
+    private var friendsEmptyStateView: some View {
+        VStack(spacing: 12) {
+            Spacer()
+            Image(systemName: "person.2")
+                .font(.system(size: 40))
+                .foregroundColor(.white.opacity(0.4))
+            Text(NSLocalizedString("ratings_friends_empty", comment: ""))
+                .font(.body)
+                .foregroundColor(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            Spacer()
+        }
+    }
+    
 }
 
 // MARK: - Top Three Card View
@@ -419,6 +524,15 @@ struct TopThreeCardView: View {
             let avatarURL = makeFullURL(path: item.avatarUrl)
             if let url = avatarURL {
                 KFImage(url)
+                    .placeholder {                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 20))
+                            )
+                    }
                     .resizable()
                     .scaledToFill()
                     .frame(width: 50, height: 50)
@@ -466,6 +580,17 @@ struct TopThreeCardView: View {
                 isGlowing = true
             }
         }
+    }
+    
+    private var stagingImageOptions: KingfisherOptionsInfo {
+        guard AppEnvironment.current == .staging,
+              let key = AppEnvironment.stagingKey else { return [] }
+        let modifier = AnyModifier { request in
+            var r = request
+            r.setValue(key, forHTTPHeaderField: "X-Staging-Key")
+            return r
+        }
+        return [.requestModifier(modifier)]
     }
     
     private var cupImageName: String {

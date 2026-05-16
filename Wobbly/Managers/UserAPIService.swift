@@ -50,8 +50,12 @@ enum UserAPIError: Error, LocalizedError {
     case authRequiredForRating
     case guestCannotEnableRating
     case ratingDisabledForScore
-    case avatarTooLarge                 // <-- добавлено
-    case avatarInvalidImage            // <-- добавлено
+    case avatarTooLarge
+    case avatarInvalidImage
+    case alreadyFollowing
+    case cannotFollowSelf
+    case followsLimitReached
+    case notFollowing
     
     var errorDescription: String? {
         switch self {
@@ -96,9 +100,17 @@ enum UserAPIError: Error, LocalizedError {
         case .ratingDisabledForScore:
             return NSLocalizedString("error_rating_disabled_for_score", comment: "")
         case .avatarTooLarge:
-            return NSLocalizedString("error_avatar_too_large", comment: "Аватар слишком большой") // <-- добавлено
+            return NSLocalizedString("error_avatar_too_large", comment: "Аватар слишком большой")
         case .avatarInvalidImage:
-            return NSLocalizedString("error_avatar_invalid_image", comment: "Неподдерживаемый формат изображения") // <-- добавлено
+            return NSLocalizedString("error_avatar_invalid_image", comment: "Неподдерживаемый формат изображения")
+        case .alreadyFollowing:
+            return NSLocalizedString("error_already_following", comment: "")
+        case .cannotFollowSelf:
+            return NSLocalizedString("error_cannot_follow_self", comment: "")
+        case .followsLimitReached:
+            return NSLocalizedString("error_follows_limit_reached", comment: "")
+        case .notFollowing:
+            return NSLocalizedString("error_not_following", comment: "")
         }
     }
 }
@@ -133,11 +145,12 @@ struct ScoreResponse: Codable {
 
 // MARK: - Leaderboard models
 struct LeaderboardItem: Codable, Identifiable {
+    let userId: Int
     let username: String
     let score: Int
-    let avatarUrl: String?           // <-- добавлено
-
-    var id: String { username }
+    let avatarUrl: String?
+    
+    var id: Int { userId }
 }
 
 struct LeaderboardResponse: Codable {
@@ -612,26 +625,26 @@ class UserAPIService {
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        configureRequest(&request)   // важно для staging
+        configureRequest(&request)   // для staging ключа
         
-        do {
-            let (data, response) = try await session.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw UserAPIError.invalidResponse
-            }
-            
-            switch httpResponse.statusCode {
-            case 200:
-                let decoded = try JSONDecoder().decode(LeaderboardResponse.self, from: data)
-                return decoded.items
-            default:
-                throw handleAPIError(data: data, response: httpResponse)
-            }
-        } catch {
-            throw UserAPIError.networkError(error)
+        let (data, response) = try await session.data(for: request)
+        // Диагностика
+        if let jsonString = String(data: data, encoding: .utf8) {
+            print("📥 fetchTop100 response: \(jsonString)")
+        }
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 200:
+            // 🔥 Декодируем обёртку LeaderboardResponse
+            let wrapper = try JSONDecoder().decode(LeaderboardResponse.self, from: data)
+            return wrapper.items
+        default:
+            throw handleAPIError(data: data, response: httpResponse)
         }
     }
-    
+
     func fetchBottom100() async throws -> [LeaderboardItem] {
         guard let url = URL(string: "\(baseURL)/leaderboard/bottom?limit=100") else {
             throw UserAPIError.invalidResponse
@@ -640,23 +653,23 @@ class UserAPIService {
         request.httpMethod = "GET"
         configureRequest(&request)
         
-        do {
-            let (data, response) = try await session.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw UserAPIError.invalidResponse
-            }
-            
-            switch httpResponse.statusCode {
-            case 200:
-                let decoded = try JSONDecoder().decode(LeaderboardResponse.self, from: data)
-                return decoded.items
-            default:
-                throw handleAPIError(data: data, response: httpResponse)
-            }
-        } catch {
-            throw UserAPIError.networkError(error)
+        let (data, response) = try await session.data(for: request)
+        // Диагностика
+        if let jsonString = String(data: data, encoding: .utf8) {
+            print("📥 fetchBottom100 response: \(jsonString)")
+        }
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 200:
+            let wrapper = try JSONDecoder().decode(LeaderboardResponse.self, from: data)
+            return wrapper.items
+        default:
+            throw handleAPIError(data: data, response: httpResponse)
         }
     }
+    
     // MARK: - Удаление аккаунта
     func deleteAccount() async throws {
         return try await performAuthenticatedRequest { token in
@@ -682,4 +695,147 @@ class UserAPIService {
             }
         }
     }
+    
+    // MARK: - Follows (подписки)
+
+    func follow(username: String) async throws -> FollowModel {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/follows") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        configureRequest(&request)
+        
+        let body = ["username": username]
+        request.httpBody = try JSONEncoder().encode(body)
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 201:
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return try decoder.decode(FollowModel.self, from: data)
+        case 403:
+            throw UserAPIError.authRequiredForRating
+        case 404:
+            throw UserAPIError.userNotFound
+        case 409:
+            throw UserAPIError.alreadyFollowing // нужно добавить этот кейс в UserAPIError
+        case 422:
+            // пробуем распарсить детали
+            if let errorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+                if errorResponse.code == "CANNOT_FOLLOW_SELF" {
+                    throw UserAPIError.cannotFollowSelf
+                } else if errorResponse.code == "FOLLOWS_LIMIT_REACHED" {
+                    throw UserAPIError.followsLimitReached
+                }
+            }
+            throw handleAPIError(data: data, response: httpResponse)
+        default:
+            throw handleAPIError(data: data, response: httpResponse)
+        }
+    }
+
+    func unfollow(userId: Int) async throws {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/follows/\(userId)") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        configureRequest(&request)
+        
+        let (_, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 204:
+            return
+        case 404:
+            // возможно, уже не подписан
+            throw UserAPIError.notFollowing
+        default:
+            throw handleAPIError(data: Data(), response: httpResponse)
+        }
+    }
+
+    func getMyFollows() async throws -> FollowListResponse {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/follows") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        configureRequest(&request)
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        if httpResponse.statusCode == 200 {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return try decoder.decode(FollowListResponse.self, from: data)
+        } else if httpResponse.statusCode == 403 {
+            throw UserAPIError.authRequiredForRating
+        } else {
+            throw handleAPIError(data: data, response: httpResponse)
+        }
+    }
+
+    func getMyFollowers() async throws -> FollowListResponse {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/follows/followers") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        configureRequest(&request)
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        if httpResponse.statusCode == 200 {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return try decoder.decode(FollowListResponse.self, from: data)
+        } else {
+            throw handleAPIError(data: data, response: httpResponse)
+        }
+    }
+
+    func getMyFriends() async throws -> FollowListResponse {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/follows/friends") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        configureRequest(&request)
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        if httpResponse.statusCode == 200 {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return try decoder.decode(FollowListResponse.self, from: data)
+        } else {
+            throw handleAPIError(data: data, response: httpResponse)
+        }
+    }
+    
 }

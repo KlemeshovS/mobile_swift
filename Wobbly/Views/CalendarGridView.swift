@@ -145,7 +145,7 @@ struct DayCellView: View {
         }
     }
     
-    // Определяем иконки для отображения
+    // Определяем иконки для отображения!
     @ViewBuilder
     private var cellContent: some View {
         // Просто показываем номер дня
