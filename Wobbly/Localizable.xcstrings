@@ -5307,9 +5307,6 @@
         }
       }
     },
-    "Key 1" : {
-      "extractionState" : "manual"
-    },
     "logout_button" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6501,6 +6498,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пока тут никого нет :("
+          }
+        }
+      }
+    },
+    "notification_achievement_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achievement unlocked!"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "О, новая ачивки!"
+          }
+        }
+      }
+    },
+    "notification_new_follower_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Followed you • Tap to view profile"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подписался на вас • Нажмите чтобы открыть"
+          }
+        }
+      }
+    },
+    "notification_new_follower_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New follower"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас новый подписчик"
           }
         }
       }
