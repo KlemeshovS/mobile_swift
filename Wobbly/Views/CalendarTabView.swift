@@ -148,6 +148,10 @@ struct CalendarTabView: View {
         // Уведомляем все подписанные View (например, StatsTabView) для обновления UI
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             NotificationCenter.default.post(name: .drinkDataChanged, object: nil)
+
+            // Проверяем новые ачивки после изменения дня
+            let freshData = DrinkDataManager().loadData()
+            AppNotificationManager.shared.checkNewAchievements(daysData: freshData)
         }
     }
     

@@ -59,6 +59,9 @@ struct ContentView: View {
     @State private var selectedTopThreePlace = 1
     @State private var selectedTopThreeIsTop = true
     
+    @StateObject private var notificationManager = AppNotificationManager.shared
+    @State private var selectedFollowerForProfile: LeaderboardItem? = nil
+    
     
     var body: some View {
         ZStack {
@@ -84,9 +87,31 @@ struct ContentView: View {
                 )
                 .zIndex(1004)
             }
-            
+            // Уведомления об ачивках и подписчиках
+            if let notification = notificationManager.currentNotification {
+                AppNotificationView(
+                    item: notification,
+                    onDismiss: {
+                        notificationManager.dismiss()
+                    },
+                    onFollowerTap: { userId, username, avatarUrl in
+                        selectedFollowerForProfile = LeaderboardItem(
+                            userId: userId,
+                            username: username,
+                            score: 0,
+                            avatarUrl: avatarUrl
+                        )
+                    }
+                )
+                .zIndex(9000)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
             topThreePopupView()
         }
+        .sheet(item: $selectedFollowerForProfile) { item in
+            PublicUserProfileView(item: item)
+        }
+        
         // NEW: Sheet для экрана имени
         .sheet(isPresented: $showNamePrompt) {
             UserProfileView(
@@ -163,6 +188,14 @@ struct ContentView: View {
                     ScoreSyncManager.shared.forceSendScore()
                     DataDebugger.debugAllData(daysData)
                 }
+                
+                // Проверяем новых подписчиков
+                await AppNotificationManager.shared.checkNewFollowers()
+
+                // Проверяем ачивки
+                let dataManager = DrinkDataManager()
+                let legacyForNotifications = dataManager.loadData()
+                AppNotificationManager.shared.checkNewAchievements(daysData: legacyForNotifications)
             }
         }
     }
