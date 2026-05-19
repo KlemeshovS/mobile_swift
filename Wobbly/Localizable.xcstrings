@@ -4476,7 +4476,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить"
+            "value" : "Отписаться"
           }
         }
       }
@@ -4493,7 +4493,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Вы подписаны"
+            "value" : "Вы подписаны на пользователя"
           }
         }
       }
@@ -6904,13 +6904,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить"
+            "value" : "Unfollow"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить"
+            "value" : "Отписаться"
           }
         }
       }
@@ -8337,7 +8337,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить"
+            "value" : "Отписаться"
           }
         }
       }
@@ -8348,13 +8348,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пользователь у вас в друзьях"
+            "value" : "Your mutual friend"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "User is your friend"
+            "value" : "Ваш взаимный друг"
           }
         }
       }
