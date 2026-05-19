@@ -21,6 +21,7 @@ struct PublicUserProfileView: View {
     @State private var isLoadingFollow = true
     @State private var errorMessage: String?
     @State private var showErrorAlert = false
+    @State private var actualScore: Int? = nil
     
     enum FollowStatus {
         case notFollowing
@@ -70,10 +71,10 @@ struct PublicUserProfileView: View {
                         
                         Spacer()
                         
-                        Text("\(abs(item.score))")
+                        Text("\(abs(actualScore ?? item.score))")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(scoreColor)
+                            .foregroundColor(actualScore != nil ? (actualScore! >= 0 ? Color.mint : Color.pink) : scoreColor)
                     }
                     .padding(.horizontal, 32)
                     
@@ -118,6 +119,7 @@ struct PublicUserProfileView: View {
             if AuthStateManager.shared.sessionType == .authenticated {
                 Task { await loadFollowStatus() }
             }
+            Task { await loadActualScore() }
         }
     }
     
@@ -144,7 +146,7 @@ struct PublicUserProfileView: View {
             .padding(.horizontal, 40)
 
         case .following(let isMutual):
-            HStack(spacing: 16) {
+            HStack {
                 Text(NSLocalizedString(
                     isMutual ? "follow_status_mutual" : "follow_status_following",
                     comment: ""
@@ -152,18 +154,27 @@ struct PublicUserProfileView: View {
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.white.opacity(0.85))
 
-                Button(action: { Task { await unfollow() } }) {
-                    Text(NSLocalizedString("follow_remove_link", comment: ""))
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(.red.opacity(0.85))
+                Spacer()
+
+                Menu {
+                    Button(role: .destructive) {
+                        Task { await unfollow() }
+                    } label: {
+                        Label(NSLocalizedString("unfollow_button", comment: ""), systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+                        .padding(8)
                 }
-                .buttonStyle(.plain)
+                .background(Color.clear.environment(\.colorScheme, .dark))
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 8)
             .padding(.horizontal, 20)
             .background(Color.white.opacity(0.07))
             .cornerRadius(12)
-            .padding(.horizontal, 40)
+            .padding(.horizontal, 16)
         }
     }
     
@@ -182,6 +193,22 @@ struct PublicUserProfileView: View {
         } catch {
             errorMessage = error.localizedDescription
             showErrorAlert = true
+        }
+    }
+    
+    private func loadActualScore() async {
+        do {
+            let topItems = try await UserAPIService.shared.fetchTop100()
+            if let found = topItems.first(where: { $0.userId == item.userId }) {
+                await MainActor.run { actualScore = found.score }
+                return
+            }
+            let bottomItems = try await UserAPIService.shared.fetchBottom100()
+            if let found = bottomItems.first(where: { $0.userId == item.userId }) {
+                await MainActor.run { actualScore = found.score }
+            }
+        } catch {
+            print("❌ Не удалось загрузить очки пользователя: \(error)")
         }
     }
     

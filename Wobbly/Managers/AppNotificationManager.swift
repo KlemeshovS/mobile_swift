@@ -50,20 +50,22 @@ class AppNotificationManager: ObservableObject {
         guard AuthStateManager.shared.sessionType == .authenticated else { return }
 
         let knownKey = "knownFollowerIds"
-        let knownIds = Set(UserDefaults.standard.array(forKey: knownKey) as? [Int] ?? [])
+        // Читаем как [Any] и конвертируем в Int
+        let rawIds = UserDefaults.standard.array(forKey: knownKey) ?? []
+        let knownIds = Set(rawIds.compactMap { ($0 as? NSNumber)?.intValue ?? ($0 as? Int) })
 
         do {
             let response = try await UserAPIService.shared.getMyFollowers()
             let currentIds = Set(response.items.map { $0.userId })
 
-            // Новые — те кого не было раньше
-            let newFollowers = response.items.filter { !knownIds.contains($0.userId) }
-
             // Сохраняем актуальный список
             UserDefaults.standard.set(Array(currentIds), forKey: knownKey)
 
-            // Если knownIds был пустой (первый запуск) — не показываем
+            // Первый запуск — просто запоминаем, не показываем
             guard !knownIds.isEmpty else { return }
+
+            // Новые — те кого не было раньше
+            let newFollowers = response.items.filter { !knownIds.contains($0.userId) }
 
             for follower in newFollowers {
                 let item = AppNotificationItem(type: .newFollower(
@@ -77,7 +79,7 @@ class AppNotificationManager: ObservableObject {
             print("❌ checkNewFollowers error: \(error)")
         }
     }
-
+    
     // MARK: - Проверка новых ачивок
     func checkNewAchievements(daysData: [String: DrinkLevel]) {
         let notifiedKey = "notifiedAchievementIds"

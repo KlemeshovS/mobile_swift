@@ -468,59 +468,12 @@ struct UserProfileView: View {
                 } else {
                     VStack(spacing: 0) {
                         ForEach(Array(myFollows.enumerated()), id: \.element.id) { index, follow in
-                            HStack(spacing: 12) {
-                                // Аватар
-                                let avatarURL = makeFullURL(path: follow.avatarUrl)
-                                if let url = avatarURL {
-                                    KFImage(url)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 36, height: 36)
-                                        .clipShape(Circle())
-                                } else {
-                                    Circle()
-                                        .fill(Color.white.opacity(0.15))
-                                        .frame(width: 36, height: 36)
-                                        .overlay(
-                                            Image(systemName: "person.fill")
-                                                .foregroundColor(.white.opacity(0.6))
-                                                .font(.system(size: 16))
-                                        )
-                                }
-
-                                Button(action: { selectedFollowUser = follow }) {
-                                    VStack(alignment: .leading, spacing: 1) {
-                                        Text(follow.username)
-                                            .font(.system(size: 15, weight: .medium))
-                                            .foregroundColor(.white)
-                                        if follow.isMutual {
-                                            Text(NSLocalizedString("user_is_friend", comment: ""))
-                                                .font(.caption2)
-                                                .foregroundColor(Color(hex: "C7FF00"))
-                                        }
-                                    }
-                                }
-                                .buttonStyle(.plain)
-
-                                Spacer()
-
-                                if follow.isMutual {
-                                    Image(systemName: "person.2.fill")
-                                        .foregroundColor(Color(hex: "C7FF00"))
-                                        .font(.system(size: 13))
-                                }
-
-                                Button(NSLocalizedString("remove_friend_button", comment: "")) {
-                                    Task { await unfollowUser(userId: follow.userId) }
-                                }
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(.red.opacity(0.8))
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(Color.white.opacity(0.04))
-
+                            FollowRowView(
+                                follow: follow,
+                                onTap: { selectedFollowUser = follow },
+                                onUnfollow: { Task { await unfollowUser(userId: follow.userId) } },
+                                makeFullURL: makeFullURL
+                            )
                             if index < myFollows.count - 1 {
                                 Divider()
                                     .background(Color.white.opacity(0.08))
@@ -555,49 +508,12 @@ struct UserProfileView: View {
 
                     VStack(spacing: 0) {
                         ForEach(Array(pendingFollowers.enumerated()), id: \.element.id) { index, follower in
-                            HStack(spacing: 12) {
-                                let avatarURL = makeFullURL(path: follower.avatarUrl)
-                                if let url = avatarURL {
-                                    KFImage(url)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 36, height: 36)
-                                        .clipShape(Circle())
-                                } else {
-                                    Circle()
-                                        .fill(Color.white.opacity(0.15))
-                                        .frame(width: 36, height: 36)
-                                        .overlay(
-                                            Image(systemName: "person.fill")
-                                                .foregroundColor(.white.opacity(0.6))
-                                                .font(.system(size: 16))
-                                        )
-                                }
-
-                                Button(action: { selectedFollowUser = follower }) {
-                                    Text(follower.username)
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(.white)
-                                }
-                                .buttonStyle(.plain)
-
-                                Spacer()
-
-                                Button(NSLocalizedString("follow_button", comment: "Подписаться")) {
-                                    Task { await followBack(username: follower.username) }
-                                }
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .background(Color(hex: "8B5CF6"))
-                                .cornerRadius(7)
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(Color.white.opacity(0.04))
-
+                            FollowerRowView(
+                                follower: follower,
+                                onTap: { selectedFollowUser = follower },
+                                onFollowBack: { Task { await followBack(username: follower.username) } },
+                                makeFullURL: makeFullURL
+                            )
                             if index < pendingFollowers.count - 1 {
                                 Divider()
                                     .background(Color.white.opacity(0.08))
@@ -986,6 +902,122 @@ struct UserProfileView: View {
             await loadFollowData()
         } catch {
             await MainActor.run { showError(message: error.localizedDescription) }
+        }
+    }
+    
+    // MARK: - Follow Row
+    private struct FollowRowView: View {
+        let follow: FollowModel
+        let onTap: () -> Void
+        let onUnfollow: () -> Void
+        let makeFullURL: (String?) -> URL?
+
+        var body: some View {
+            HStack(spacing: 12) {
+                if let url = makeFullURL(follow.avatarUrl) {
+                    KFImage(url)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 36, height: 36)
+                        .clipShape(Circle())
+                } else {
+                    Circle()
+                        .fill(Color.white.opacity(0.15))
+                        .frame(width: 36, height: 36)
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .foregroundColor(.white.opacity(0.6))
+                                .font(.system(size: 16))
+                        )
+                }
+
+                Button(action: onTap) {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(follow.username)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.white)
+                        if follow.isMutual {
+                            Text(NSLocalizedString("user_is_friend", comment: ""))
+                                .font(.caption2)
+                                .foregroundColor(Color(hex: "C7FF00"))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+
+                if follow.isMutual {
+                    Image(systemName: "person.2.fill")
+                        .foregroundColor(Color(hex: "C7FF00"))
+                        .font(.system(size: 13))
+                }
+
+                Menu {
+                    Button(role: .destructive, action: onUnfollow) {
+                        Label(NSLocalizedString("remove_friend_button", comment: ""), systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+                        .padding(8)
+                }
+                .background(Color.clear.environment(\.colorScheme, .dark))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.white.opacity(0.04))
+        }
+    }
+
+    // MARK: - Follower Row
+    private struct FollowerRowView: View {
+        let follower: FollowModel
+        let onTap: () -> Void
+        let onFollowBack: () -> Void
+        let makeFullURL: (String?) -> URL?
+
+        var body: some View {
+            HStack(spacing: 12) {
+                if let url = makeFullURL(follower.avatarUrl) {
+                    KFImage(url)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 36, height: 36)
+                        .clipShape(Circle())
+                } else {
+                    Circle()
+                        .fill(Color.white.opacity(0.15))
+                        .frame(width: 36, height: 36)
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .foregroundColor(.white.opacity(0.6))
+                                .font(.system(size: 16))
+                        )
+                }
+
+                Button(action: onTap) {
+                    Text(follower.username)
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+
+                Button(NSLocalizedString("follow_button", comment: ""), action: onFollowBack)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color(hex: "8B5CF6"))
+                    .cornerRadius(7)
+                    .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.white.opacity(0.04))
         }
     }
     
