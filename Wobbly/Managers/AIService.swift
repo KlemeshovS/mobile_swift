@@ -44,7 +44,6 @@ class AIService {
     
     // Удобный метод для получения мотивационного сообщения
     func generateMotivation(statistics: String, yesterdayLevel: DrinkLevel? = nil, completion: @escaping (String?) -> Void) {
-        print("🚀 Отправляем запрос к Yandex GPT со статистикой: \(statistics), уровень вчера: \(yesterdayLevel?.rawValue ?? "nil")")
         
         let systemPrompt: String
         if let level = yesterdayLevel {
@@ -121,35 +120,29 @@ class AIService {
         do {
             request.httpBody = try JSONEncoder().encode(requestBody)
         } catch {
-            print("❌ Ошибка кодирования запроса: \(error)")
             completion(nil)
             return
         }
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                print("❌ Ошибка сети: \(error)")
                 completion(nil)
                 return
             }
             
             guard let data = data else {
-                print("❌ Нет данных в ответе")
                 completion(nil)
                 return
             }
             
             if let rawString = String(data: data, encoding: .utf8) {
-                print("📄 Сырой ответ: \(rawString)")
             }
             
             do {
                 let response = try JSONDecoder().decode(YandexGPTResponse.self, from: data)
                 let answer = response.result.alternatives.first?.message.text
-                print("✅ Получен ответ от AI: \(answer ?? "nil")")
                 completion(answer)
             } catch {
-                print("❌ Ошибка парсинга ответа: \(error)")
                 completion(nil)
             }
         }.resume()

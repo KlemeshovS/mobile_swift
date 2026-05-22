@@ -13,7 +13,6 @@ class StreakHistoryManager {
     private let dataManager = DrinkDataManager()
     
     func saveMaxStreaks(soberMax: Int, drinkingMax: Int) {
-        print("💾 Сохранение исторических максимумов отключено")
     }
     
     func calculateMaxSoberStreak(daysData: [String: DrinkLevel]) -> Int {
@@ -21,9 +20,7 @@ class StreakHistoryManager {
         let today = calendar.startOfDay(for: Date())
         // Используем startDate = минимальная дата (установка или первый отмеченный день)
         let startDate = PeriodManager.shared.getAchievementStartDate(daysData: daysData)
-        
-        print("   📅 startDate = \(startDate), today = \(today)")
-        
+                
         // Собираем все алкогольные дни
         var alcoholDates: [Date] = []
         for (dateString, level) in daysData {
@@ -45,12 +42,10 @@ class StreakHistoryManager {
             }
         }
         alcoholDates.sort()
-        print("   🍺 Алкогольные дни: \(alcoholDates)")
         
         // Если нет алкогольных дней – все дни от startDate до today трезвые
         if alcoholDates.isEmpty {
             let daysCount = calendar.dateComponents([.day], from: startDate, to: today).day ?? 0
-            print("   🏆 Нет алкогольных дней, трезвый стрик = \(daysCount)")
             return max(0, daysCount)
         }
         
@@ -77,14 +72,11 @@ class StreakHistoryManager {
             currentDate = nextDate
         }
         
-        print("   🏆 МАКСИМАЛЬНЫЙ трезвый стрик (с учётом startDate): \(maxStreak) дней")
         return maxStreak
     }
     
     // Универсальная функция для расчета максимального алкогольного стрика
     func calculateMaxDrinkingStreak(daysData: [String: DrinkLevel]) -> Int {
-    //    print("🔍 РАСЧЕТ МАКСИМАЛЬНОГО АЛКОГОЛЬНОГО СТРИКА...")
-    //    print("   📊 Всего записей в daysData: \(daysData.count)")
         
         // 1. КОНВЕРТИРУЕМ СТРОКИ В ДАТЫ
         var dateLevels: [(date: Date, level: DrinkLevel)] = []
@@ -143,7 +135,6 @@ class StreakHistoryManager {
             }
         }
         
-        print("   🍺 МАКСИМАЛЬНЫЙ алкогольный стрик: \(maxStreak) дней подряд")
         return maxStreak
     }
     func recalculateMaxStreaksFromData(daysData: [String: DrinkLevel]) {

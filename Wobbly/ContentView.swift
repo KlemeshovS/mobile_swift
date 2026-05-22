@@ -121,7 +121,6 @@ struct ContentView: View {
                 },
                 onRegisterSuccess: { username, userId in
                     // После сохранения профиля счёт отправится автоматически через ScoreSyncManager
-                    print("✅ Профиль сохранён: \(username ?? "none")")
                 },
                 onDisappear: {
                     hasShownNamePrompt = true
@@ -134,6 +133,9 @@ struct ContentView: View {
         .id(languageRefresh) // <-- добавляем эту строку
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("LanguageDidChange"))) { _ in
             languageRefresh = UUID() // <-- меняем UUID, чтобы перерисовать всё
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .drinkDataChanged)) { _ in
+            loadCalendarData()
         }
         .fileImporter(
             isPresented: $showFileImporter,
@@ -189,6 +191,7 @@ struct ContentView: View {
                     DataDebugger.debugAllData(daysData)
                 }
                 
+                await CalendarSyncManager.shared.sync()
                 // Проверяем новых подписчиков
                 await AppNotificationManager.shared.checkNewFollowers()
 
@@ -209,7 +212,6 @@ struct ContentView: View {
         }
         daysData = newData
         statisticsProvider = StatisticsProvider(dayRecords: daysData)
-        print("✅ Данные календаря загружены, записей: \(daysData.count)")
     }
         
     // Вычисляемое свойство для обратной совместимости
@@ -481,7 +483,6 @@ struct ContentView: View {
         shownData[todayString] = soberDays
         UserDefaults.standard.set(shownData, forKey: "shownMilestones")
         
-        print("💾 Сохранен показанный milestone: \(soberDays) дней (дата: \(todayString))")
     }
 
     private func hasMilestoneBeenShownToday(_ soberDays: Int) -> Bool {
@@ -500,9 +501,7 @@ struct ContentView: View {
     }
     
     private func checkAndShowDailyMotivation() {
-        print("🔔 checkAndShowDailyMotivation() вызван")
         if !tutorialManager.isTutorialShown {
-            print("📱 Туториал не завершен, пропускаем мотивационные сообщения")
             return
         }
         
@@ -541,7 +540,6 @@ struct ContentView: View {
             motivationManager.isPositiveMotivation = true
             motivationManager.showMotivation = true
             saveMilestoneShown(currentSoberStreak)
-            print("🎯 Показан восстановительный milestone: \(currentSoberStreak) дней")
             return
         }
         
@@ -559,7 +557,6 @@ struct ContentView: View {
         if !shownMilestones.contains(soberDays) {
             shownMilestones.append(soberDays)
             UserDefaults.standard.set(shownMilestones, forKey: "shownRecoveryMilestones")
-            print("✅ Показан milestone: \(soberDays) дней")
         }
     }
 
@@ -608,7 +605,6 @@ struct ContentView: View {
     
     private func showShareSheet(fileURL: URL) {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            print("❌ Файл для шаринга не найден")
             return
         }
         
@@ -631,11 +627,8 @@ struct ContentView: View {
             
             activityVC.completionWithItemsHandler = { activityType, completed, returnedItems, error in
                 if completed {
-                    print("✅ Файл сохранен через: \(activityType?.rawValue ?? "unknown")")
                 } else if let error = error {
-                    print("❌ Ошибка сохранения: \(error)")
                 } else {
-                    print("ℹ️ Пользователь отменил сохранение")
                 }
                 
                 // Очищаем временный файл
@@ -650,10 +643,8 @@ struct ContentView: View {
         do {
             if FileManager.default.fileExists(atPath: fileURL.path) {
                 try FileManager.default.removeItem(at: fileURL)
-                print("🧹 Временный файл удален: \(fileURL.lastPathComponent)")
             }
         } catch {
-            print("⚠️ Не удалось удалить временный файл: \(error)")
         }
     }
     

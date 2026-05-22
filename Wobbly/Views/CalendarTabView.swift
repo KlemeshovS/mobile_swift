@@ -26,7 +26,6 @@ struct CalendarTabView: View {
     private var currentProgressDays: Int {
         let legacy = daysData.mapValues { $0.toLegacyDrinkLevel }
         let progress = ProgressCalculator.calculate(from: legacy).current
-        print("📊 CalendarTabView currentProgressDays = \(progress), daysData.count = \(daysData.count)")
         return progress
     }
     
@@ -80,7 +79,6 @@ struct CalendarTabView: View {
             }
         }
         .sheet(item: $selectedDay) { dayData in
-            // 🔥 ИСПРАВЛЕНИЕ: Берем данные напрямую, не через функцию
             let currentRecord = daysData[dayData.key] ?? DayRecord()
             let isFutureDate = isFutureDay(day: dayData.day, month: dayData.month, year: dayData.year)
             
@@ -88,7 +86,6 @@ struct CalendarTabView: View {
                 dayData: dayData,
                 currentRecord: currentRecord,
                 onRecordSelected: { newRecord in
-                    print("🎯 onRecordSelected вызван с записью: drinkLevel=\(newRecord.drinkLevel), hasSport=\(newRecord.hasSport)")
                     setDayRecord(for: dayData, record: newRecord)
                     selectedDay = nil
                 },
@@ -108,7 +105,6 @@ struct CalendarTabView: View {
         
         if newData != daysData {
             daysData = newData
-            print("🔄 Данные обновлены в UI: \(daysData.count) записей")
         }
     }
     
@@ -117,14 +113,12 @@ struct CalendarTabView: View {
     }
     
     private func setDayRecord(for dayData: DayData, record: DayRecord) {
-        print("🔄 Устанавливаем запись для \(dayData.key): drinkLevel=\(record.drinkLevel), hasSport=\(record.hasSport)")
         
         var updatedData = daysData
         
         // Если запись пустая (нет алкоголя и нет спорта) — удаляем ключ
         if record.drinkLevel == .none && !record.hasSport {
             updatedData.removeValue(forKey: dayData.key)
-            print("🗑️ Удалена запись для \(dayData.key) (пустой день)")
         } else {
             updatedData[dayData.key] = record
         }
@@ -136,14 +130,18 @@ struct CalendarTabView: View {
             legacyData[key] = rec.toLegacyDrinkLevel
         }
         dataManager.saveData(legacyData)
-        
+        CalendarSyncManager.shared.markLocalUpdated()
         daysData = updatedData
+
+        // Отправляем изменения на сервер
+        Task {
+            await CalendarSyncManager.shared.pushToServer()
+        }
         
         // 🔥 ПРИНУДИТЕЛЬНЫЙ ПЕРЕСЧЁТ АЧИВОК С ТЕКУЩИМИ ДАННЫМИ
         let achievementManager = NewAchievementManager.shared
         let currentLegacyData = dataManager.loadData() // загружаем свежие данные
         let unlocked = achievementManager.checkAllAchievements(daysData: currentLegacyData)
-        print("🎯 Пересчитаны ачивки после изменения данных, разблокировано: \(unlocked.filter { $0.isUnlocked }.count)")
         
         // Уведомляем все подписанные View (например, StatsTabView) для обновления UI
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -169,7 +167,6 @@ struct CalendarTabView: View {
         
         HapticManager.shared.impact(.medium)
         
-        print("🔁 Долгое нажатие на \(dayData.key): hasSport \(currentRecord.hasSport) -> \(newRecord.hasSport)")
         setDayRecord(for: dayData, record: newRecord)
     }
     

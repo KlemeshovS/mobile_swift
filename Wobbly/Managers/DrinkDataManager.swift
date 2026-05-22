@@ -35,9 +35,6 @@ struct FullAppData: Codable {
             self.daysData = try container.decode([String: DayRecord].self, forKey: .daysData)
             self.achievements = try container.decode([Achievement].self, forKey: .achievements)
         } else {
-            // Старая версия (1.0 или другая)
-            print("🔄 Обнаружены старые данные версии \(version), начинаем конвертацию...")
-            
             // Декодируем старые данные
             self.version = "2.0"
             self.exportDate = try container.decode(Date.self, forKey: .exportDate)
@@ -53,7 +50,6 @@ struct FullAppData: Codable {
             }
             self.daysData = newDaysData
             
-            print("✅ Конвертировано \(newDaysData.count) записей в новый формат")
         }
     }
     
@@ -110,8 +106,6 @@ class DrinkDataManager {
     }
     
     func saveData(_ newData: [String: DrinkLevel]) {
-        print("💾 DrinkDataManager.saveData вызван")
-        print("📈 Размер данных: \(newData.count) записей")
         
         let currentData = loadFullAppData()
         
@@ -135,7 +129,6 @@ class DrinkDataManager {
             return loadFullDataFromFile(dataFileURL)
         }
         
-        print("📁 Основной файл данных не найден, возвращаем пустые данные")
         return FullAppData.empty
     }
     
@@ -150,17 +143,14 @@ class DrinkDataManager {
             // Сохраняем основные данные
             try jsonData.write(to: dataFileURL)
             
-            print("💾 Основные данные сохранены: \(appData.daysData.count) дней, \(appData.achievements.count) ачивок")
             
             // 🔥 СОЗДАЕМ АВТО-БЭКАП ТОЛЬКО ЕСЛИ ЕСТЬ ДАННЫЕ
             if !appData.daysData.isEmpty {
                 createAutoBackup(appData)
             } else {
-                print("⚠️ Пропускаем авто-бэкап: нет данных для сохранения")
             }
             
         } catch {
-            print("❌ Ошибка сохранения данных: \(error)")
         }
     }
     
@@ -203,7 +193,6 @@ class DrinkDataManager {
     func createAutoBackup(_ appData: FullAppData) {
         // 🔥 ПРОВЕРКА: НЕ СОЗДАЕМ БЭКАП ЕСЛИ ДАННЫЕ ПУСТЫЕ
         guard !appData.daysData.isEmpty else {
-            print("⚠️ Пропускаем создание авто-бэкапа: данные пустые")
             return
         }
         
@@ -211,7 +200,6 @@ class DrinkDataManager {
         if FileManager.default.fileExists(atPath: autoBackupFileURL.path) {
             let existingBackup = loadFullDataFromFile(autoBackupFileURL)
             if !existingBackup.daysData.isEmpty && appData.daysData.isEmpty {
-                print("⚠️ Сохраняем существующий бэкап: не перезаписываем данные пустыми")
                 return
             }
         }
@@ -224,11 +212,7 @@ class DrinkDataManager {
             let jsonData = try encoder.encode(appData)
             
             try jsonData.write(to: autoBackupFileURL)
-            
-            print("🤖 Авто-бэкап создан: \(appData.daysData.count) записей, \(appData.achievements.count) ачивок")
-            
         } catch {
-            print("❌ Ошибка создания авто-бэкапа: \(error)")
         }
     }
     
@@ -239,7 +223,6 @@ class DrinkDataManager {
     func restoreFromBackup() -> Bool {
         // ВОССТАНОВЛЕНИЕ ТОЛЬКО ПО ЯВНОМУ ВЫЗОВУ
         guard FileManager.default.fileExists(atPath: autoBackupFileURL.path) else {
-            print("❌ Авто-бэкап не найден для восстановления")
             return false
         }
         
@@ -255,11 +238,9 @@ class DrinkDataManager {
             let jsonData = try encoder.encode(appData)
             try jsonData.write(to: dataFileURL)
             
-            print("✅ Данные восстановлены из авто-бэкапа: \(appData.daysData.count) записей, \(appData.achievements.count) ачивок")
             return true
             
         } catch {
-            print("❌ Ошибка восстановления из авто-бэкапа: \(error)")
             return false
         }
     }
@@ -286,9 +267,7 @@ class DrinkDataManager {
             if FileManager.default.fileExists(atPath: dataFileURL.path) {
                 try FileManager.default.removeItem(at: dataFileURL)
             }
-            print("🧹 Все основные данные удалены")
         } catch {
-            print("❌ Ошибка удаления данных: \(error)")
         }
     }
     
@@ -302,14 +281,11 @@ class DrinkDataManager {
             
             let appData = try decoder.decode(FullAppData.self, from: jsonData)
             
-     //       print("📁 Данные загружены из \(fileURL.lastPathComponent): \(appData.daysData.count) записей, \(appData.achievements.count) ачивок")
             return appData
             
         } catch {
-            print("❌ Ошибка загрузки данных из \(fileURL.lastPathComponent): \(error)")
             
             // Если файл поврежден, создаем новый
-            print("🔄 Создаем новые данные...")
             return FullAppData.empty
         }
     }
@@ -332,10 +308,8 @@ class DrinkDataManager {
             return ExportData(daysData: legacyDaysData)
             
         } catch {
-            print("❌ Ошибка загрузки данных из \(fileURL.lastPathComponent): \(error)")
             
             // Если файл поврежден, создаем новый
-            print("🔄 Создаем новые данные...")
             return ExportData.empty
         }
     }
@@ -347,9 +321,7 @@ class DrinkDataManager {
         if UserDefaults.standard.bool(forKey: userDefaultsKey) {
             return
         }
-        
-        print("🔄 Начинаем миграцию старых данных...")
-        
+                
         // Загружаем текущие данные
         var data = loadData()
         var migratedCount = 0
@@ -373,9 +345,7 @@ class DrinkDataManager {
         // Сохраняем мигрированные данные
         if migratedCount > 0 {
             saveData(data)
-            print("✅ Миграция завершена. Обновлено \(migratedCount) записей.")
         } else {
-            print("✅ Миграция не требуется.")
         }
         
         // Помечаем, что миграция выполнена
