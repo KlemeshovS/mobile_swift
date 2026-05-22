@@ -706,7 +706,6 @@ struct StatsTabView: View {
     
     
     private func calculateSportDays() -> Int {
-        print("⚽️ calculateSportDays вызван, localDaysData.count = \(localDaysData.count)")
         var sportDays = 0
         
         let calendar = Calendar.current
@@ -943,7 +942,6 @@ struct StatsTabView: View {
     
     private var currentProgressDays: Int {
         let result = ProgressCalculator.calculate(from: localDaysData)
-        print("📊 Текущий прогресс в StatsTabView: \(result.current)")
         return result.current
     }
 

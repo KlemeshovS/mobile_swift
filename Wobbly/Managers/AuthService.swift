@@ -82,9 +82,9 @@ class AuthService: NSObject, ObservableObject {
         let session = try await UserAPIService.shared.getSession()
         UserDefaults.standard.set(session.username, forKey: "userName")
         UserDefaults.standard.set(session.participateInRating, forKey: "userParticipateInRating")
+        await CalendarSyncManager.shared.sync()
     }
    
-    // MARK: - Apple Sign-In
     // MARK: - Apple Sign-In
     func signInWithApple(credential: ASAuthorizationAppleIDCredential) async throws {
         guard let idTokenData = credential.identityToken,
@@ -119,6 +119,7 @@ class AuthService: NSObject, ObservableObject {
         let session = try await UserAPIService.shared.getSession()
         UserDefaults.standard.set(session.username, forKey: "userName")
         UserDefaults.standard.set(session.participateInRating, forKey: "userParticipateInRating")
+        await CalendarSyncManager.shared.sync()
     }
     
     // MARK: - Выход

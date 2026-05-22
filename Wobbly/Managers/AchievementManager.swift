@@ -292,13 +292,11 @@ class NewAchievementManager {
                 currentAchievements[index].isUnlocked = true
                 currentAchievements[index].unlockDate = Date()
                 needsSave = true
-                print("🎉 Разблокирована ачивка: \(achievement.title)")
             } else if !shouldUnlock && achievement.isUnlocked {
                 // Условие больше не выполняется – сбрасываем
                 currentAchievements[index].isUnlocked = false
                 currentAchievements[index].unlockDate = nil
                 needsSave = true
-                print("😵 Сброшена ачивка: \(achievement.title)")
             }
         }
         
@@ -340,7 +338,6 @@ class NewAchievementManager {
             
         case .milestone(let target, let isNegative):
             let result = ProgressCalculator.calculate(from: daysData)
-            print("🔍 Проверка milestone: target=\(target), isNegative=\(isNegative), max=\(result.max), min=\(result.min)")
             if isNegative {
                 return result.min <= -target
             } else {
@@ -354,11 +351,6 @@ class NewAchievementManager {
         let streakManager = StreakHistoryManager.shared
         let historicalMax = streakManager.calculateMaxSoberStreak(daysData: daysData)
         
-  //      print("🎯 ПРОВЕРКА ТРЕЗВОЙ АЧИВКИ:")
-   //     print("   🏆 Исторический максимум: \(historicalMax) дней")
-   //     print("   🎯 Требуется: \(requiredDays) дней")
-   //     print("   📊 Результат: \(historicalMax >= requiredDays ? "РАЗБЛОКИРОВАНА" : "НЕДОСТАТОЧНО")")
-        
         return historicalMax >= requiredDays
     }
 
@@ -367,23 +359,12 @@ class NewAchievementManager {
         let streakManager = StreakHistoryManager.shared
         let historicalMax = streakManager.calculateMaxDrinkingStreak(daysData: daysData)
         
-  //      print("🎯 ПРОВЕРКА АЛКОГОЛЬНОЙ АЧИВКИ:")
-  //      print("   🏆 Исторический максимум: \(historicalMax) дней")
-  //      print("   🎯 Требуется: \(requiredDays) дней")
-  //      print("   📊 Результат: \(historicalMax >= requiredDays ? "РАЗБЛОКИРОВАНА" : "НЕДОСТАТОЧНО")")
-        
         return historicalMax >= requiredDays
     }
     
     private func checkSportAchievement(period: SportPeriod, requiredCount: Int, daysData: [String: DrinkLevel]) -> Bool {
         // 🔥 ИЩЕМ ЛЮБОЙ ПЕРИОД В ИСТОРИИ, а не только от сегодня
         let sportCount = findMaxSportDaysInAnyPeriod(period: period, daysData: daysData)
-        
-  //      print("🎯 ПРОВЕРКА СПОРТИВНОЙ АЧИВКИ:")
-  //      print("   📅 Период: \(period.daysCount) дней")
-  //      print("   💪 Максимум спортивных дней в любом периоде: \(sportCount)")
-  //      print("   🎯 Требуется: \(requiredCount) дней")
-  //      print("   📊 Результат: \(sportCount >= requiredCount ? "РАЗБЛОКИРОВАНА" : "НЕДОСТАТОЧНО")")
         
         return sportCount >= requiredCount
     }
@@ -470,8 +451,6 @@ class NewAchievementManager {
     }
     
     private func checkNewYearEvent(daysData: [String: DrinkLevel], requiredLevel: DrinkLevel, eventType: UniqueEvent) -> Bool {
-        print("🎯 Проверка новогодней ачивки: \(eventType == .soberNewYear ? "трезвый" : "спортивный")")
-        
         let calendar = Calendar.current
         
         // Проверяем все года из данных
@@ -482,27 +461,23 @@ class NewAchievementManager {
             let isDecember31st = components.month == 12 && components.day == 31
             
             if isDecember31st {
-                print("📅 Найден 31 декабря: \(dateKey), уровень: \(level.rawValue)")
                 
                 switch eventType {
                 case .soberNewYear:
                     // Для трезвого нового года подходят: .none ИЛИ .sport
                     // Главное - не пил алкоголь
                     if level == .none || level == .sport {
-                        print("✅ Найдена дата для ачивки 'трезвый новый год': \(dateKey), уровень: \(level.rawValue)")
                         return true
                     }
                 case .sportNewYear:
                     // Для спортивного нового года нужно именно .sport (не little_sport!)
                     if level == .sport || level == .little_sport {
-                        print("✅ Найдена дата для ачивки 'спортивный новый год': \(dateKey)")
                         return true
                     }
                 }
             }
         }
         
-        print("❌ Не найдено подходящих дат для новогодней ачивки: \(eventType)")
         return false
     }
     

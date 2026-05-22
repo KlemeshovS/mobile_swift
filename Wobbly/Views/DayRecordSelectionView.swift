@@ -222,8 +222,8 @@ struct DayRecordSelectionView: View {
                     .padding(.bottom, 10)
                 }
             }
-            .padding()
         }
+        .ignoresSafeArea()
         .presentationDetents([.height(320)])
         .presentationCornerRadius(20)
         .presentationDragIndicator(.visible)

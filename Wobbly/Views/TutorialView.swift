@@ -111,7 +111,6 @@ struct TutorialView: View {
             page: pages[index],
             isLastPage: index == pages.count - 1,
             onGetStarted: {
-                print("🏁 onGetStarted вызван, закрываем туториал")
                 tutorialManager.completeTutorial()
                 UserDefaults.standard.set(true, forKey: "hasShownNamePrompt")
                 withAnimation(.spring()) {
@@ -119,7 +118,6 @@ struct TutorialView: View {
                 }
             },
             onNext: {
-                print("➡️ onNext вызван, переходим на страницу \(currentPage + 1)")
                 withAnimation(.spring()) {
                     if currentPage < pages.count - 1 {
                         currentPage += 1
@@ -127,7 +125,6 @@ struct TutorialView: View {
                 }
             },
             onRegisterSuccess: { username, userId in
-                print("✅ onRegisterSuccess: пользователь \(username) зарегистрирован с id \(userId)")
             }
         )
     }

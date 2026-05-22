@@ -115,7 +115,6 @@ struct SettingsBottomMenu: View {
                                     }
                                 } catch {
                                     await MainActor.run {
-                                        print("❌ Ошибка удаления: \(error.localizedDescription)")
                                     }
                                 }
                             }
@@ -426,9 +425,7 @@ struct MainMenuContent: View {
         
         // 3. Сохраняем через правильный метод
         achievementManager.saveAchievements(resetAchievements)
-        
-        print("🧹 Все ачивки сброшены!")
-        
+                
         // 4. Пересчитываем ачивки из текущих данных
         let dataManager = DrinkDataManager()
         let currentDaysData = dataManager.loadData()

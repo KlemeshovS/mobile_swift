@@ -408,7 +408,6 @@ struct SobrietyProgressView: View {
             withAnimation(.easeInOut(duration: 1.0)) {
                 animatedProgress = min(Double(progressDays) / Double(maxDays), 1.0)
             }
-            print("🟢 animatedProgress установлен = \(animatedProgress) для progressDays = \(progressDays)")
         } else {
             withAnimation(.easeInOut(duration: 1.0)) {
                 animatedProgress = 1.0

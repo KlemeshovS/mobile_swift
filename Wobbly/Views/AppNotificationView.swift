@@ -24,7 +24,7 @@ struct AppNotificationView: View {
                         opacity = 1
                     }
                     // Автозакрытие через 6 секунд
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
                         dismissWithAnimation()
                     }
                 }
@@ -35,16 +35,15 @@ struct AppNotificationView: View {
     @ViewBuilder
     private var content: some View {
         switch item.type {
-        case .achievement(let title, let description, let imageName):
-            achievementView(title: title, description: description, imageName: imageName)
+        case .achievement(let title, let description, let imageName, let isDrinking):
+            achievementView(title: title, description: description, imageName: imageName, isDrinking: isDrinking)
 
         case .newFollower(let username, let userId, let avatarUrl):
             followerView(username: username, userId: userId, avatarUrl: avatarUrl)
         }
     }
 
-    private func achievementView(title: String, description: String, imageName: String) -> some View {
-        HStack(spacing: 14) {
+    private func achievementView(title: String, description: String, imageName: String, isDrinking: Bool) -> some View {        HStack(spacing: 14) {
             Image(imageName)
                 .resizable()
                 .scaledToFit()
@@ -58,8 +57,8 @@ struct AppNotificationView: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
                 Text(description)
-                    .font(.system(size: 13))
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(isDrinking ? Color(hex: "FF6B6B") : Color(hex: "C7FF00"))
                     .lineLimit(1)
             }
 

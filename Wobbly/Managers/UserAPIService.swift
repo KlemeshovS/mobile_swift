@@ -180,6 +180,8 @@ class UserAPIService {
         configureRequest(&request)
         
         let (data, response) = try await session.data(for: request)
+        if let json = String(data: data, encoding: .utf8) {
+        }
         guard let httpResponse = response as? HTTPURLResponse else {
             throw UserAPIError.invalidResponse
         }
@@ -834,6 +836,75 @@ class UserAPIService {
             decoder.dateDecodingStrategy = .iso8601
             return try decoder.decode(FollowListResponse.self, from: data)
         } else {
+            throw handleAPIError(data: data, response: httpResponse)
+        }
+    }
+    
+    // MARK: - Calendar Backup
+
+    struct CalendarResponse: Codable {
+        let days: [String: Int]
+        let updatedAt: String?
+    }
+
+    func getCalendar() async throws -> CalendarResponse {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/me/calendar") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        configureRequest(&request)
+
+        let (data, response) = try await session.data(for: request)
+        if let json = String(data: data, encoding: .utf8) {
+        }
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 200:
+            return try JSONDecoder().decode(CalendarResponse.self, from: data)
+        case 401:
+            throw UserAPIError.invalidToken
+        default:
+            throw handleAPIError(data: data, response: httpResponse)
+        }
+    }
+
+    func putCalendar(days: [String: Int]) async throws -> CalendarResponse {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/me/calendar") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        configureRequest(&request)
+
+        let body = ["days": days]
+        request.httpBody = try JSONEncoder().encode(body)
+
+        if let bodyJson = String(data: request.httpBody ?? Data(), encoding: .utf8) {
+            print("📤 CalendarSync PUT request body: \(bodyJson)")
+        }
+
+        let (data, response) = try await session.data(for: request)
+        if let json = String(data: data, encoding: .utf8) {
+            print("📥 CalendarSync PUT response body: \(json)")
+        }
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        print("📥 CalendarSync PUT status: \(httpResponse.statusCode)")
+        switch httpResponse.statusCode {
+        case 200:
+            return try JSONDecoder().decode(CalendarResponse.self, from: data)
+        case 401:
+            throw UserAPIError.invalidToken
+        default:
             throw handleAPIError(data: data, response: httpResponse)
         }
     }

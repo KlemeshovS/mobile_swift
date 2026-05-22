@@ -254,9 +254,7 @@ struct UserProfileView: View {
         let filename = getAvatarFilePath()
         do {
             try data.write(to: filename)
-            print("✅ Аватар сохранён: \(filename)")
         } catch {
-            print("❌ Ошибка сохранения аватара: \(error)")
         }
     }
 
@@ -278,7 +276,6 @@ struct UserProfileView: View {
         let filename = getAvatarFilePath()
         if FileManager.default.fileExists(atPath: filename.path) {
             try? FileManager.default.removeItem(at: filename)
-            print("🗑️ Файл аватара удалён")
         }
     }
     
@@ -881,7 +878,6 @@ struct UserProfileView: View {
                 myFollowers = followers.items
             }
         } catch {
-            print("❌ Ошибка загрузки подписок: \(error)")
         }
     }
 
