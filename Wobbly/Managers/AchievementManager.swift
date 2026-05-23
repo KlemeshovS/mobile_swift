@@ -102,6 +102,52 @@ class NewAchievementManager {
             isUnlocked: false
         ),
         
+        // Трезвые дни в году
+        Achievement(
+            id: "sober_days_year_100",
+            title: NSLocalizedString("ach_sober_days_year_100_title", comment: ""),
+            description: NSLocalizedString("ach_sober_days_year_100_desc", comment: ""),
+            type: .soberDaysInYear(requiredCount: 100),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "sober_days_year_200",
+            title: NSLocalizedString("ach_sober_days_year_200_title", comment: ""),
+            description: NSLocalizedString("ach_sober_days_year_200_desc", comment: ""),
+            type: .soberDaysInYear(requiredCount: 200),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "sober_days_year_300",
+            title: NSLocalizedString("ach_sober_days_year_300_title", comment: ""),
+            description: NSLocalizedString("ach_sober_days_year_300_desc", comment: ""),
+            type: .soberDaysInYear(requiredCount: 300),
+            isUnlocked: false
+        ),
+
+        // Алкогольные дни в году
+        Achievement(
+            id: "drink_days_year_100",
+            title: NSLocalizedString("ach_drink_days_year_100_title", comment: ""),
+            description: NSLocalizedString("ach_drink_days_year_100_desc", comment: ""),
+            type: .drinkingDaysInYear(requiredCount: 100),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "drink_days_year_200",
+            title: NSLocalizedString("ach_drink_days_year_200_title", comment: ""),
+            description: NSLocalizedString("ach_drink_days_year_200_desc", comment: ""),
+            type: .drinkingDaysInYear(requiredCount: 200),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "drink_days_year_300",
+            title: NSLocalizedString("ach_drink_days_year_300_title", comment: ""),
+            description: NSLocalizedString("ach_drink_days_year_300_desc", comment: ""),
+            type: .drinkingDaysInYear(requiredCount: 300),
+            isUnlocked: false
+        ),
+        
         // Спортивные ачивки
         Achievement(
             id: "sport_8_month",
@@ -336,6 +382,12 @@ class NewAchievementManager {
         case .uniqueEvent(let eventType):
             return checkUniqueEventAchievement(eventType: eventType, daysData: daysData)
             
+        case .soberDaysInYear(let requiredCount):
+            return checkSoberDaysInYear(requiredCount: requiredCount, daysData: daysData)
+
+        case .drinkingDaysInYear(let requiredCount):
+            return checkDrinkingDaysInYear(requiredCount: requiredCount, daysData: daysData)
+            
         case .milestone(let target, let isNegative):
             let result = ProgressCalculator.calculate(from: daysData)
             if isNegative {
@@ -452,33 +504,101 @@ class NewAchievementManager {
     
     private func checkNewYearEvent(daysData: [String: DrinkLevel], requiredLevel: DrinkLevel, eventType: UniqueEvent) -> Bool {
         let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        let startDate = PeriodManager.shared.getAchievementStartDate(daysData: daysData)
         
-        // Проверяем все года из данных
-        for (dateKey, level) in daysData {
-            guard let date = parseDateFromKey(dateKey) else { continue }
+        for year in (currentYear - 3)...currentYear {
+            var components = DateComponents()
+            components.year = year
+            components.month = 12
+            components.day = 31
             
-            let components = calendar.dateComponents([.month, .day], from: date)
-            let isDecember31st = components.month == 12 && components.day == 31
+            guard let dec31 = calendar.date(from: components) else { continue }
             
-            if isDecember31st {
+            // Не проверяем будущие даты
+            guard dec31 <= Date() else { continue }
+            
+            // Не проверяем даты раньше начала использования приложения
+            guard dec31 >= startDate else { continue }
+            
+            let dayData = DayData(day: 31, month: 11, year: year)
+            let level = daysData[dayData.key] ?? .none
+            
+            switch eventType {
+            case .soberNewYear:
+                let isSober = (level == .none || level == .sport)
+                if isSober { return true }
                 
-                switch eventType {
-                case .soberNewYear:
-                    // Для трезвого нового года подходят: .none ИЛИ .sport
-                    // Главное - не пил алкоголь
-                    if level == .none || level == .sport {
-                        return true
-                    }
-                case .sportNewYear:
-                    // Для спортивного нового года нужно именно .sport (не little_sport!)
-                    if level == .sport || level == .little_sport {
-                        return true
-                    }
-                }
+            case .sportNewYear:
+                let hadSport = (level == .sport || level == .little_sport)
+                if hadSport { return true }
             }
         }
         
         return false
+    }
+    
+    private func checkSoberDaysInYear(requiredCount: Int, daysData: [String: DrinkLevel]) -> Bool {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        var soberCount = 0
+        
+        for (dateString, level) in daysData {
+            let parts = dateString.split(separator: "-").map { String($0) }
+            guard parts.count == 3,
+                  let year = Int(parts[0]),
+                  let month = Int(parts[1]),
+                  let day = Int(parts[2]) else { continue }
+            
+            // +1 к месяцу т.к. месяцы 0-based
+            guard year == currentYear else { continue }
+            
+            let isSober = (level == .none || level == .sport)
+            if isSober {
+                soberCount += 1
+            }
+        }
+        
+        // Добавляем дни без записи (они тоже считаются трезвыми)
+        // Считаем все дни с начала года до сегодня
+        let startOfYear = calendar.date(from: DateComponents(year: currentYear, month: 1, day: 1))!
+        let today = calendar.startOfDay(for: Date())
+        let totalDaysPassed = calendar.dateComponents([.day], from: startOfYear, to: today).day ?? 0
+        
+        // Считаем дни с записями в этом году
+        let daysWithRecords = daysData.keys.filter { key in
+            let parts = key.split(separator: "-").map { String($0) }
+            guard parts.count == 3, let year = Int(parts[0]) else { return false }
+            return year == currentYear
+        }.count
+        
+        // Дни без записи = трезвые дни
+        let daysWithoutRecord = totalDaysPassed - daysWithRecords
+        soberCount += max(0, daysWithoutRecord)
+        
+        return soberCount >= requiredCount
+    }
+
+    private func checkDrinkingDaysInYear(requiredCount: Int, daysData: [String: DrinkLevel]) -> Bool {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        var drinkCount = 0
+        
+        for (dateString, level) in daysData {
+            let parts = dateString.split(separator: "-").map { String($0) }
+            guard parts.count == 3,
+                  let year = Int(parts[0]) else { continue }
+            
+            guard year == currentYear else { continue }
+            
+            let isDrinking = (level == .little || level == .medium || level == .heavy ||
+                              level == .little_sport || level == .medium_sport || level == .heavy_sport)
+            if isDrinking {
+                drinkCount += 1
+            }
+        }
+        
+        return drinkCount >= requiredCount
     }
     
     private func loadAchievements() -> [Achievement] {
