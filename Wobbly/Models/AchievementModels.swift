@@ -15,6 +15,8 @@ enum AchievementType {
     case sportCount(period: SportPeriod, requiredCount: Int)
     case uniqueEvent(eventType: UniqueEvent)
     case milestone(target: Int, isNegative: Bool)
+    case soberDaysInYear(requiredCount: Int)
+    case drinkingDaysInYear(requiredCount: Int)
 }
 
 enum SportPeriod {
@@ -61,6 +63,10 @@ struct Achievement: Identifiable, Codable {
             return 1
         case .milestone(let target, _):
             return target
+        case .soberDaysInYear(let count):
+            return count
+        case .drinkingDaysInYear(let count):
+            return count
         }
     }
     
@@ -70,6 +76,8 @@ struct Achievement: Identifiable, Codable {
             return true
         case .milestone(_, let isNegative):
             return isNegative
+        case .drinkingDaysInYear:
+            return true
         default:
             return false
         }
@@ -119,6 +127,12 @@ struct Achievement: Identifiable, Codable {
         case "milestone_6066_negative": return "achievement_milestone_6066_negative"
         case "milestone_10047_negative": return "achievement_milestone_10047_negative"
         case "milestone_11022_negative": return "achievement_milestone_11022_negative"
+        case "sober_days_year_100": return "achievement_sober_days_year_100"
+        case "sober_days_year_200": return "achievement_sober_days_year_200"
+        case "sober_days_year_300": return "achievement_sober_days_year_300"
+        case "drink_days_year_100": return "achievement_drink_days_year_100"
+        case "drink_days_year_200": return "achievement_drink_days_year_200"
+        case "drink_days_year_300": return "achievement_drink_days_year_300"
         default: return "achievement_default"
         }
     }
@@ -200,6 +214,10 @@ extension Achievement {
             return String(format: NSLocalizedString("ach_requirement_sport_count", comment: ""), count, period.daysCount)
         case .uniqueEvent(let eventType):
             return NSLocalizedString(eventType == .soberNewYear ? "ach_requirement_sober_new_year" : "ach_requirement_sport_new_year", comment: "")
+        case .soberDaysInYear(let count):
+            return String(format: NSLocalizedString("ach_requirement_sober_days_year", comment: ""), count)
+        case .drinkingDaysInYear(let count):
+            return String(format: NSLocalizedString("ach_requirement_drinking_days_year", comment: ""), count)
         case .milestone(let target, let isNegative):
             if isNegative {
                 return String(format: NSLocalizedString("ach_requirement_milestone_negative", comment: ""), target)
@@ -218,6 +236,7 @@ extension AchievementType: Codable {
     
     private enum BaseType: String, Codable {
         case soberStreak, drinkingStreak, sportCount, uniqueEvent, milestone
+        case soberDaysInYear, drinkingDaysInYear
     }
     
     private struct MilestoneData: Codable {
@@ -251,6 +270,13 @@ extension AchievementType: Codable {
             try container.encode(BaseType.milestone, forKey: .base)
             let milestoneData = MilestoneData(target: target, isNegative: isNegative)
             try container.encode(milestoneData, forKey: .associated)
+            
+        case .soberDaysInYear(let count):
+            try container.encode(BaseType.soberDaysInYear, forKey: .base)
+            try container.encode(count, forKey: .associated)
+        case .drinkingDaysInYear(let count):
+            try container.encode(BaseType.drinkingDaysInYear, forKey: .base)
+            try container.encode(count, forKey: .associated)
         }
     }
     
@@ -279,6 +305,13 @@ extension AchievementType: Codable {
         case .milestone:
             let milestoneData = try container.decode(MilestoneData.self, forKey: .associated)
             self = .milestone(target: milestoneData.target, isNegative: milestoneData.isNegative)
+            
+        case .soberDaysInYear:
+            let count = try container.decode(Int.self, forKey: .associated)
+            self = .soberDaysInYear(requiredCount: count)
+        case .drinkingDaysInYear:
+            let count = try container.decode(Int.self, forKey: .associated)
+            self = .drinkingDaysInYear(requiredCount: count)
         }
     }
     
@@ -301,6 +334,10 @@ extension AchievementType: Codable {
             return "uniqueEvent:\(event == .soberNewYear ? "soberNewYear" : "sportNewYear")"
         case .milestone(let target, let isNegative):
             return "milestone:\(target):\(isNegative ? "negative" : "positive")"
+        case .soberDaysInYear(let count):
+            return "soberDaysInYear:\(count)"
+        case .drinkingDaysInYear(let count):
+            return "drinkingDaysInYear:\(count)"
         }
     }
     
@@ -360,6 +397,18 @@ extension AchievementType: Codable {
             }
             let isNegative = components[2] == "negative"
             return .milestone(target: target, isNegative: isNegative)
+        
+        case "soberDaysInYear":
+            guard components.count == 2, let count = Int(components[1]) else {
+                throw NSError(domain: "AchievementType", code: 9, userInfo: nil)
+            }
+            return .soberDaysInYear(requiredCount: count)
+
+        case "drinkingDaysInYear":
+            guard components.count == 2, let count = Int(components[1]) else {
+                throw NSError(domain: "AchievementType", code: 10, userInfo: nil)
+            }
+            return .drinkingDaysInYear(requiredCount: count)
             
         default:
             throw NSError(domain: "AchievementType", code: 7, userInfo: [NSLocalizedDescriptionKey: "Unknown achievement type: \(firstComponent)"])
