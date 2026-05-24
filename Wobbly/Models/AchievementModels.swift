@@ -17,6 +17,7 @@ enum AchievementType {
     case milestone(target: Int, isNegative: Bool)
     case soberDaysInYear(requiredCount: Int)
     case drinkingDaysInYear(requiredCount: Int)
+    case soberMonth(month: Int) // month: 1-12
 }
 
 enum SportPeriod {
@@ -50,7 +51,7 @@ struct Achievement: Identifiable, Codable {
     let type: AchievementType
     var isUnlocked: Bool = false
     var unlockDate: Date? = nil
-
+    var unlockCount: Int = 0
     
     // Сохраняем обратную совместимость со старыми полями
     var requiredStreak: Int {
@@ -67,6 +68,8 @@ struct Achievement: Identifiable, Codable {
             return count
         case .drinkingDaysInYear(let count):
             return count
+        case .soberMonth(let month):
+            return month
         }
     }
     
@@ -90,6 +93,7 @@ struct Achievement: Identifiable, Codable {
     // Ключи для Codable
     enum CodingKeys: String, CodingKey {
         case id, title, description, type, isUnlocked, unlockDate
+        case unlockCount
     }
     
     // Функция для получения имени изображения по ID
@@ -133,6 +137,18 @@ struct Achievement: Identifiable, Codable {
         case "drink_days_year_100": return "achievement_drink_days_year_100"
         case "drink_days_year_200": return "achievement_drink_days_year_200"
         case "drink_days_year_300": return "achievement_drink_days_year_300"
+        case "sober_month_1": return "achievement_sober_month_1"
+        case "sober_month_2": return "achievement_sober_month_2"
+        case "sober_month_3": return "achievement_sober_month_3"
+        case "sober_month_4": return "achievement_sober_month_4"
+        case "sober_month_5": return "achievement_sober_month_5"
+        case "sober_month_6": return "achievement_sober_month_6"
+        case "sober_month_7": return "achievement_sober_month_7"
+        case "sober_month_8": return "achievement_sober_month_8"
+        case "sober_month_9": return "achievement_sober_month_9"
+        case "sober_month_10": return "achievement_sober_month_10"
+        case "sober_month_11": return "achievement_sober_month_11"
+        case "sober_month_12": return "achievement_sober_month_12"
         default: return "achievement_default"
         }
     }
@@ -152,6 +168,7 @@ struct Achievement: Identifiable, Codable {
         description = try container.decode(String.self, forKey: .description)
         isUnlocked = try container.decode(Bool.self, forKey: .isUnlocked)
         unlockDate = try container.decodeIfPresent(Date.self, forKey: .unlockDate)
+        unlockCount = (try? container.decodeIfPresent(Int.self, forKey: .unlockCount)) ?? 0
         
         // Custom decoding for AchievementType
         let typeString = try container.decode(String.self, forKey: .type)
@@ -166,6 +183,7 @@ struct Achievement: Identifiable, Codable {
         try container.encode(isUnlocked, forKey: .isUnlocked)
         try container.encodeIfPresent(unlockDate, forKey: .unlockDate)
         try container.encode(type.toString(), forKey: .type)
+        try container.encode(unlockCount, forKey: .unlockCount)
     }
 }
 
@@ -199,6 +217,7 @@ extension Achievement {
             return NSLocalizedString("condition_sport_50", comment: "")
         case "sport_100_year":
             return NSLocalizedString("condition_sport_100", comment: "")
+            
         default:
             break
         }
@@ -218,6 +237,10 @@ extension Achievement {
             return String(format: NSLocalizedString("ach_requirement_sober_days_year", comment: ""), count)
         case .drinkingDaysInYear(let count):
             return String(format: NSLocalizedString("ach_requirement_drinking_days_year", comment: ""), count)
+        case .soberMonth(let month):
+            let monthKey = "month_prepositional_\(month)"
+            let monthName = NSLocalizedString(monthKey, comment: "")
+            return String(format: NSLocalizedString("ach_requirement_sober_month", comment: ""), monthName)
         case .milestone(let target, let isNegative):
             if isNegative {
                 return String(format: NSLocalizedString("ach_requirement_milestone_negative", comment: ""), target)
@@ -237,6 +260,7 @@ extension AchievementType: Codable {
     private enum BaseType: String, Codable {
         case soberStreak, drinkingStreak, sportCount, uniqueEvent, milestone
         case soberDaysInYear, drinkingDaysInYear
+        case soberMonth
     }
     
     private struct MilestoneData: Codable {
@@ -277,6 +301,10 @@ extension AchievementType: Codable {
         case .drinkingDaysInYear(let count):
             try container.encode(BaseType.drinkingDaysInYear, forKey: .base)
             try container.encode(count, forKey: .associated)
+            
+        case .soberMonth(let month):
+            try container.encode(BaseType.soberMonth, forKey: .base)
+            try container.encode(month, forKey: .associated)
         }
     }
     
@@ -312,6 +340,10 @@ extension AchievementType: Codable {
         case .drinkingDaysInYear:
             let count = try container.decode(Int.self, forKey: .associated)
             self = .drinkingDaysInYear(requiredCount: count)
+            
+        case .soberMonth:
+            let month = try container.decode(Int.self, forKey: .associated)
+            self = .soberMonth(month: month)
         }
     }
     
@@ -336,9 +368,12 @@ extension AchievementType: Codable {
             return "milestone:\(target):\(isNegative ? "negative" : "positive")"
         case .soberDaysInYear(let count):
             return "soberDaysInYear:\(count)"
+        case .soberMonth(let month):
+            return "soberMonth:\(month)"
         case .drinkingDaysInYear(let count):
             return "drinkingDaysInYear:\(count)"
         }
+        
     }
     
     static func from(string: String) throws -> AchievementType {
@@ -409,6 +444,12 @@ extension AchievementType: Codable {
                 throw NSError(domain: "AchievementType", code: 10, userInfo: nil)
             }
             return .drinkingDaysInYear(requiredCount: count)
+            
+        case "soberMonth":
+            guard components.count == 2, let month = Int(components[1]) else {
+                throw NSError(domain: "AchievementType", code: 11, userInfo: nil)
+            }
+            return .soberMonth(month: month)
             
         default:
             throw NSError(domain: "AchievementType", code: 7, userInfo: [NSLocalizedDescriptionKey: "Unknown achievement type: \(firstComponent)"])

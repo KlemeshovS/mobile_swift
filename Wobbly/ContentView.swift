@@ -229,10 +229,6 @@ struct ContentView: View {
         _ = NewAchievementManager.shared.recalculateAllAchievements(daysData: daysData)
     }
     
-    private func forceRecalculateAchievements() {
-        recalculateAllAchievements()
-    }
-    
     private func checkTutorialStatus() {
         if !tutorialManager.isTutorialShown {
             // Показываем туториал с задержкой после сплеш-скрина
@@ -252,7 +248,6 @@ struct ContentView: View {
             let streakManager = StreakHistoryManager.shared
             streakManager.recalculateMaxStreaksFromData(daysData: legacyDaysData)
             recalculateAllAchievements()
-            forceRecalculateAchievements()
         }
     }
     
