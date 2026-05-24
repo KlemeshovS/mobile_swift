@@ -18,7 +18,7 @@ struct AchievementPopupView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            VStack(spacing: 16) {
+            VStack(spacing: 8) {
                 // Иконка ачивки
                 ZStack {
                     Circle()
@@ -46,6 +46,27 @@ struct AchievementPopupView: View {
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+
+                // Дата получения для всех разблокированных ачивок
+                if achievement.isUnlocked, let date = achievement.unlockDate {
+                    Text(String(format: NSLocalizedString("ach_unlocked_on", comment: ""), date.formatted(date: .abbreviated, time: .omitted)))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+                        .multilineTextAlignment(.center)
+                }
+
+                // Счётчик только для годовых ачивок
+                if achievement.unlockCount >= 1 {
+                    switch achievement.type {
+                    case .soberDaysInYear, .drinkingDaysInYear, .uniqueEvent, .soberMonth:
+                        Text(String(format: NSLocalizedString("ach_received_count", comment: ""), achievement.unlockCount))
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                            .multilineTextAlignment(.center)
+                    default:
+                        EmptyView()
+                    }
+                }
             }
             
             // Описание
@@ -283,6 +304,7 @@ struct AllAchievementsView: View {
             if let unlockedAchievement = unlockedAchievements.first(where: { $0.id == updatedAchievements[index].id }) {
                 updatedAchievements[index].isUnlocked = unlockedAchievement.isUnlocked
                 updatedAchievements[index].unlockDate = unlockedAchievement.unlockDate
+                updatedAchievements[index].unlockCount = unlockedAchievement.unlockCount
             }
         }
         
