@@ -192,13 +192,16 @@ struct ContentView: View {
                 }
                 
                 await CalendarSyncManager.shared.sync()
-                // Проверяем новых подписчиков
                 await AppNotificationManager.shared.checkNewFollowers()
 
-                // Проверяем ачивки
                 let dataManager = DrinkDataManager()
                 let legacyForNotifications = dataManager.loadData()
                 AppNotificationManager.shared.checkNewAchievements(daysData: legacyForNotifications)
+
+                // Показываем мотивацию только если нет других уведомлений
+                await MainActor.run {
+                    checkAndShowDailyMotivation()
+                }
             }
         }
     }
@@ -243,7 +246,7 @@ struct ContentView: View {
             statisticsProvider = StatisticsProvider(dayRecords: daysData)
             print("✅ statisticsProvider создан, записей: \(daysData.count)")
             
-            checkAndShowDailyMotivation()
+       //     checkAndShowDailyMotivation()
             
             let streakManager = StreakHistoryManager.shared
             streakManager.recalculateMaxStreaksFromData(daysData: legacyDaysData)
@@ -499,6 +502,18 @@ struct ContentView: View {
         if !tutorialManager.isTutorialShown {
             return
         }
+        
+        // Показываем только раз в день
+            let lastShownKey = "lastMotivationShownDate"
+            let today = getCurrentDateString()
+            let lastShown = UserDefaults.standard.string(forKey: lastShownKey)
+            guard lastShown != today else { return }
+            
+            // Не показываем если есть уведомления об ачивках или подписчиках
+            if AppNotificationManager.shared.currentNotification != nil { return }
+            
+            // Сохраняем дату показа
+            UserDefaults.standard.set(today, forKey: lastShownKey)
         
         let calendar = Calendar.current
         let yesterday = calendar.date(byAdding: .day, value: -1, to: Date())!
