@@ -238,10 +238,45 @@ class NewAchievementManager {
             isUnlocked: false
         ),
         Achievement(
+            id: "milestone_1917",
+            title: NSLocalizedString("ach_milestone_1917_title", comment: ""),
+            description: NSLocalizedString("ach_milestone_1917_desc", comment: ""),
+            type: .milestone(target: 1917, isNegative: false),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "milestone_3491",
+            title: NSLocalizedString("ach_milestone_3491_title", comment: ""),
+            description: NSLocalizedString("ach_milestone_3491_desc", comment: ""),
+            type: .milestone(target: 3491, isNegative: false),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "milestone_4478",
+            title: NSLocalizedString("ach_milestone_4478_title", comment: ""),
+            description: NSLocalizedString("ach_milestone_4478_desc", comment: ""),
+            type: .milestone(target: 4478, isNegative: false),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "milestone_4506",
+            title: NSLocalizedString("ach_milestone_4506_title", comment: ""),
+            description: NSLocalizedString("ach_milestone_4506_desc", comment: ""),
+            type: .milestone(target: 4506, isNegative: false),
+            isUnlocked: false
+        ),
+        Achievement(
             id: "milestone_4810",
             title: NSLocalizedString("ach_milestone_4810_title", comment: ""),
             description: NSLocalizedString("ach_milestone_4810_desc", comment: ""),
             type: .milestone(target: 4810, isNegative: false),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "milestone_5054",
+            title: NSLocalizedString("ach_milestone_5054_title", comment: ""),
+            description: NSLocalizedString("ach_milestone_5054_desc", comment: ""),
+            type: .milestone(target: 5054, isNegative: false),
             isUnlocked: false
         ),
         Achievement(
