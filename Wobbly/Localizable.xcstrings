@@ -538,6 +538,74 @@
         }
       }
     },
+    "ach_milestone_1917_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highest peak of the White Mountains. Named after a president who didn't drink. Coincidence?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Высшая точка Аппалачей. Названа в честь президента, который не пил. Совпадение?"
+          }
+        }
+      }
+    },
+    "ach_milestone_1917_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mount Washington"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Гора Вашингтон"
+          }
+        }
+      }
+    },
+    "ach_milestone_3491_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highest peak of the Sayans. Locals say there are 3491 steps of sobriety to the top. Locals lie."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Высшая точка Саян. Местные говорят, что туда ведут 3491 ступенька трезвости. Местные врут."
+          }
+        }
+      }
+    },
+    "ach_milestone_3491_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Munku-Sardyk"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Мунку-Сардык"
+          }
+        }
+      }
+    },
     "ach_milestone_3800_negative_desc" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -572,6 +640,74 @@
         }
       }
     },
+    "ach_milestone_4478_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Most beautiful peak in the Alps. The Swiss look at it sober. Because watches are expensive."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Красивейшая гора Альп. Швейцарцы смотрят на неё трезво. Потому что часы дорогие."
+          }
+        }
+      }
+    },
+    "ach_milestone_4478_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Matterhorn"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Маттерхорн"
+          }
+        }
+      }
+    },
+    "ach_milestone_4506_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altai, Lake Akkemskoe, shamans and mysticism. Shamans don't drink either. Well, almost."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Алтай, Аккемское озеро, мистика и шаманы. Шаманы тоже не пьют. Ну почти."
+          }
+        }
+      }
+    },
+    "ach_milestone_4506_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Belukha"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Белуха"
+          }
+        }
+      }
+    },
     "ach_milestone_4810_desc" : {
       "localizations" : {
         "en" : {
@@ -600,6 +736,40 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Монблан"
+          }
+        }
+      }
+    },
+    "ach_milestone_5054_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the border of Russia and Georgia. Both sides pour generously. You resisted. Prometheus would approve."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "На границе России и Грузии. С обеих сторон наливают. Ты устоял. Прометей оценил бы."
+          }
+        }
+      }
+    },
+    "ach_milestone_5054_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kazbek"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Казбек"
           }
         }
       }
