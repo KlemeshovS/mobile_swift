@@ -22,6 +22,9 @@ struct PublicUserProfileView: View {
     @State private var errorMessage: String?
     @State private var showErrorAlert = false
     @State private var actualScore: Int? = nil
+    @State private var friendCalendar: UserAPIService.FriendCalendarResponse? = nil
+    @State private var isLoadingCalendar = false
+    @State private var calendarNotFriends = false
     
     enum FollowStatus {
         case notFollowing
@@ -92,6 +95,9 @@ struct PublicUserProfileView: View {
                             .foregroundColor(.white.opacity(0.7))
                             .padding()
                     }
+                    // Секция календаря
+                    calendarSection
+                        .padding(.horizontal, 16)
                     
                     Spacer()
                 }
@@ -120,7 +126,55 @@ struct PublicUserProfileView: View {
                 Task { await loadFollowStatus() }
             }
             Task { await loadActualScore() }
+            Task { await loadFriendCalendar() }
         }
+    }
+    
+    @ViewBuilder
+    private var calendarSection: some View {
+        if isLoadingCalendar {
+            ProgressView()
+                .tint(.white)
+                .padding()
+        } else if calendarNotFriends {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(NSLocalizedString("friend_calendar_title", comment: ""))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.6))
+
+                HStack(spacing: 10) {
+                    Image(systemName: "lock.fill")
+                        .foregroundColor(.white.opacity(0.35))
+                        .font(.system(size: 14))
+                    Text(NSLocalizedString("friend_calendar_mutual_only", comment: ""))
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white.opacity(0.05))
+                .cornerRadius(12)
+            }
+        } else if let cal = friendCalendar {
+            if cal.isEmpty {
+                Text(NSLocalizedString("friend_calendar_empty", comment: ""))
+                    .font(.system(size: 13))
+                    .foregroundColor(.white.opacity(0.5))
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white.opacity(0.05))
+                    .cornerRadius(12)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(NSLocalizedString("friend_calendar_title", comment: ""))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.6))
+                    FriendCalendarGridView(calendarData: cal.days, updatedAt: cal.updatedAt)
+                }
+            }
+        }
+        // Если friendCalendar == nil и нет ошибки — ничего не показываем
+        // (не авторизован или загрузка ещё не началась)
     }
     
     @ViewBuilder
@@ -197,18 +251,50 @@ struct PublicUserProfileView: View {
     }
     
     private func loadActualScore() async {
+        print("🔍 loadActualScore: ищем userId = \(item.userId), username = \(item.username)")
         do {
             let topItems = try await UserAPIService.shared.fetchTop100()
+            print("📊 Top100: \(topItems.map { "\($0.username)=\($0.score)" })")
+            
             if let found = topItems.first(where: { $0.userId == item.userId }) {
+                print("✅ Найден в топ100: score = \(found.score)")
                 await MainActor.run { actualScore = found.score }
                 return
             }
+            
+            print("⚠️ Не найден в топ100, ищем в bottom100...")
             let bottomItems = try await UserAPIService.shared.fetchBottom100()
+            print("📊 Bottom100: \(bottomItems.map { "\($0.username)=\($0.score)" })")
+            
             if let found = bottomItems.first(where: { $0.userId == item.userId }) {
+                print("✅ Найден в bottom100: score = \(found.score)")
                 await MainActor.run { actualScore = found.score }
+            } else {
+                print("❌ Пользователь не найден ни в топ ни в антитоп. item.score = \(item.score)")
             }
         } catch {
-            print("❌ Не удалось загрузить очки пользователя: \(error)")
+            print("❌ Ошибка loadActualScore: \(error)")
+        }
+    }
+    
+    private func loadFriendCalendar() async {
+        guard AuthStateManager.shared.sessionType == .authenticated else { return }
+        await MainActor.run { isLoadingCalendar = true }
+        do {
+            let cal = try await UserAPIService.shared.getFriendCalendar(userId: item.userId)
+            await MainActor.run {
+                friendCalendar = cal
+                calendarNotFriends = false
+                isLoadingCalendar = false
+            }
+        } catch UserAPIError.notFriends {
+            await MainActor.run {
+                calendarNotFriends = true
+                isLoadingCalendar = false
+            }
+        } catch {
+            print("❌ Календарь друга: \(error)")
+            await MainActor.run { isLoadingCalendar = false }
         }
     }
     
@@ -217,17 +303,24 @@ struct PublicUserProfileView: View {
             let result = try await UserAPIService.shared.follow(username: item.username)
             followStatus = .following(isMutual: result.isMutual)
             NotificationCenter.default.post(name: .followStatusChanged, object: nil)
+            // Перезагружаем календарь — мог стать взаимным
+            await loadFriendCalendar()
         } catch {
             errorMessage = error.localizedDescription
             showErrorAlert = true
         }
     }
-    
+
     private func unfollow() async {
         do {
             try await UserAPIService.shared.unfollow(userId: item.userId)
             followStatus = .notFollowing
             NotificationCenter.default.post(name: .followStatusChanged, object: nil)
+            // Сбрасываем календарь — дружба прервана
+            await MainActor.run {
+                friendCalendar = nil
+                calendarNotFriends = true
+            }
         } catch {
             errorMessage = error.localizedDescription
             showErrorAlert = true
