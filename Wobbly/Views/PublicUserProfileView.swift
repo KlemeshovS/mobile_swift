@@ -74,10 +74,25 @@ struct PublicUserProfileView: View {
                         
                         Spacer()
                         
-                        Text("\(abs(actualScore ?? item.score))")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(actualScore != nil ? (actualScore! >= 0 ? Color.mint : Color.pink) : scoreColor)
+                        if let score = actualScore {
+                            Text("\(abs(score))")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(score >= 0 ? Color.mint : Color.pink)
+                                .transition(.opacity)
+                        } else if item.score != 0 {
+                            // Показываем только если score из leaderboard (не 0 из follow)
+                            Text("\(abs(item.score))")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(scoreColor)
+                        } else {
+                            // Пустышка той же ширины пока грузится
+                            Text("...")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white.opacity(0.3))
+                        }
                     }
                     .padding(.horizontal, 32)
                     
@@ -133,9 +148,7 @@ struct PublicUserProfileView: View {
     @ViewBuilder
     private var calendarSection: some View {
         if isLoadingCalendar {
-            ProgressView()
-                .tint(.white)
-                .padding()
+            CalendarSkeletonView()
         } else if calendarNotFriends {
             VStack(alignment: .leading, spacing: 8) {
                 Text(NSLocalizedString("friend_calendar_title", comment: ""))
@@ -144,16 +157,25 @@ struct PublicUserProfileView: View {
 
                 HStack(spacing: 10) {
                     Image(systemName: "lock.fill")
-                        .foregroundColor(.white.opacity(0.35))
+                        .foregroundColor(.white.opacity(0.6))
                         .font(.system(size: 14))
                     Text(NSLocalizedString("friend_calendar_mutual_only", comment: ""))
                         .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(.white.opacity(0.8))
                 }
-                .padding()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(hex: "2D2B55").opacity(0.9))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                )
+
+                CalendarSkeletonView()
             }
         } else if let cal = friendCalendar {
             if cal.isEmpty {
@@ -337,5 +359,66 @@ struct PublicUserProfileView: View {
         let base = AppEnvironment.current.baseURL
             .replacingOccurrences(of: "/api/v1", with: "")
         return URL(string: base + path)
+    }
+}
+
+private struct CalendarSkeletonView: View {
+    @State private var opacity: Double = 0.4
+
+    var body: some View {
+        LazyVGrid(
+            columns: [GridItem(.flexible()), GridItem(.flexible())],
+            spacing: 12
+        ) {
+            ForEach(0..<4, id: \.self) { _ in
+                MonthSkeletonView()
+            }
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                opacity = 0.15
+            }
+        }
+        .opacity(opacity)
+    }
+}
+
+private struct MonthSkeletonView: View {
+    var body: some View {
+        VStack(spacing: 3) {
+            // Заголовок месяца
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color.gray.opacity(0.5))
+                .frame(width: 60, height: 10)
+                .padding(.top, 8)
+
+            // Дни недели
+            HStack(spacing: 0) {
+                ForEach(0..<7, id: \.self) { _ in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.gray.opacity(0.4))
+                        .frame(height: 7)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.vertical, 2)
+
+            // Строки дней
+            ForEach(0..<6, id: \.self) { _ in
+                HStack(spacing: 0) {
+                    ForEach(0..<7, id: \.self) { _ in
+                        Circle()
+                            .fill(Color.gray.opacity(0.35))
+                            .frame(maxWidth: .infinity)
+                            .aspectRatio(1, contentMode: .fit)
+                    }
+                }
+            }
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.gray.opacity(0.15))
+        )
     }
 }

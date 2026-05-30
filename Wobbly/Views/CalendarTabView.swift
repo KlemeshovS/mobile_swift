@@ -13,6 +13,8 @@ struct CalendarTabView: View {
     
     @ObservedObject private var languageManager = LanguageManager.shared
     
+    @AppStorage("calendarViewMode") private var calendarViewMode: Int = 1
+    
     private let years = [2025, 2026, 2027]
     
     private var localizedCapitalizedMonths: [String] {
@@ -42,46 +44,77 @@ struct CalendarTabView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [
-                    Color(hex: "000000"),
-                    Color(hex: "4B3A91")
-                ],
+                colors: [Color(hex: "000000"), Color(hex: "4B3A91")],
                 startPoint: .top,
                 endPoint: .bottom
             )
             .ignoresSafeArea()
-            
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: 20) {
-                        SobrietyProgressView(progressDays: currentProgressDays)
-                            .id(currentProgressDays)
-                            .padding(.horizontal)
-                        ForEach(years, id: \.self) { year in
-                            YearSectionView(
-                                year: year,
-                                months: localizedCapitalizedMonths,
-                                daysData: daysData,
-                                onDaySelected: { day in
-                                    selectedDay = day
-                                },
-                                onDayLongPressed: { day in
-                                    handleDayLongPress(day)
-                                }
-                            )
+
+            VStack(spacing: 0) {
+                // ── Шапка ──────────────────────────────────────
+                HStack {
+                    // Очки вместо месяца и года
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(abs(currentProgressDays))")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(currentProgressDays >= 0 ? Color.mint : Color.pink)
+                        Text(currentProgressDays >= 0
+                             ? NSLocalizedString("progress_label_positive", comment: "")
+                             : NSLocalizedString("progress_label_negative", comment: ""))
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+
+                    Spacer()
+
+                    Button(action: {
+                        calendarViewMode = calendarViewMode == 3 ? 1 : calendarViewMode + 1
+                        HapticManager.shared.impact(.light)
+                    }) {
+                        Image(systemName: viewModeIcon)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.white.opacity(0.2))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+
+                // ── Контент ─────────────────────────────────────
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            ForEach(years, id: \.self) { year in
+                                YearSectionView(
+                                    year: year,
+                                    months: localizedCapitalizedMonths,
+                                    daysData: daysData,
+                                    calendarViewMode: calendarViewMode,
+                                    onDaySelected: { day in selectedDay = day },
+                                    onDayLongPressed: { day in handleDayLongPress(day) }
+                                )
+                            }
+                        }
+                        .padding()
+                    }
+                    .onAppear {
+                        proxy.scrollTo(scrollTarget, anchor: calendarViewMode == 1 ? .center : .top)
+                    }
+                    .onChange(of: calendarViewMode) { _ in
+                        var transaction = Transaction()
+                        transaction.disablesAnimations = true
+                        withTransaction(transaction) {
+                            proxy.scrollTo(scrollTarget, anchor: calendarViewMode == 1 ? .center : .top)
                         }
                     }
-                    .padding()
-                }
-                .onAppear {
-                    proxy.scrollTo("\(currentYear)-\(currentMonth)", anchor: .center)
                 }
             }
         }
         .sheet(item: $selectedDay) { dayData in
             let currentRecord = daysData[dayData.key] ?? DayRecord()
             let isFutureDate = isFutureDay(day: dayData.day, month: dayData.month, year: dayData.year)
-            
             DayRecordSelectionView(
                 dayData: dayData,
                 currentRecord: currentRecord,
@@ -91,6 +124,32 @@ struct CalendarTabView: View {
                 },
                 isFutureDate: isFutureDate
             )
+        }
+    }
+
+    // Куда скроллить в зависимости от режима
+    private var scrollTarget: String {
+        switch calendarViewMode {
+        case 3:
+            return "\(currentYear)-header"
+        case 2:
+            // Показываем строку с предыдущей парой над текущим месяцем
+            // Находим начало строки (чётная позиция) для текущего месяца
+            let rowStart = (currentMonth / 2) * 2
+            // Берём начало предыдущей строки
+            let targetMonth = max(rowStart - 2, 0)
+            return "\(currentYear)-\(targetMonth)"
+        default:
+            return "\(currentYear)-\(currentMonth)"
+        }
+    }
+
+    private var viewModeIcon: String {
+        switch calendarViewMode {
+        case 1: return "rectangle.grid.1x2"
+        case 2: return "rectangle.grid.2x2"
+        case 3: return "rectangle.grid.3x2"
+        default: return "rectangle.grid.1x2"
         }
     }
     
