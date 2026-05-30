@@ -34,6 +34,9 @@ struct RatingsView: View {
 
     @State private var showFriendsOnly: Bool = UserDefaults.standard.bool(forKey: "ratingsShowFriendsOnly")
     @State private var myFollowUsernames: Set<String> = []
+    @State private var myMutualUsernames: Set<String> = []
+    @State private var pendingFollowerUsernames: Set<String> = []
+    @State private var myOneWayFollowUsernames: Set<String> = []
     @State private var isLoadingFollows = false
 
     private let segments = ["top_100", "bottom_100"]
@@ -328,10 +331,21 @@ struct RatingsView: View {
             
             Spacer()
             
-            Text("\(abs(item.score))")
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(scoreColor(for: item.score))
+            HStack(spacing: 6) {
+                if !isCurrentUser && myMutualUsernames.contains(item.username) {
+                    Image(systemName: "person.2.fill")
+                        .foregroundColor(Color(hex: "C7FF00"))
+                        .font(.system(size: 13))
+                } else if !isCurrentUser && myOneWayFollowUsernames.contains(item.username) {
+                    IFollowThemIcon()
+                } else if !isCurrentUser && pendingFollowerUsernames.contains(item.username) {
+                    TheyFollowMeIcon()
+                }
+                Text("\(abs(item.score))")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(scoreColor(for: item.score))
+            }
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
@@ -479,9 +493,16 @@ struct RatingsView: View {
         guard AuthStateManager.shared.sessionType == .authenticated else { return }
         await MainActor.run { isLoadingFollows = true }
         do {
-            let response = try await UserAPIService.shared.getMyFollows()
+            async let followsResp = UserAPIService.shared.getMyFollows()
+            async let followersResp = UserAPIService.shared.getMyFollowers()
+            let (follows, followers) = try await (followsResp, followersResp)
             await MainActor.run {
-                myFollowUsernames = Set(response.items.map { $0.username })
+                myFollowUsernames = Set(follows.items.map { $0.username })
+                myMutualUsernames = Set(follows.items.filter { $0.isMutual }.map { $0.username })
+                // Подписаны на меня, но я на них нет
+                let followingMe = Set(followers.items.map { $0.username })
+                pendingFollowerUsernames = followingMe.subtracting(myFollowUsernames)
+                myOneWayFollowUsernames = myFollowUsernames.subtracting(myMutualUsernames)
                 isLoadingFollows = false
             }
         } catch {
@@ -712,5 +733,39 @@ struct TopThreePopupView: View {
         if path.hasPrefix("http") { return URL(string: path) }
         let base = AppEnvironment.current.baseURL.replacingOccurrences(of: "/api/v1", with: "")
         return URL(string: base + path)
+    }
+}
+
+// Я подписан на них, они нет — я (зелёный) слева, они (серый) справа
+private struct IFollowThemIcon: View {
+    var body: some View {
+        ZStack {
+            Image(systemName: "person.fill")
+                .foregroundColor(.gray.opacity(0.5))
+                .font(.system(size: 13))
+                .offset(x: 4)
+            Image(systemName: "person.fill")
+                .foregroundColor(Color(hex: "C7FF00"))
+                .font(.system(size: 13))
+                .offset(x: -4)
+        }
+        .frame(width: 24, height: 16)
+    }
+}
+
+// Они подписаны на меня, я нет — они (серый) слева, я (зелёный) справа
+private struct TheyFollowMeIcon: View {
+    var body: some View {
+        ZStack {
+            Image(systemName: "person.fill")
+                .foregroundColor(Color(hex: "C7FF00"))
+                .font(.system(size: 13))
+                .offset(x: 4)
+            Image(systemName: "person.fill")
+                .foregroundColor(.gray.opacity(0.5))
+                .font(.system(size: 13))
+                .offset(x: -4)
+        }
+        .frame(width: 24, height: 16)
     }
 }

@@ -397,6 +397,8 @@ struct TutorialProfileView: View {
                                 }
                             }
                         case .failure(let error):
+                            let nsError = error as NSError
+                            if (error as? ASAuthorizationError)?.code == .canceled { return }
                             showError = true
                             errorMessage = error.localizedDescription
                         }
@@ -543,6 +545,8 @@ struct TutorialProfileView: View {
                     loadSessionAndUserData()
                 }
             } catch {
+                let nsError = error as NSError
+                if nsError.domain == "com.google.GIDSignIn" && nsError.code == -5 { return }
                 await MainActor.run {
                     showError = true
                     errorMessage = error.localizedDescription

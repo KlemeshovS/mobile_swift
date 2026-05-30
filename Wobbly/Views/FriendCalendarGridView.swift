@@ -26,6 +26,8 @@ struct FriendCalendarGridView: View {
     @State private var isExpanded = false
     @State private var scale: CGFloat = 1.0
     @State private var targetMonth: String = ""
+    
+    @ObservedObject private var languageManager = LanguageManager.shared
 
     private var dayRecords: [String: DayRecord] {
         calendarData.mapValues { $0.toDayRecord }
@@ -98,7 +100,7 @@ struct FriendCalendarGridView: View {
 
     private func monthName(for month: Int) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale.current
+        formatter.locale = languageManager.currentLocale
         let names = formatter.standaloneMonthSymbols ?? []
         guard month >= 0 && month < names.count else { return "" }
         return names[month].capitalized
@@ -382,7 +384,7 @@ private struct SmallDayCell: View {
         if isUnknown { return Color.clear }
         guard let rec = record else { return Color.clear }
         if rec.hasSport && rec.drinkLevel == .none {
-            return Color(hex: "C7FF00").opacity(0.6)
+            return Color(hex: "C7FF00").opacity(0.4)
         } else if rec.drinkLevel != .none {
             return rec.drinkLevel.color
         }
