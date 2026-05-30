@@ -56,6 +56,7 @@ enum UserAPIError: Error, LocalizedError {
     case cannotFollowSelf
     case followsLimitReached
     case notFollowing
+    case notFriends
     
     var errorDescription: String? {
         switch self {
@@ -111,6 +112,8 @@ enum UserAPIError: Error, LocalizedError {
             return NSLocalizedString("error_follows_limit_reached", comment: "")
         case .notFollowing:
             return NSLocalizedString("error_not_following", comment: "")
+        case .notFriends:
+            return NSLocalizedString("error_not_friends", comment: "")
         }
     }
 }
@@ -846,6 +849,14 @@ class UserAPIService {
         let days: [String: Int]
         let updatedAt: String?
     }
+    
+    struct FriendCalendarResponse: Codable {
+        let days: [String: Int]
+        let updatedAt: String
+
+        static let epoch = "1970-01-01T00:00:00Z"
+        var isEmpty: Bool { updatedAt == Self.epoch || days.isEmpty }
+    }
 
     func getCalendar() async throws -> CalendarResponse {
         let token = try requireToken()
@@ -904,6 +915,32 @@ class UserAPIService {
             return try JSONDecoder().decode(CalendarResponse.self, from: data)
         case 401:
             throw UserAPIError.invalidToken
+        default:
+            throw handleAPIError(data: data, response: httpResponse)
+        }
+    }
+    
+    func getFriendCalendar(userId: Int) async throws -> FriendCalendarResponse {
+        let token = try requireToken()
+        guard let url = URL(string: "\(baseURL)/users/\(userId)/calendar") else {
+            throw UserAPIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        configureRequest(&request)
+
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw UserAPIError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 200:
+            return try JSONDecoder().decode(FriendCalendarResponse.self, from: data)
+        case 403:
+            throw UserAPIError.notFriends
+        case 404:
+            throw UserAPIError.userNotFound
         default:
             throw handleAPIError(data: data, response: httpResponse)
         }
