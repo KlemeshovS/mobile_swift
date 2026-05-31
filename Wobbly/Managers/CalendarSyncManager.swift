@@ -121,6 +121,8 @@ class CalendarSyncManager {
         } catch {
             print("❌ CalendarSync push error: \(error)")
         }
+        // Обновляем данные для виджета
+        DrinkDataManager().syncDataForWidget()
     }
 
     // MARK: - Применение серверных данных локально
@@ -143,5 +145,7 @@ class CalendarSyncManager {
         // Уведомляем UI
         NotificationCenter.default.post(name: .drinkDataChanged, object: nil)
         print("✅ CalendarSync: применено \(legacyData.count) записей с сервера")
+        
+        DrinkDataManager().syncDataForWidget()
     }
 }

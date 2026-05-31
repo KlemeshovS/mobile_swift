@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 import StoreKit
+import WidgetKit
 
 // MARK: - Main Content View
 struct ContentView: View {
@@ -175,6 +176,9 @@ struct ContentView: View {
         .onAppear {
             // 1. Загружаем локальные данные сразу (без ожидания сети)
             loadCalendarData()
+            
+            DrinkDataManager().syncDataForWidget()
+            WidgetCenter.shared.reloadAllTimelines()
             
             // 2. Остальную инициализацию выполняем асинхронно в фоне
             Task {

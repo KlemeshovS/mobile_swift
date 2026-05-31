@@ -351,4 +351,105 @@ class DrinkDataManager {
         // Помечаем, что миграция выполнена
         UserDefaults.standard.set(true, forKey: userDefaultsKey)
     }
+    
+    // MARK: - Widget Data Sync
+    func syncDataForWidget() {
+        let defaults = UserDefaults(suiteName: "group.com.tritan.wobbly")!
+        
+        // Загружаем текущие данные
+        let daysData = loadData() // [String: DrinkLevel]
+        
+        // Считаем прогресс
+        let progress = ProgressCalculator.calculate(from: daysData)
+        defaults.set(progress.current, forKey: "widget_score")
+        
+        // Считаем текущий трезвый стрик
+        let soberDays = calculateCurrentSoberStreak(daysData: daysData)
+        defaults.set(soberDays, forKey: "widget_sober_days")
+        
+        // Добавляем дни пьянства
+        let drinkingDays = calculateCurrentDrinkingStreak(daysData: daysData)
+        defaults.set(drinkingDays, forKey: "widget_drinking_days")
+        
+        // Сохраняем данные текущего месяца для виджета
+        let calendar = Calendar.current
+        let now = Date()
+        let comps = calendar.dateComponents([.year, .month], from: now)
+        let year = comps.year!
+        let month = calendar.component(.month, from: now) - 1 // 0-based
+        let daysInMonth = calendar.range(of: .day, in: .month, for: now)!.count
+
+        var monthData: [String: Int] = [:]
+        for day in 1...daysInMonth {
+            let key = "\(year)-\(month)-\(day)"
+            if let level = daysData[key] {
+                monthData["\(day)"] = drinkLevelToInt(level)
+            }
+        }
+
+        if let encoded = try? JSONEncoder().encode(monthData) {
+            defaults.set(encoded, forKey: "widget_month_data")
+        }
+        defaults.set(daysInMonth, forKey: "widget_days_in_month")
+        defaults.set(Calendar.current.component(.weekday, from: calendar.date(from: DateComponents(year: year, month: month + 1, day: 1))!) , forKey: "widget_first_weekday")
+        defaults.set(calendar.component(.day, from: now), forKey: "widget_today_day")
+        
+        print("📦 Widget data synced: score=\(progress.current), soberDays=\(soberDays)")
+    }
+
+    private func calculateCurrentDrinkingStreak(daysData: [String: DrinkLevel]) -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        var streak = 0
+        for dayOffset in 0..<365 {
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { break }
+            let comps = calendar.dateComponents([.year, .month, .day], from: date)
+            guard let y = comps.year, let m = comps.month, let d = comps.day else { break }
+            let key = "\(y)-\(m - 1)-\(d)"
+            let level = daysData[key] ?? .none
+            switch level {
+            case .little, .medium, .heavy, .little_sport, .medium_sport, .heavy_sport:
+                streak += 1
+            default:
+                return streak
+            }
+        }
+        return streak
+    }
+    
+    private func calculateCurrentSoberStreak(daysData: [String: DrinkLevel]) -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        var streak = 0
+        
+        for dayOffset in 0..<365 {
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { break }
+            let comps = calendar.dateComponents([.year, .month, .day], from: date)
+            guard let y = comps.year, let m = comps.month, let d = comps.day else { break }
+            let key = "\(y)-\(m - 1)-\(d)"
+            let level = daysData[key] ?? .none
+            switch level {
+            case .little, .medium, .heavy, .little_sport, .medium_sport, .heavy_sport:
+                return streak
+            case .unknown:
+                return streak
+            default:
+                streak += 1
+            }
+        }
+        return streak
+    }
+    private func drinkLevelToInt(_ level: DrinkLevel) -> Int {
+        switch level {
+        case .none: return 0
+        case .little: return 1
+        case .medium: return 2
+        case .heavy: return 3
+        case .sport: return 4
+        case .little_sport: return 5
+        case .medium_sport: return 6
+        case .heavy_sport: return 7
+        case .unknown: return 0
+        }
+    }
 }

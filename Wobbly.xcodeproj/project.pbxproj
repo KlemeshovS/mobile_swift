@@ -11,9 +11,19 @@
 		BD165C652F8AD919009EF756 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BD165C642F8AD919009EF756 /* GoogleSignInSwift */; };
 		BD165C6A2F8B5B9B009EF756 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = BD165C692F8B5B9B009EF756 /* Kingfisher */; };
 		BD165C6D2F8B5BB9009EF756 /* SwiftyCrop in Frameworks */ = {isa = PBXBuildFile; productRef = BD165C6C2F8B5BB9009EF756 /* SwiftyCrop */; };
+		BD51E8C32FCBFD0E00180897 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD51E8C22FCBFD0E00180897 /* WidgetKit.framework */; };
+		BD51E8C52FCBFD0E00180897 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD51E8C42FCBFD0E00180897 /* SwiftUI.framework */; };
+		BD51E8D42FCBFD1000180897 /* WobblyWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BD51E8C02FCBFD0E00180897 /* WobblyWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		BD51E8D22FCBFD1000180897 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BDC28B842ECF10D500257814 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BD51E8BF2FCBFD0E00180897;
+			remoteInfo = WobblyWidgetExtension;
+		};
 		BDC28B9A2ECF10D600257814 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BDC28B842ECF10D500257814 /* Project object */;
@@ -30,13 +40,38 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		BD51E8D52FCBFD1000180897 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BD51E8D42FCBFD1000180897 /* WobblyWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		BD51E8C02FCBFD0E00180897 /* WobblyWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WobblyWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD51E8C22FCBFD0E00180897 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		BD51E8C42FCBFD0E00180897 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		BD51E8DB2FCBFD2A00180897 /* WobblyWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WobblyWidgetExtension.entitlements; sourceTree = "<group>"; };
 		BDC28B8C2ECF10D500257814 /* Wobbly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wobbly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDC28B992ECF10D600257814 /* WobblyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WobblyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDC28BA32ECF10D600257814 /* WobblyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WobblyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BD51E8DA2FCBFD1000180897 /* Exceptions for "WobblyWidget" folder in "WobblyWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BD51E8BF2FCBFD0E00180897 /* WobblyWidgetExtension */;
+		};
 		BD61905C2F293EA700AAA5F9 /* Exceptions for "Wobbly" folder in "Wobbly" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -48,6 +83,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		BD51E8C62FCBFD0E00180897 /* WobblyWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BD51E8DA2FCBFD1000180897 /* Exceptions for "WobblyWidget" folder in "WobblyWidgetExtension" target */,
+			);
+			path = WobblyWidget;
+			sourceTree = "<group>";
+		};
 		BDC28B8E2ECF10D500257814 /* Wobbly */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -69,6 +112,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		BD51E8BD2FCBFD0E00180897 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BD51E8C52FCBFD0E00180897 /* SwiftUI.framework in Frameworks */,
+				BD51E8C32FCBFD0E00180897 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BDC28B892ECF10D500257814 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -97,12 +149,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BD51E8C12FCBFD0E00180897 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BD51E8C22FCBFD0E00180897 /* WidgetKit.framework */,
+				BD51E8C42FCBFD0E00180897 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		BDC28B832ECF10D500257814 = {
 			isa = PBXGroup;
 			children = (
+				BD51E8DB2FCBFD2A00180897 /* WobblyWidgetExtension.entitlements */,
 				BDC28B8E2ECF10D500257814 /* Wobbly */,
 				BDC28B9C2ECF10D600257814 /* WobblyTests */,
 				BDC28BA62ECF10D600257814 /* WobblyUITests */,
+				BD51E8C62FCBFD0E00180897 /* WobblyWidget */,
+				BD51E8C12FCBFD0E00180897 /* Frameworks */,
 				BDC28B8D2ECF10D500257814 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -113,6 +177,7 @@
 				BDC28B8C2ECF10D500257814 /* Wobbly.app */,
 				BDC28B992ECF10D600257814 /* WobblyTests.xctest */,
 				BDC28BA32ECF10D600257814 /* WobblyUITests.xctest */,
+				BD51E8C02FCBFD0E00180897 /* WobblyWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -120,6 +185,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		BD51E8BF2FCBFD0E00180897 /* WobblyWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD51E8D92FCBFD1000180897 /* Build configuration list for PBXNativeTarget "WobblyWidgetExtension" */;
+			buildPhases = (
+				BD51E8BC2FCBFD0E00180897 /* Sources */,
+				BD51E8BD2FCBFD0E00180897 /* Frameworks */,
+				BD51E8BE2FCBFD0E00180897 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BD51E8C62FCBFD0E00180897 /* WobblyWidget */,
+			);
+			name = WobblyWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = WobblyWidgetExtension;
+			productReference = BD51E8C02FCBFD0E00180897 /* WobblyWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		BDC28B8B2ECF10D500257814 /* Wobbly */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BDC28BAD2ECF10D600257814 /* Build configuration list for PBXNativeTarget "Wobbly" */;
@@ -127,10 +214,12 @@
 				BDC28B882ECF10D500257814 /* Sources */,
 				BDC28B892ECF10D500257814 /* Frameworks */,
 				BDC28B8A2ECF10D500257814 /* Resources */,
+				BD51E8D52FCBFD1000180897 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				BD51E8D32FCBFD1000180897 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				BDC28B8E2ECF10D500257814 /* Wobbly */,
@@ -199,9 +288,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					BD51E8BF2FCBFD0E00180897 = {
+						CreatedOnToolsVersion = 26.2;
+					};
 					BDC28B8B2ECF10D500257814 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -238,11 +330,19 @@
 				BDC28B8B2ECF10D500257814 /* Wobbly */,
 				BDC28B982ECF10D600257814 /* WobblyTests */,
 				BDC28BA22ECF10D600257814 /* WobblyUITests */,
+				BD51E8BF2FCBFD0E00180897 /* WobblyWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		BD51E8BE2FCBFD0E00180897 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BDC28B8A2ECF10D500257814 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -267,6 +367,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		BD51E8BC2FCBFD0E00180897 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BDC28B882ECF10D500257814 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -291,6 +398,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		BD51E8D32FCBFD1000180897 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BD51E8BF2FCBFD0E00180897 /* WobblyWidgetExtension */;
+			targetProxy = BD51E8D22FCBFD1000180897 /* PBXContainerItemProxy */;
+		};
 		BDC28B9B2ECF10D600257814 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = BDC28B8B2ECF10D500257814 /* Wobbly */;
@@ -378,7 +490,7 @@
 				CODE_SIGN_ENTITLEMENTS = Wobbly/Wobbly.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 73;
 				DEVELOPMENT_TEAM = 5694W5L94T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -398,7 +510,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.19;
+				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tritan.wobbly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -449,6 +561,105 @@
 				TEST_TARGET_NAME = Wobbly;
 			};
 			name = Staging;
+		};
+		BD51E8D62FCBFD1000180897 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WobblyWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5694W5L94T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WobblyWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WobblyWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tritan.wobbly.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BD51E8D72FCBFD1000180897 /* Staging */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WobblyWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5694W5L94T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WobblyWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WobblyWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tritan.wobbly.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Staging;
+		};
+		BD51E8D82FCBFD1000180897 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WobblyWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5694W5L94T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WobblyWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WobblyWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tritan.wobbly.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
 		};
 		BDC28BAB2ECF10D600257814 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -581,7 +792,7 @@
 				CODE_SIGN_ENTITLEMENTS = Wobbly/Wobbly.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 73;
 				DEVELOPMENT_TEAM = 5694W5L94T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -601,7 +812,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.19;
+				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tritan.wobbly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -625,7 +836,7 @@
 				CODE_SIGN_ENTITLEMENTS = Wobbly/Wobbly.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 73;
 				DEVELOPMENT_TEAM = 5694W5L94T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -645,7 +856,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.19;
+				MARKETING_VERSION = 1.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tritan.wobbly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -735,6 +946,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		BD51E8D92FCBFD1000180897 /* Build configuration list for PBXNativeTarget "WobblyWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD51E8D62FCBFD1000180897 /* Debug */,
+				BD51E8D72FCBFD1000180897 /* Staging */,
+				BD51E8D82FCBFD1000180897 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		BDC28B872ECF10D500257814 /* Build configuration list for PBXProject "Wobbly" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

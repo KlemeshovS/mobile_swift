@@ -50,6 +50,11 @@ class LanguageManager: ObservableObject {
         didSet {
             UserDefaults.standard.set(currentLanguage.rawValue, forKey: "appLanguage")
             
+            // Сохраняем язык для виджета
+            if let groupDefaults = UserDefaults(suiteName: "group.com.tritan.wobbly") {
+                groupDefaults.set(currentLanguage.rawValue, forKey: "widget_language")
+            }
+            
             // 🔥 ВАЖНО: Запускаем перезагрузку всего интерфейса
             DispatchQueue.main.async {
                 self.refreshTrigger = UUID()
@@ -83,6 +88,11 @@ class LanguageManager: ObservableObject {
             // Определяем язык системы
             let systemLang = Locale.current.languageCode ?? "ru"
             self.currentLanguage = systemLang == "ru" ? .russian : .english
+        }
+        
+        // Сохраняем текущий язык для виджета при старте
+        if let groupDefaults = UserDefaults(suiteName: "group.com.tritan.wobbly") {
+            groupDefaults.set(self.currentLanguage.rawValue, forKey: "widget_language")
         }
     }
     
