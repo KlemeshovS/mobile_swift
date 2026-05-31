@@ -174,13 +174,13 @@ struct ContentView: View {
         }
         .ignoresSafeArea(.keyboard)
         .onAppear {
-            // 1. Загружаем локальные данные сразу (без ожидания сети)
+            // 1. Загружаем локальные данные сразу
             loadCalendarData()
             
             DrinkDataManager().syncDataForWidget()
             WidgetCenter.shared.reloadAllTimelines()
             
-            // 2. Остальную инициализацию выполняем асинхронно в фоне
+            // 2. Асинхронная инициализация
             Task {
                 await AuthService.shared.restoreSession()
                 
@@ -202,6 +202,62 @@ struct ContentView: View {
                 let legacyForNotifications = dataManager.loadData()
                 AppNotificationManager.shared.checkNewAchievements(daysData: legacyForNotifications)
 
+                // Синхронизация с Apple Health
+                if HealthKitManager.shared.isAvailable && HealthKitManager.shared.isSyncEnabled {
+                    await HealthKitManager.shared.requestAuthorization()
+                    
+                    if HealthKitManager.shared.isAuthorized() {
+                        var updatedDaysData = await MainActor.run { daysData }
+                        let autoAdded = await HealthKitManager.shared.syncWorkoutsToCalendar(daysData: &updatedDaysData)
+                        
+                        if !autoAdded.isEmpty {
+                            let capturedAutoAdded = autoAdded
+                            let capturedUpdated = updatedDaysData
+                            
+                            await MainActor.run {
+                                let isRussian = LanguageManager.shared.currentLanguage == .russian
+
+                                var revertedData = capturedUpdated
+                                for key in capturedAutoAdded {
+                                    var record = revertedData[key] ?? DayRecord()
+                                    record.hasSport = false
+                                    if record.drinkLevel == .none {
+                                        revertedData.removeValue(forKey: key)
+                                    } else {
+                                        revertedData[key] = record
+                                    }
+                                }
+                                daysData = revertedData
+
+                                AppNotificationManager.shared.showHealthSyncProposal(
+                                    autoAddedDays: capturedAutoAdded,
+                                    isRussian: isRussian,
+                                    onAccept: {
+                                        var accepted = daysData
+                                        for key in capturedAutoAdded {
+                                            var record = accepted[key] ?? DayRecord()
+                                            record.hasSport = true
+                                            accepted[key] = record
+                                        }
+                                        daysData = accepted
+                                        let dm = DrinkDataManager()
+                                        var legacy: [String: DrinkLevel] = [:]
+                                        for (key, rec) in accepted { legacy[key] = rec.toLegacyDrinkLevel }
+                                        dm.saveData(legacy)
+                                        CalendarSyncManager.shared.markLocalUpdated()
+                                        NotificationCenter.default.post(name: .drinkDataChanged, object: nil)
+                                    },
+                                    onDecline: {
+                                        for key in capturedAutoAdded {
+                                            HealthKitManager.shared.markDayAsManuallyRemovedSport(key)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                
                 // Показываем мотивацию только если нет других уведомлений
                 await MainActor.run {
                     checkAndShowDailyMotivation()

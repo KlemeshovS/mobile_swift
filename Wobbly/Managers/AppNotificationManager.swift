@@ -7,6 +7,8 @@ import SwiftUI
 enum AppNotificationType {
     case achievement(title: String, description: String, imageName: String, isDrinking: Bool)
     case newFollower(username: String, userId: Int, avatarUrl: String?)
+    case customMessage(text: String)
+    case healthSyncProposal(text: String, onAccept: () -> Void, onDecline: () -> Void)
 }
 
 struct AppNotificationItem: Identifiable {
@@ -110,4 +112,30 @@ class AppNotificationManager: ObservableObject {
 
         UserDefaults.standard.set(Array(notifiedIds), forKey: notifiedKey)
     }
+    
+    func showCustomMessage(_ text: String) {
+        let item = AppNotificationItem(type: .customMessage(text: text))
+        enqueue(item)
+    }
+    
+    func showHealthSyncProposal(autoAddedDays: [String], isRussian: Bool, onAccept: @escaping () -> Void, onDecline: @escaping () -> Void) {
+        let count = autoAddedDays.count
+        let text: String
+        if isRussian {
+            text = count == 1
+                ? "Нашли тренировку в Apple Health — добавить спортивный день?"
+                : "Нашли \(count) тренировки в Apple Health — добавить спортивные дни?"
+        } else {
+            text = count == 1
+                ? "Found a workout in Apple Health — mark it as a sport day?"
+                : "Found \(count) workouts in Apple Health — mark them as sport days?"
+        }
+        let item = AppNotificationItem(type: .healthSyncProposal(
+            text: text,
+            onAccept: onAccept,
+            onDecline: onDecline
+        ))
+        enqueue(item)
+    }
+    
 }

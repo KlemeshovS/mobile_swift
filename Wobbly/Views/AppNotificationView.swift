@@ -40,6 +40,12 @@ struct AppNotificationView: View {
 
         case .newFollower(let username, let userId, let avatarUrl):
             followerView(username: username, userId: userId, avatarUrl: avatarUrl)
+            
+        case .healthSyncProposal(let text, let onAccept, let onDecline):
+            healthSyncProposalView(text: text, onAccept: onAccept, onDecline: onDecline)
+
+        case .customMessage(let text):
+            customMessageView(text: text)
         }
     }
 
@@ -167,6 +173,132 @@ struct AppNotificationView: View {
         )
         .padding(.horizontal, 16)
         .padding(.bottom, 30)
+    }
+    
+    private func healthSyncProposalView(text: String, onAccept: @escaping () -> Void, onDecline: @escaping () -> Void) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Image(systemName: "figure.run")
+                    .font(.system(size: 24))
+                    .foregroundColor(Color(hex: "C7FF00"))
+                    .frame(width: 36, height: 36)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Apple Health")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.7))
+                    Text(text)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            HStack(spacing: 10) {
+                Button(action: {
+                    onDecline()
+                    dismissWithAnimation()
+                }) {
+                    Text(NSLocalizedString("no_button", comment: ""))
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.8))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+
+                Button(action: {
+                    onAccept()
+                    dismissWithAnimation()
+                }) {
+                    Text(NSLocalizedString("yes_button", comment: ""))
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(Color(hex: "C7FF00"))
+                        .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(LinearGradient(
+                    colors: [Color(hex: "2D2B55"), Color(hex: "3E3B6B")],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(hex: "C7FF00").opacity(0.3), lineWidth: 1)
+                )
+        )
+        .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 4)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 30)
+        .gesture(
+            DragGesture(minimumDistance: 20)
+                .onEnded { value in
+                    if value.translation.height > 20 { dismissWithAnimation() }
+                }
+        )
+    }
+    
+    private func customMessageView(text: String) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: "figure.run")
+                .font(.system(size: 26))
+                .foregroundColor(Color(hex: "C7FF00"))
+                .frame(width: 44, height: 44)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Apple Health")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.7))
+                Text(text)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        colors: [Color(hex: "2D2B55"), Color(hex: "3E3B6B")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(hex: "C7FF00").opacity(0.3), lineWidth: 1)
+                )
+        )
+        .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 4)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 30)
+        .onTapGesture {
+            dismissWithAnimation()
+        }
+        .gesture(
+            DragGesture(minimumDistance: 20)
+                .onEnded { value in
+                    if value.translation.height > 20 {
+                        dismissWithAnimation()
+                    }
+                }
+        )
     }
     
     private func dismissWithAnimation() {

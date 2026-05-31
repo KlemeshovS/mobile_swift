@@ -174,6 +174,12 @@ struct CalendarTabView: View {
     
     private func setDayRecord(for dayData: DayData, record: DayRecord) {
         
+        // Если пользователь вручную убрал спорт — запоминаем
+        let oldRecord = daysData[dayData.key] ?? DayRecord()
+        if oldRecord.hasSport && !record.hasSport {
+            HealthKitManager.shared.markDayAsManuallyRemovedSport(dayData.key)
+        }
+        
         var updatedData = daysData
         
         // Если запись пустая (нет алкоголя и нет спорта) — удаляем ключ

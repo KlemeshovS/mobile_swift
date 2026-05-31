@@ -5,6 +5,7 @@
 //  Created by Evgeniy Voynov on 07.01.2026.
 //
 import SwiftUI
+import HealthKit
 
 enum SettingsScreen {
     case main
@@ -160,78 +161,130 @@ struct MainMenuContent: View {
     
     @StateObject private var languageManager = LanguageManager.shared
     @State private var languageRotation = 0.0
+    @State private var healthSyncEnabled = HealthKitManager.shared.isSyncEnabled
     
     var body: some View {
         VStack(spacing: 10) {
             
-         //   🔥 ПРОСТАЯ КНОПКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА
-                              Button(action: {
-                            // Анимация
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                            }
-            
-                            // Тактильный отклик
-                            HapticManager.shared.impact(.light)
+            //   🔥 ПРОСТАЯ КНОПКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА
+            Button(action: {
+                // Анимация
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                }
+                
+                // Тактильный отклик
+                HapticManager.shared.impact(.light)
+                
+                // Переключаем язык
+                LanguageManager.shared.switchToNextLanguage()
+            }) {
+                HStack(spacing: 16) {
+                    // Иконка глобуса с анимацией
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color(hex: "6366F1"), Color(hex: "8B5CF6")],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 44, height: 44)
+                        
+                        Image(systemName: "globe")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                    
+                    // Тексты
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(NSLocalizedString("menu_language", comment: "Язык"))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                        
+                        HStack(spacing: 6) {
+                            // Отображаем текущий язык
+                            Text(languageManager.currentLanguage.shortName)
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundColor(Color(hex: "C7FF00"))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Color.white.opacity(0.15))
+                                .cornerRadius(6)
                             
-                            // Переключаем язык
-                                  LanguageManager.shared.switchToNextLanguage()
-                        }) {
-                            HStack(spacing: 16) {
-                                // Иконка глобуса с анимацией
-                                ZStack {
-                                   Circle()
-                                       .fill(
-                                           LinearGradient(
-                                              colors: [Color(hex: "6366F1"), Color(hex: "8B5CF6")],
-                                              startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                          )
-                                      )
-                                      .frame(width: 44, height: 44)
+                            Text(languageManager.currentLanguage.displayName)
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Индикатор смены
+                    Text("→")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white.opacity(0.12))
+                )
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(PlainButtonStyle())
             
-                                    Image(systemName: "globe")
-                                        .font(.system(size: 18, weight: .medium))
-                                      .foregroundColor(.white)
-                              }
-            
-                             // Тексты
-                              VStack(alignment: .leading, spacing: 4) {
-                                  Text(NSLocalizedString("menu_language", comment: "Язык"))
-                                      .font(.system(size: 16, weight: .semibold))
-                                      .foregroundColor(.white)
-            
-                                    HStack(spacing: 6) {
-                                      // Отображаем текущий язык
-                                      Text(languageManager.currentLanguage.shortName)
-                                          .font(.system(size: 13, weight: .bold))
-                                          .foregroundColor(Color(hex: "C7FF00"))
-                                          .padding(.horizontal, 8)
-                                          .padding(.vertical, 2)
-                                          .background(Color.white.opacity(0.15))
-                                          .cornerRadius(6)
-            
-                                      Text(languageManager.currentLanguage.displayName)
-                                          .font(.system(size: 14))
-                                          .foregroundColor(.white.opacity(0.9))
-                                  }
-                              }
-            
-                              Spacer()
-            
-                              // Индикатор смены
-                              Text("→")
-                                  .font(.system(size: 16, weight: .bold))
-                                  .foregroundColor(.white.opacity(0.6))
-                          }
-                          .padding(.horizontal, 16)
-                      .padding(.vertical, 14)
-                          .background(
-                              RoundedRectangle(cornerRadius: 16)
-                                  .fill(Color.white.opacity(0.12))
-                          )
-                          .contentShape(Rectangle())
-                      }
-                      .buttonStyle(PlainButtonStyle())
+            // Apple Health
+            if HealthKitManager.shared.isAvailable {
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color(hex: "FF3B30"), Color(hex: "FF6B6B")],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(NSLocalizedString("menu_health_sync_title", comment: ""))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text(NSLocalizedString("menu_health_sync_subtitle", comment: ""))
+                            .font(.system(size: 13))
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $healthSyncEnabled)
+                        .toggleStyle(SwitchToggleStyle(tint: Color(hex: "8B5CF6")))
+                        .labelsHidden()
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
+                        .onChange(of: healthSyncEnabled) { newValue in
+                            HealthKitManager.shared.isSyncEnabled = newValue
+                            HapticManager.shared.impact(.light)
+                        }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white.opacity(0.12))
+                )
+            }
             
             // Пункты меню
             Button(action: {
@@ -285,7 +338,7 @@ struct MainMenuContent: View {
             ) {
                 onExport()
             }
-
+            
             MenuItem(
                 icon: "square.and.arrow.down",
                 title: NSLocalizedString("menu_import_title", comment: "Заголовок кнопки импорта данных"),
@@ -294,16 +347,6 @@ struct MainMenuContent: View {
             ) {
                 onImportFromFile()
             }
-
-            // Кнопка сброса ачивок
-  //          MenuItem(
-  //              icon: "trash",
-  //              title: NSLocalizedString("menu_reset_title", comment: "Заголовок кнопки сброса ачивок (отладка)"),
-  //              subtitle: NSLocalizedString("menu_reset_subtitle", comment: "Саркастический подзаголовок кнопки сброса ачивок"),
-  //              gradient: [Color(hex: "FF6B6B"), Color(hex: "FF4757")]
-  //          ) {
-  //              resetAllAchievements()
-  //          }
             
             // Пункт "О приложении" со стрелочкой
             Button(action: {
@@ -425,7 +468,7 @@ struct MainMenuContent: View {
         
         // 3. Сохраняем через правильный метод
         achievementManager.saveAchievements(resetAchievements)
-                
+        
         // 4. Пересчитываем ачивки из текущих данных
         let dataManager = DrinkDataManager()
         let currentDaysData = dataManager.loadData()
@@ -438,11 +481,11 @@ struct MainMenuContent: View {
             // 🔥 ДОПОЛНИТЕЛЬНО: Показываем уведомление о сбросе
             let alert = UIAlertController(
                 title: NSLocalizedString("achievements_reset_notification_title",
-                                        value: "Ачивки сброшены",
-                                        comment: "Заголовок уведомления о сбросе достижений"),
+                                         value: "Ачивки сброшены",
+                                         comment: "Заголовок уведомления о сбросе достижений"),
                 message: NSLocalizedString("achievements_reset_notification_message",
-                                          value: "Все достижения разблокированы заново на основе текущих данных",
-                                          comment: "Сообщение уведомления о сбросе достижений"),
+                                           value: "Все достижения разблокированы заново на основе текущих данных",
+                                           comment: "Сообщение уведомления о сбросе достижений"),
                 preferredStyle: .alert
             )
             alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -452,7 +495,8 @@ struct MainMenuContent: View {
                 rootViewController.present(alert, animated: true)
             }
         }
-    }}
+    }
+}
 
 struct AboutAppView: View {
     @State private var appearAnimation = false
