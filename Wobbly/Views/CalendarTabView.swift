@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 struct CalendarTabView: View {
     @Binding var daysData: [String: DayRecord]
@@ -191,6 +192,9 @@ struct CalendarTabView: View {
         dataManager.saveData(legacyData)
         CalendarSyncManager.shared.markLocalUpdated()
         daysData = updatedData
+        
+        DrinkDataManager().syncDataForWidget()
+        WidgetCenter.shared.reloadAllTimelines()
 
         // Отправляем изменения на сервер
         Task {
