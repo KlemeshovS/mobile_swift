@@ -22,6 +22,8 @@ struct DayRecordSelectionView: View {
     
     @State private var selectedDrinkLevel: DrinkLevel
     @State private var hasSport: Bool
+    @State private var workoutData: WorkoutData? = nil
+    @State private var showWorkoutEditor = false
     @Environment(\.dismiss) private var dismiss
     
     @ObservedObject private var languageManager = LanguageManager.shared
@@ -105,10 +107,6 @@ struct DayRecordSelectionView: View {
                                     print("   Снят выбор уровня алкоголя")
                                 } else {
                                     selectedDrinkLevel = level
-                                    // Если выбран medium/heavy, снимаем спорт (не совместимо)
-                            //        if level == .medium || level == .heavy {
-                            //            hasSport = false
-                            //        }
                                 }
                             }) {
                                 VStack(spacing: 8) {
@@ -147,31 +145,33 @@ struct DayRecordSelectionView: View {
                         .padding(.vertical, 15)
                     
                     // Заголовок для спорта
-                    Text(NSLocalizedString("or_sport_prompt", comment: "Prompt for sport selection"))
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                    
+                    HStack {
+                        Spacer()
+                        Text(NSLocalizedString("or_sport_prompt", comment: ""))
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                        Spacer()
+                        Button(action: { showWorkoutEditor = true }) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 18))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding(.horizontal, 24)
+
                     Spacer()
                         .frame(height: 15)
-                    
+
                     // Кнопка спорта
-                    Button(action: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            print("💪 Выбор спорта")
-                            
-                            if hasSport {
-                                hasSport = false
-                                print("   Снят выбор спорта")
-                            } else {
-                                hasSport = true
-                                // Если выбран medium/heavy, снимаем их (не совместимо со спортом)
-                         //       if selectedDrinkLevel == .medium || selectedDrinkLevel == .heavy {
-                         //           selectedDrinkLevel = .none
-                         //       }
-                            }
-                        }
-                    }) {
-                        VStack(spacing: 10) {
+                    ZStack {
+                        // Иконка по центру всегда
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                    hasSport = hasSport ? false : true
+                                }
+                            }) {
                                 ZStack {
                                     Circle()
                                         .fill(hasSport ? sportColor.opacity(0.25) : Color.white.opacity(0.1))
@@ -183,7 +183,6 @@ struct DayRecordSelectionView: View {
                                                     lineWidth: hasSport ? 2.5 : 1.5
                                                 )
                                         )
-                                    
                                     Image(systemName: "figure.run")
                                         .resizable()
                                         .scaledToFit()
@@ -192,8 +191,37 @@ struct DayRecordSelectionView: View {
                                         .scaleEffect(hasSport ? 1.15 : 1.0)
                                 }
                             }
+                            Spacer()
                         }
-                        .padding(.horizontal)
+
+                        // Данные тренировки справа от иконки
+                        if let workout = workoutData {
+                            HStack {
+                                Spacer()
+                                    .frame(width: UIScreen.main.bounds.width / 2 + 10)
+                                VStack(alignment: .trailing, spacing: 3) {
+                                    Text(workout.activityName)
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.white)
+                                    if let dist = workout.distanceFormatted {
+                                        Text(dist)
+                                            .font(.system(size: 13))
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                    Text(workout.durationFormatted)
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white.opacity(0.8))
+                                    if let cal = workout.caloriesFormatted {
+                                        Text(cal)
+                                            .font(.system(size: 13))
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 24)
                     
                     Spacer()
                         .frame(height: 20)
@@ -227,10 +255,17 @@ struct DayRecordSelectionView: View {
         .presentationDetents([.height(320)])
         .presentationCornerRadius(20)
         .presentationDragIndicator(.visible)
+        .sheet(isPresented: $showWorkoutEditor) {
+            WorkoutEditorView(dayKey: dayData.key, workout: workoutData) { updated in
+                if updated.activityName.isEmpty && updated.durationSeconds == 0 {
+                    workoutData = nil
+                } else {
+                    workoutData = updated
+                }
+            }
+        }
         .onAppear {
-            print("📱 DayRecordSelectionView открыт")
-            print("   Текущая запись: alcohol=\(currentRecord.drinkLevel.rawValue), sport=\(currentRecord.hasSport)")
-            print("   Инициализировано: alcohol=\(selectedDrinkLevel.rawValue), sport=\(hasSport)")
+            workoutData = WorkoutDataStorage.shared.load(for: dayData.key)
         }
     }
     

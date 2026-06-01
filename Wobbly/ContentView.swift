@@ -246,6 +246,25 @@ struct ContentView: View {
                                         dm.saveData(legacy)
                                         CalendarSyncManager.shared.markLocalUpdated()
                                         NotificationCenter.default.post(name: .drinkDataChanged, object: nil)
+                                        
+                                        // Отправляем на сервер
+                                        Task {
+                                            await CalendarSyncManager.shared.pushToServer()
+                                        }
+                                        Task {
+                                            for key in capturedAutoAdded {
+                                                let parts = key.split(separator: "-").map { String($0) }
+                                                guard parts.count == 3,
+                                                      let y = Int(parts[0]),
+                                                      let m = Int(parts[1]),
+                                                      let d = Int(parts[2]) else { continue }
+                                                var comps = DateComponents()
+                                                comps.year = y; comps.month = m + 1; comps.day = d
+                                                if let date = Calendar.current.date(from: comps) {
+                                                    await HealthKitManager.shared.fetchAndSaveWorkoutDetails(for: key, date: date)
+                                                }
+                                            }
+                                        }
                                     },
                                     onDecline: {
                                         for key in capturedAutoAdded {
