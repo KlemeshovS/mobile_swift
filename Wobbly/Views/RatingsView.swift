@@ -38,6 +38,8 @@ struct RatingsView: View {
     @State private var pendingFollowerUsernames: Set<String> = []
     @State private var myOneWayFollowUsernames: Set<String> = []
     @State private var isLoadingFollows = false
+    
+    @State private var myAvatarUrl: String? = nil
 
     private let segments = ["top_100", "bottom_100"]
     
@@ -63,10 +65,33 @@ struct RatingsView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                customTabView
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    .padding(.bottom, 12)
+                HStack(spacing: 10) {
+                    customTabView
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                        .padding(.bottom, 12)
+
+                    Button(action: { showProfile = true }) {
+                        if let avatarPath = myAvatarUrl, let url = makeFullURL(path: avatarPath) {
+                            KFImage(url)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 36, height: 36)
+                                .clipShape(Circle())
+                        } else {
+                            Circle()
+                                .fill(Color.white.opacity(0.15))
+                                .frame(width: 36, height: 36)
+                                .overlay(
+                                    Image(systemName: "person.fill")
+                                        .foregroundColor(.white.opacity(0.8))
+                                        .font(.system(size: 18))
+                                )
+                        }
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.top, 4)
+                }
 
                 // Тоггл "Только мои друзья"
                 if AuthStateManager.shared.sessionType == .authenticated {
@@ -471,6 +496,7 @@ struct RatingsView: View {
                 let profile = try await UserAPIService.shared.getMyProfile()
                 await MainActor.run {
                     self.userName = profile.username ?? ""
+                    self.myAvatarUrl = profile.avatarUrl
                     self.participateInRating = profile.participateInRating
                     if AuthStateManager.shared.sessionType == .guest || !profile.participateInRating {
                         if Reachability.isConnectedToNetwork() { showNamePrompt = true }

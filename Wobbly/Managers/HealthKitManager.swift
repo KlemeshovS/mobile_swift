@@ -142,4 +142,64 @@ class HealthKitManager {
         set { UserDefaults.standard.set(newValue, forKey: "healthKitSyncEnabled") }
     }
     
+    // MARK: - Получение детальных данных тренировок
+    func fetchAndSaveWorkoutDetails(for dayKey: String, date: Date) async {
+        guard isAvailable else { return }
+
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        return await withCheckedContinuation { continuation in
+            let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay)
+            let query = HKSampleQuery(
+                sampleType: HKObjectType.workoutType(),
+                predicate: predicate,
+                limit: 1,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
+            ) { _, samples, _ in
+                guard let workout = samples?.first as? HKWorkout else {
+                    continuation.resume()
+                    return
+                }
+
+                let data = WorkoutData(
+                    activityName: workout.workoutActivityType.localizedName,
+                    durationSeconds: workout.duration,
+                    distanceMeters: workout.totalDistance?.doubleValue(for: .meter()),
+                    calories: workout.totalEnergyBurned?.doubleValue(for: .kilocalorie())
+                )
+                WorkoutDataStorage.shared.save(data, for: dayKey)
+                continuation.resume()
+            }
+            store.execute(query)
+        }
+    }
+}
+
+extension HKWorkoutActivityType {
+    var localizedName: String {
+        switch self {
+        case .running: return "Бег"
+        case .cycling: return "Велосипед"
+        case .swimming: return "Плавание"
+        case .walking: return "Ходьба"
+        case .hiking: return "Поход"
+        case .traditionalStrengthTraining: return "Силовая"
+        case .functionalStrengthTraining: return "Функциональная"
+        case .yoga: return "Йога"
+        case .soccer: return "Футбол"
+        case .basketball: return "Баскетбол"
+        case .tennis: return "Теннис"
+        case .snowboarding: return "Сноуборд"
+        case .rowing: return "Гребля"
+        case .elliptical: return "Эллипсоид"
+        case .stairClimbing: return "Лестница"
+        case .crossTraining: return "Кросс-тренинг"
+        case .dance: return "Танцы"
+        case .martialArts: return "Единоборства"
+        case .boxing: return "Бокс"
+        default: return "Тренировка"
+        }
+    }
 }
