@@ -213,10 +213,6 @@ private struct CompactDayCell: View {
                 Circle().fill(cellColor)
             }
 
-            if isToday {
-                Circle().stroke(Color(hex: "4B3A91"), lineWidth: 1)
-            }
-
             Text("\(day)")
                 .font(.system(size: fontSize))
                 .foregroundColor(isFuture ? .gray.opacity(0.4) : .primary)

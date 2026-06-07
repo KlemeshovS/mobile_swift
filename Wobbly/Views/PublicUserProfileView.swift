@@ -45,7 +45,13 @@ struct PublicUserProfileView: View {
                 .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: 14) {
+                        //Статус
+                        if let status = friendStatus {
+                            Text(status.displayName)
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.8))
+                        }
                         // Аватарка
                         let avatarURL = makeFullURL(path: item.avatarUrl)
                         if let url = avatarURL {
@@ -103,10 +109,8 @@ struct PublicUserProfileView: View {
                         calendarSection
                             .padding(.horizontal, 16)
                     }
-                    .padding(.top, 10)
                     .padding(.bottom, 30)
                 }
-                .padding(.top, 10)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -137,6 +141,24 @@ struct PublicUserProfileView: View {
     
     private var scoreForGradient: Int {
         actualScore ?? item.score
+    }
+    
+    private var friendStatus: UserStatus? {
+        guard let cal = friendCalendar, !cal.isEmpty else { return nil }
+        var daysData: [String: DrinkLevel] = [:]
+        for (key, value) in cal.days {
+            switch value {
+            case 1: daysData[key] = .little
+            case 2: daysData[key] = .medium
+            case 3: daysData[key] = .heavy
+            case 4: daysData[key] = .sport
+            case 5: daysData[key] = .little_sport
+            case 6: daysData[key] = .medium_sport
+            case 7: daysData[key] = .heavy_sport
+            default: break
+            }
+        }
+        return UserStatusManager.shared.calculateCurrentStatus(daysData: daysData).status
     }
     
     @ViewBuilder

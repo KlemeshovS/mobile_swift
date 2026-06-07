@@ -126,22 +126,18 @@ struct DayCellView: View {
             else if record.hasSport {
                 Circle()
                     .fill(Color(hex: "C7FF00").opacity(0.3))
-                    .frame(width: 40, height: 40)
             }
             else if record.drinkLevel != .none {
                 Circle()
                     .fill(record.drinkLevel.color)
-                    .frame(width: 40, height: 40)
             }
             else {
                 Circle()
                     .fill(isToday ? Color.blue.opacity(0.1) : Color.clear)
-                    .frame(width: 40, height: 40)
             }
         } else {
             Circle()
                 .fill(isToday ? Color.blue.opacity(0.1) : Color.clear)
-                .frame(width: 40, height: 40)
         }
     }
     
@@ -151,7 +147,7 @@ struct DayCellView: View {
         // Просто показываем номер дня
         Text("\(day)")
             .font(.system(size: 18, weight: isToday ? .medium : .regular))
-            .foregroundColor(isFutureDate ? .gray : (isToday ? .black : .primary))
+            .foregroundColor(isFutureDate ? .gray : .primary)
     }
 
     var body: some View {
@@ -160,7 +156,7 @@ struct DayCellView: View {
             
             cellContent
         }
-        .scaleEffect(isToday ? 1.1 : 1.0)
+  //      .scaleEffect(isToday ? 1.1 : 1.0)
         .onTapGesture {
             if !isFutureDate {
                 onTap()

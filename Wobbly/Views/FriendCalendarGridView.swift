@@ -168,10 +168,6 @@ struct FriendCalendarGridView: View {
                     }
                     .frame(maxHeight: 520)
                     .onAppear {
-                        // Диагностика
-                        print("📅 === ДИАГНОСТИКА КАЛЕНДАРЯ ===")
-                        print("📅 updatedAt: \(updatedAt)")
-                        print("📅 Всего записей: \(calendarData.count)")
                         
                         let sortedKeys = calendarData.keys.sorted()
                         print("📅 Все ключи: \(sortedKeys)")
@@ -360,10 +356,6 @@ private struct SmallDayCell: View {
                     )
             } else {
                 Circle().fill(cellColor)
-            }
-
-            if isToday {
-                Circle().stroke(Color(hex: "4B3A91"), lineWidth: 1)
             }
 
             Text("\(day)")
