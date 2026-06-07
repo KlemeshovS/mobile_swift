@@ -5,7 +5,7 @@ import Foundation
 import SwiftUI
 
 enum AppNotificationType {
-    case achievement(title: String, description: String, imageName: String, isDrinking: Bool)
+    case achievement(title: String, description: String, achievementDescription: String, imageName: String, isDrinking: Bool)
     case newFollower(username: String, userId: Int, avatarUrl: String?)
     case customMessage(text: String)
     case healthSyncProposal(text: String, onAccept: () -> Void, onDecline: () -> Void)
@@ -103,6 +103,7 @@ class AppNotificationManager: ObservableObject {
             let item = AppNotificationItem(type: .achievement(
                 title: achievement.title,
                 description: achievement.requirementDescription,
+                achievementDescription: achievement.description,
                 imageName: achievement.imageName,
                 isDrinking: achievement.isDrinking
             ))
