@@ -24,6 +24,7 @@ struct StatsTabView: View {
     @State private var showExportError = false
     @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
     
+    
     private let achievementManager = NewAchievementManager.shared
     private let fileExportManager = FileExportManager()
     
@@ -99,16 +100,26 @@ struct StatsTabView: View {
                         
                         Spacer()
                         
-                        Button(action: {
-                            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                                showSettingsMenu.toggle()
+                        HStack(alignment: .center, spacing: 0) {
+                            Button(action: { generateAndShare() }) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .frame(width: 36, height: 36)
+                                    .offset(y: -2) // компенсируем встроенный отступ стрелки
                             }
-                            HapticManager.shared.impact(.light)
-                        }) {
-                            Image(systemName: "gearshape")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.white)
-                                .padding(8)
+
+                            Button(action: {
+                                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                                    showSettingsMenu.toggle()
+                                }
+                                HapticManager.shared.impact(.light)
+                            }) {
+                                Image(systemName: "gearshape")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .frame(width: 36, height: 36)
+                            }
                         }
                     }
                     .padding(.horizontal, 20)
@@ -126,7 +137,7 @@ struct StatsTabView: View {
                     )
                     
                     ScrollView {
-                        VStack(spacing: 16) {
+                        VStack(spacing: 20) {
                             // БЛОК СТАТУСА ПОЛЬЗОВАТЕЛЯ
                             VStack(spacing: 8) {
                                 if let status = userStatus {
@@ -148,7 +159,7 @@ struct StatsTabView: View {
                                         .font(.system(size: 20, weight: .bold))
                                         .foregroundColor(.white)
                                         .multilineTextAlignment(.center)
-
+                                    
                                 } else {
                                     // Пока данные загружаются
                                     ZStack {
@@ -165,12 +176,12 @@ struct StatsTabView: View {
                                         .foregroundColor(.white.opacity(0.7))
                                 }
                             }
-                     //       .padding(.vertical, 16)
+                            //       .padding(.vertical, 16)
                             .padding(.horizontal, 20)
-                     //       .background(Color.white.opacity(0.05))
-                     //       .cornerRadius(20)
+                            //       .background(Color.white.opacity(0.05))
+                            //       .cornerRadius(20)
                             .padding(.horizontal, 20)
-                     //       .padding(.bottom, 5)
+                            //       .padding(.bottom, 5)
                             .onTapGesture {
                                 if let status = userStatus {
                                     onShowExplanation?(status.displayName, status.description)
@@ -184,7 +195,6 @@ struct StatsTabView: View {
                                     .id(currentProgressDays)
                             }
                             .padding(.horizontal, 5)
-                            .padding(.vertical, 8)
                             
                             // Основная статистика
                             VStack(alignment: .leading, spacing: 8) {
@@ -265,10 +275,10 @@ struct StatsTabView: View {
                             VStack(alignment: .leading, spacing: 12) {
                                 // Получаем статистику за год
                                 let yearStats = calculateYearStats()
-
+                                
                                 // Считаем общее количество отмеченных дней (дни с алкоголем ИЛИ спортом ИЛИ тем и другим)
                                 let totalTrackedDays = yearStats.drinkingDays + yearStats.sport - yearStats.little_sport
-
+                                
                                 // Если есть отмеченные дни
                                 if totalTrackedDays > 0 {
                                     // Процент алкогольных дней от общего числа отмеченных дней
@@ -295,20 +305,22 @@ struct StatsTabView: View {
                                 }
                             }
                             .padding(.horizontal, 5)
-                            .padding(.vertical, 4)
+                            
+                            // Ваша неделя
+                            WeekStatsView(daysData: localDaysData, selectedYear: selectedYear)
+                                .padding(.horizontal, 5)
                             
                             // БЛОК С ФАКТАМИ О ТРЕЗВОСТИ
                             VStack(alignment: .leading, spacing: 12) {
-                                let progressDays = calculateCurrentSoberStreakOptimized()
-
+                                let progressDays = calculateSoftSoberStreak()
                                 AdaptiveSobrietyFactsView(soberDays: progressDays)
                             }
                             .padding(.horizontal, 5)
-                            .padding(.vertical, 8)
                             
                             // Достижения
                             achievementsSection
                                 .padding(.horizontal, 5)
+                                .padding(.bottom, 20)
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 5)
@@ -331,6 +343,7 @@ struct StatsTabView: View {
         .sheet(isPresented: $showAllAchievements) {
             AllAchievementsView()
         }
+        
         .onAppear {
             localDaysData = daysData
             forceRefreshAchievements()
@@ -556,10 +569,10 @@ struct StatsTabView: View {
                             .fill(Color.red)
                             .frame(width: 10, height: 10)
                         Text(String(format: NSLocalizedString("alcohol_percentage %lld%%",
-                                                               comment: "Alcohol: X%"),
-                                     Int(drinkingPercentage)))
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.white)
+                                                              comment: "Alcohol: X%"),
+                                    Int(drinkingPercentage)))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white)
                     }
                     
                     HStack(spacing: 6) {
@@ -567,10 +580,10 @@ struct StatsTabView: View {
                             .fill(Color.green)
                             .frame(width: 10, height: 10)
                         Text(String(format: NSLocalizedString("Sport %lld%%",
-                                                               comment: "Sport: X%"),
-                                     Int(sportPercentage)))
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.white)
+                                                              comment: "Sport: X%"),
+                                    Int(sportPercentage)))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white)
                     }
                 }
                 .padding(.horizontal, 5)
@@ -621,47 +634,47 @@ struct StatsTabView: View {
         let startYear = calendar.component(.year, from: startDate)
         let startMonth = calendar.component(.month, from: startDate) - 1 // 0-based
         let startDay = calendar.component(.day, from: startDate)
-
+        
         // Если выбранный год меньше года начала – данных нет
         guard selectedYear >= startYear else {
             return YearStats(little: 0, medium: 0, heavy: 0, sport: 0, little_sport: 0,
                              drinkingDays: 0, totalDays: 0, totalDrinking: 0)
         }
-
+        
         var little = 0, medium = 0, heavy = 0, sport = 0, little_sport = 0
         var totalDaysPassed = 0, drinkingDays = 0
-
+        
         let currentYear = calendar.component(.year, from: Date())
         let isCurrentYear = selectedYear == currentYear
         let currentMonth = isCurrentYear ? calendar.component(.month, from: Date()) - 1 : 11
         let currentDay = isCurrentYear ? calendar.component(.day, from: Date()) : 31
-
+        
         for month in 0..<12 {
             // Пропускаем месяцы до месяца начала, если год совпадает с годом начала
             if selectedYear == startYear && month < startMonth {
                 continue
             }
             if isCurrentYear && month > currentMonth { continue }
-
+            
             let yearForMonth = selectedYear
             let daysInMonth = CalendarUtils.daysInMonth(month: month, year: yearForMonth)
-
+            
             // Определяем первый день месяца для учёта
             var firstDay = 1
             if selectedYear == startYear && month == startMonth {
                 firstDay = startDay
             }
-
+            
             let lastDay = (isCurrentYear && month == currentMonth) ? currentDay : daysInMonth
             guard firstDay <= lastDay else { continue }
-
+            
             let daysPassed = lastDay - firstDay + 1
             totalDaysPassed += daysPassed
-
+            
             for day in firstDay...lastDay {
                 let dayData = DayData(day: day, month: month, year: yearForMonth)
                 let level = getDrinkLevel(for: dayData)
-
+                
                 switch level {
                 case .little:
                     little += 1
@@ -691,7 +704,7 @@ struct StatsTabView: View {
                 }
             }
         }
-
+        
         return YearStats(
             little: little,
             medium: medium,
@@ -751,31 +764,58 @@ struct StatsTabView: View {
         return sportDays
     }
     
+    private func calculateSoftSoberStreak() -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let startDate = globalStartDate
+
+        var streak = 0
+        for dayOffset in 0..<2000 {
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today),
+                  date >= startDate else { break }
+
+            let dayData = DayData(
+                day: calendar.component(.day, from: date),
+                month: calendar.component(.month, from: date) - 1,
+                year: calendar.component(.year, from: date)
+            )
+            let level = localDaysData[dayData.key] ?? .none
+
+            // Сбрасываем только на medium и heavy (включая комбо со спортом)
+            if level == .medium || level == .heavy || level == .medium_sport || level == .heavy_sport {
+                return streak
+            } else {
+                streak += 1
+            }
+        }
+        return streak
+    }
+    
     private func calculateCurrentSoberStreakOptimized() -> Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let startDate = globalStartDate
         let currentYear = calendar.component(.year, from: Date())
-
+        
         if selectedYear != currentYear {
             // Для не текущего года – streak на конец года
             guard let endDate = calendar.date(from: DateComponents(year: selectedYear, month: 12, day: 31)) else {
                 return 0
             }
             guard endDate >= startDate else { return 0 }
-
+            
             let daysInYear = calendar.range(of: .day, in: .year, for: endDate)?.count ?? 366
             var streak = 0
             for dayOffset in 0..<daysInYear {
                 guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: endDate),
                       date >= startDate,
                       calendar.component(.year, from: date) == selectedYear else { break }
-
+                
                 let dayData = DayData(day: calendar.component(.day, from: date),
                                       month: calendar.component(.month, from: date) - 1,
                                       year: selectedYear)
                 let level = localDaysData[dayData.key] ?? .none
-
+                
                 if level == .little || level == .medium || level == .heavy || level == .little_sport || level == .medium_sport || level == .heavy_sport {
                     return streak
                 } else {
@@ -790,12 +830,12 @@ struct StatsTabView: View {
                 guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today),
                       date >= startDate,
                       calendar.component(.year, from: date) == selectedYear else { break }
-
+                
                 let dayData = DayData(day: calendar.component(.day, from: date),
                                       month: calendar.component(.month, from: date) - 1,
                                       year: selectedYear)
                 let level = localDaysData[dayData.key] ?? .none
-
+                
                 if level == .little || level == .medium || level == .heavy || level == .little_sport || level == .medium_sport || level == .heavy_sport{
                     return streak
                 } else {
@@ -810,38 +850,38 @@ struct StatsTabView: View {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let startDate = globalStartDate
-
+        
         let yearStart = calendar.date(from: DateComponents(year: selectedYear, month: 1, day: 1))!
         let yearEnd = calendar.date(from: DateComponents(year: selectedYear, month: 12, day: 31))!
         let periodStart = max(startDate, yearStart)
         let periodEnd = min(today, yearEnd)
-
+        
         guard periodStart <= periodEnd else { return 0 }
-
+        
         var maxStreak = 0
         var currentStreak = 0
         var date = periodStart
-
+        
         while date <= periodEnd {
             let components = calendar.dateComponents([.year, .month, .day], from: date)
             guard let day = components.day, let month = components.month, let year = components.year else {
                 date = calendar.date(byAdding: .day, value: 1, to: date)!
                 continue
             }
-
+            
             let dayData = DayData(day: day, month: month - 1, year: year)
             let level = getDrinkLevel(for: dayData)
-
+            
             if level == .little || level == .medium || level == .heavy || level == .little_sport || level == .medium_sport || level == .heavy_sport {
                 currentStreak = 0
             } else {
                 currentStreak += 1
                 maxStreak = max(maxStreak, currentStreak)
             }
-
+            
             date = calendar.date(byAdding: .day, value: 1, to: date)!
         }
-
+        
         return maxStreak
     }
     
@@ -849,38 +889,38 @@ struct StatsTabView: View {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let startDate = globalStartDate
-
+        
         let yearStart = calendar.date(from: DateComponents(year: selectedYear, month: 1, day: 1))!
         let yearEnd = calendar.date(from: DateComponents(year: selectedYear, month: 12, day: 31))!
         let periodStart = max(startDate, yearStart)
         let periodEnd = min(today, yearEnd)
-
+        
         guard periodStart <= periodEnd else { return 0 }
-
+        
         var maxStreak = 0
         var currentStreak = 0
         var date = periodStart
-
+        
         while date <= periodEnd {
             let components = calendar.dateComponents([.year, .month, .day], from: date)
             guard let day = components.day, let month = components.month, let year = components.year else {
                 date = calendar.date(byAdding: .day, value: 1, to: date)!
                 continue
             }
-
+            
             let dayData = DayData(day: day, month: month - 1, year: year)
             let level = getDrinkLevel(for: dayData)
-
+            
             if level == .little || level == .medium || level == .heavy || level == .little_sport || level == .medium_sport || level == .heavy_sport {
                 currentStreak += 1
                 maxStreak = max(maxStreak, currentStreak)
             } else {
                 currentStreak = 0
             }
-
+            
             date = calendar.date(byAdding: .day, value: 1, to: date)!
         }
-
+        
         return maxStreak == 1 ? 0 : maxStreak
     }
     
@@ -944,8 +984,70 @@ struct StatsTabView: View {
         let result = ProgressCalculator.calculate(from: localDaysData)
         return result.current
     }
-
     
+    @MainActor
+    private func generateAndShare() {
+        let yearStats = calculateYearStats()
+        let isRussian = LanguageManager.shared.currentLanguage == .russian
+        
+        let shareView = AnyView(
+            StatsShareView(
+                soberStreak: calculateCurrentSoberStreakOptimized(),
+                drinkingStreak: displayStreak,
+                maxSoberStreak: calculateLongestSoberStreak(),
+                totalDrinking: yearStats.totalDrinking,
+                totalSober: yearStats.totalDays - yearStats.totalDrinking,
+                little: yearStats.little,
+                medium: yearStats.medium,
+                heavy: yearStats.heavy,
+                sportDays: calculateSportDays(),
+                isRussian: isRussian,
+                userStatus: userStatus
+            )
+            .frame(width: 320)
+            .clipped()
+        )
+        
+        let renderer = ImageRenderer(content: shareView)
+        renderer.scale = UIScreen.main.scale
+        renderer.proposedSize = ProposedViewSize(width: 320, height: nil)
+        
+        guard let image = renderer.uiImage else {
+            print("❌ ImageRenderer вернул nil")
+            return
+        }
+        
+        print("✅ Картинка создана: \(image.size)")
+        
+        let shareTexts = (1...15).map { NSLocalizedString("share_text_\($0)", comment: "") }
+        let randomText = shareTexts.randomElement() ?? ""
+        let appStoreLink = "https://apps.apple.com/ru/app/wobbly-sobriety-tracker/id6755603610"
+        let shareText = "\(randomText)\n\n\(appStoreLink)"
+
+        let activityVC = UIActivityViewController(
+            activityItems: [image, shareText],
+            applicationActivities: nil
+        )
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootVC = windowScene.windows.first?.rootViewController else { return }
+        
+        activityVC.modalPresentationStyle = .overFullScreen
+        activityVC.view.backgroundColor = .clear
+        
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = rootVC.view
+            popover.sourceRect = CGRect(x: rootVC.view.bounds.midX, y: rootVC.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        var topVC = rootVC
+        while let presented = topVC.presentedViewController {
+            topVC = presented
+        }
+        
+        topVC.present(activityVC, animated: true)
+    }
 }
 
 struct StatsTabView_Previews: PreviewProvider {
@@ -955,4 +1057,14 @@ struct StatsTabView_Previews: PreviewProvider {
             showSettingsMenu: .constant(false)
         )
     }
+}
+
+struct ActivityViewControllerWrapper: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

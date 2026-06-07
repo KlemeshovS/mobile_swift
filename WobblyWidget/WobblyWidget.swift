@@ -222,17 +222,18 @@ struct WobblyWidgetSmallView: View {
     }
 
     private var altitudeTitle: String {
-        entry.isRussian ? (entry.isDrinking ? "Глубина" : "Высота")
-                        : (entry.isDrinking ? "Depth" : "Altitude")
+        entry.isRussian ? (entry.score >= 0 ? "Высота" : "Глубина")
+                        : (entry.score >= 0 ? "Altitude" : "Depth")
     }
 
     private var altitudeSuffix: String {
-        entry.isRussian ? (entry.isDrinking ? "м под водой" : "м н.у.м.")
-                        : (entry.isDrinking ? "m underwater" : "m a.s.l.")
+        entry.isRussian ? (entry.score >= 0 ? "м н.у.м." : "м под водой")
+                        : (entry.score >= 0 ? "m a.s.l." : "m underwater")
     }
 
     private var daysCount: Int { entry.isDrinking ? entry.drinkingDays : entry.soberDays }
     private var accentColor: Color { entry.isDrinking ? .pink : .mint }
+    private var scoreColor: Color { entry.score >= 0 ? .mint : .pink }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -255,12 +256,12 @@ struct WobblyWidgetSmallView: View {
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(1.0))
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Image(systemName: entry.isDrinking ? "water.waves" : "mountain.2.fill")
+                    Image(systemName: entry.score >= 0 ? "mountain.2.fill" : "water.waves")
                         .font(.system(size: 12))
-                        .foregroundColor(accentColor)
+                        .foregroundColor(scoreColor)
                     Text("\(abs(entry.score)) \(altitudeSuffix)")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(accentColor)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(scoreColor)
                         .minimumScaleFactor(0.6)
                         .lineLimit(2)
                 }
@@ -293,7 +294,7 @@ struct WobblyWidgetSmallCalendarView: View {
 
 struct WobblyWidgetMediumView: View {
     let entry: WobblyEntry
-    
+
     private var daysLabel: String {
         let n = entry.isDrinking ? entry.drinkingDays : entry.soberDays
         if entry.isRussian {
@@ -302,32 +303,30 @@ struct WobblyWidgetMediumView: View {
             return "дней"
         } else { return n == 1 ? "day" : "days" }
     }
-    
+
     private var streakTitle: String {
         entry.isRussian ? (entry.isDrinking ? "Пью уже" : "Уже не пью")
-        : (entry.isDrinking ? "Drinking" : "Sober")
+                        : (entry.isDrinking ? "Drinking" : "Sober")
     }
-    
+
     private var altitudeTitle: String {
-        entry.isRussian ? (entry.isDrinking ? "Глубина" : "Высота")
-        : (entry.isDrinking ? "Depth" : "Altitude")
+        entry.isRussian ? (entry.score >= 0 ? "Высота" : "Глубина")
+                        : (entry.score >= 0 ? "Altitude" : "Depth")
     }
-    
+
     private var altitudeSuffix: String {
-        entry.isRussian ? (entry.isDrinking ? "м" : "м") : "m"
+        entry.isRussian ? (entry.score >= 0 ? "м н.у.м." : "м под водой")
+                        : (entry.score >= 0 ? "m a.s.l." : "m underwater")
     }
-    
-    private var altitudeSubtitle: String {
-        entry.isRussian ? (entry.isDrinking ? "под водой" : "н. у. м.")
-        : (entry.isDrinking ? "underwater" : "a. s. l.")
-    }
-    
+
     private var daysCount: Int { entry.isDrinking ? entry.drinkingDays : entry.soberDays }
     private var accentColor: Color { entry.isDrinking ? .pink : .mint }
-    
+    private var scoreColor: Color { entry.score >= 0 ? .mint : .pink }
+
     var body: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 14) {
+                // Стрик
                 VStack(alignment: .leading, spacing: 4) {
                     Text(streakTitle)
                         .font(.system(size: 11, weight: .medium))
@@ -342,29 +341,22 @@ struct WobblyWidgetMediumView: View {
                     }
                 }
 
+                // Высота/Глубина
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 4) {
-                        Image(systemName: entry.isDrinking ? "water.waves" : "mountain.2.fill")
-                            .font(.system(size: 10))
-                            .foregroundColor(.white.opacity(1.0))
-                        Text(altitudeTitle)
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white.opacity(1.0))
-                    }
-                    // Высота и н.у.м. на одной строке
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("\(abs(entry.score))")
-                            .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(accentColor)
-                        Text(altitudeSuffix)
+                    Text(altitudeTitle)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(1.0))
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Image(systemName: entry.score >= 0 ? "mountain.2.fill" : "water.waves")
                             .font(.system(size: 12))
-                            .foregroundColor(.white.opacity(1.0))
-                        Text(altitudeSubtitle)
-                            .font(.system(size: 12))
-                            .foregroundColor(.white.opacity(1.0))
+                            .foregroundColor(scoreColor)
+                        Text("\(abs(entry.score)) \(altitudeSuffix)")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(scoreColor)
+                            .minimumScaleFactor(0.6)
+                            .lineLimit(2)
                     }
                 }
-
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .leading)

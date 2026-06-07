@@ -15,48 +15,52 @@ class ExportService {
     func manualExport() -> URL? {
         let dataManager = DrinkDataManager()
         let fullData = dataManager.loadFullData()
-        
-        // 🔥 Добавляем userId и username из UserDefaults
-        let userId = UserDefaults.standard.object(forKey: "userId") as? Int
-        let username = UserDefaults.standard.string(forKey: "userName")
-        
-        // 🔥 СОЗДАЕМ НОВЫЙ ExportData с ТЕКУЩЕЙ датой
+
+        let workouts = WorkoutDataStorage.shared.loadAll()
+
         let exportData = ExportData(
             daysData: fullData.daysData,
+            workouts: workouts.isEmpty ? nil : workouts
         )
-        
+
         do {
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .iso8601
             encoder.outputFormatting = .prettyPrinted
-            
+
             let jsonData = try encoder.encode(exportData)
-            
+
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
             let dateString = dateFormatter.string(from: Date())
             let fileName = "wobbly_export_\(dateString).json"
             let tempURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
-            
+
             try jsonData.write(to: tempURL)
-            print("📤 Ручной экспорт: \(tempURL)")
-            print("📅 Дата экспорта в файле: \(exportData.exportDate)")
-            
+            print("📤 Ручной экспорт: \(tempURL), тренировок: \(workouts.count)")
+
             return tempURL
-            
+
         } catch {
             print("❌ Ошибка ручного экспорта: \(error)")
             return nil
         }
     }
-
+    
     func restoreFromFile(_ fileURL: URL) -> Bool {
         do {
             let jsonData = try Data(contentsOf: fileURL)
             let exportData = try JSONDecoder().decode(ExportData.self, from: jsonData)
             
-            // Просто сохраняем импортированные данные в основной файл
             dataManager.saveFullData(exportData)
+            
+            // Восстанавливаем тренировки если есть
+            if let workouts = exportData.workouts, !workouts.isEmpty {
+                for (dayKey, workout) in workouts {
+                    WorkoutDataStorage.shared.save(workout, for: dayKey)
+                }
+                print("✅ Восстановлено тренировок: \(workouts.count)")
+            }
             
             print("✅ Данные восстановлены из файла: \(exportData.daysData.count) записей")
             return true

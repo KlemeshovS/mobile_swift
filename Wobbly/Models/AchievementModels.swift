@@ -129,6 +129,7 @@ struct Achievement: Identifiable, Codable {
         case "milestone_1642_negative": return "achievement_milestone_1642_negative"
         case "milestone_3800_negative": return "achievement_milestone_3800_negative"
         case "milestone_6066_negative": return "achievement_milestone_6066_negative"
+        case "milestone_7729_negative": return "achievement_milestone_7729_negative"
         case "milestone_10047_negative": return "achievement_milestone_10047_negative"
         case "milestone_11022_negative": return "achievement_milestone_11022_negative"
         case "milestone_1917": return "achievement_milestone_1917"

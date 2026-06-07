@@ -330,6 +330,13 @@ class NewAchievementManager {
             isUnlocked: false
         ),
         Achievement(
+            id: "milestone_7729_negative",
+            title: NSLocalizedString("ach_milestone_7729_negative_title", comment: ""),
+            description: NSLocalizedString("ach_milestone_7729_negative_desc", comment: ""),
+            type: .milestone(target: 7729, isNegative: true),
+            isUnlocked: false
+        ),
+        Achievement(
             id: "milestone_10047_negative",
             title: NSLocalizedString("ach_milestone_10047_negative_title", comment: ""),
             description: NSLocalizedString("ach_milestone_10047_negative_desc", comment: ""),

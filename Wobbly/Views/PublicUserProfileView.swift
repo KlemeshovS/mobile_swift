@@ -34,87 +34,77 @@ struct PublicUserProfileView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // фон (без изменений)
+                // фон
                 LinearGradient(
-                    colors: [
-                        Color(hex: "1E1E2E").opacity(0.98),
-                        Color(hex: "2A2A3A").opacity(0.98)
-                    ],
+                    colors: scoreForGradient >= 0
+                        ? [Color(hex: "080F08"), Color(hex: "0A1F10"), Color(hex: "122A18")]
+                        : [Color(hex: "1A0A0A"), Color(hex: "2A1020"), Color(hex: "1E1550")],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
                 
-                VStack(spacing: 24) {
-                    // Аватарка
-                    let avatarURL = makeFullURL(path: item.avatarUrl)
-                    if let url = avatarURL {
-                        KFImage(url)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                    } else {
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 100, height: 100)
-                            .overlay(
-                                Image(systemName: "person.fill")
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 40))
-                            )
-                    }
-                    
-                    // Юзернейм и очки
-                    HStack {
-                        Text(item.username)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color(hex: "C7FF00"))
-                        
-                        Spacer()
-                        
-                        if let score = actualScore {
-                            Text("\(abs(score))")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(score >= 0 ? Color.mint : Color.pink)
-                                .transition(.opacity)
-                        } else if item.score != 0 {
-                            // Показываем только если score из leaderboard (не 0 из follow)
-                            Text("\(abs(item.score))")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(scoreColor)
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Аватарка
+                        let avatarURL = makeFullURL(path: item.avatarUrl)
+                        if let url = avatarURL {
+                            KFImage(url)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 100, height: 100)
+                                .clipShape(Circle())
                         } else {
-                            // Пустышка той же ширины пока грузится
-                            Text("...")
+                            Circle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(width: 100, height: 100)
+                                .overlay(
+                                    Image(systemName: "person.fill")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 40))
+                                )
+                        }
+                        
+                        // Юзернейм и очки
+                        HStack {
+                            Text(item.username)
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white.opacity(0.3))
+                                .foregroundColor(Color(hex: "C7FF00"))
+                            Spacer()
+                            if let score = actualScore {
+                                Text("\(abs(score))")
+                                    .font(.title2).fontWeight(.bold)
+                                    .foregroundColor(score >= 0 ? Color.mint : Color.pink)
+                                    .transition(.opacity)
+                            } else if item.score != 0 {
+                                Text("\(abs(item.score))")
+                                    .font(.title2).fontWeight(.bold)
+                                    .foregroundColor(scoreColor)
+                            } else {
+                                Text("...")
+                                    .font(.title2).fontWeight(.bold)
+                                    .foregroundColor(.white.opacity(0.3))
+                            }
                         }
-                    }
-                    .padding(.horizontal, 32)
-                    
-                    // Кнопка (показываем только если пользователь авторизован)
-                    if AuthStateManager.shared.sessionType == .authenticated {
-                        if isLoadingFollow {
-                            ProgressView()
+                        .padding(.horizontal, 32)
+                        
+                        // Кнопка
+                        if AuthStateManager.shared.sessionType == .authenticated {
+                            if isLoadingFollow { ProgressView() } else { buttonView }
                         } else {
-                            buttonView
+                            Text(NSLocalizedString("auth_required_for_follows", comment: ""))
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.7))
+                                .padding()
                         }
-                    } else {
-                        // Гость — показываем предложение авторизоваться
-                        Text(NSLocalizedString("auth_required_for_follows", comment: ""))
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.7))
-                            .padding()
+                        
+                        // Календарь
+                        calendarSection
+                            .padding(.horizontal, 16)
                     }
-                    // Секция календаря
-                    calendarSection
-                        .padding(.horizontal, 16)
-                    
-                    Spacer()
+                    .padding(.top, 10)
+                    .padding(.bottom, 30)
                 }
                 .padding(.top, 10)
             }
@@ -143,6 +133,10 @@ struct PublicUserProfileView: View {
             Task { await loadActualScore() }
             Task { await loadFriendCalendar() }
         }
+    }
+    
+    private var scoreForGradient: Int {
+        actualScore ?? item.score
     }
     
     @ViewBuilder
@@ -193,6 +187,9 @@ struct PublicUserProfileView: View {
                         .foregroundColor(.white.opacity(0.6))
                     FriendCalendarGridView(calendarData: cal.days, updatedAt: cal.updatedAt)
                 }
+                // Статистика друга
+                FriendStatsView(days: cal.days, updatedAt: cal.updatedAt)
+                    .padding(.top, 8)
             }
         }
         // Если friendCalendar == nil и нет ошибки — ничего не показываем
