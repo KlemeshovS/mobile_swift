@@ -169,14 +169,14 @@ struct FriendStatsView: View {
             VStack(spacing: 10) {
                 // Трезвый стрик
                 HStack {
-                    Image("sober_icon").resizable().scaledToFit().frame(width: 28, height: 28)
+                    Image("sober_icon").resizable().scaledToFit().frame(width: 32, height: 32)
                     Text(NSLocalizedString("sober_streak_title", comment: ""))
-                        .font(.system(size: 13)).foregroundColor(.black)
+                        .font(.system(size: 14)).foregroundColor(.black)
                     Spacer()
                     Text("\(calculateSoberStreak())")
-                        .font(.system(size: 15, weight: .bold)).foregroundColor(.black)
+                        .font(.system(size: 17, weight: .bold)).foregroundColor(.black)
                 }
-                .padding(.horizontal, 12).frame(height: 44)
+                .padding(.horizontal, 12).frame(maxWidth: .infinity).frame(height: 56)
                 .background(Color(hex: "F6C7DC")).cornerRadius(12)
 
                 HStack(spacing: 8) {
@@ -208,9 +208,9 @@ struct FriendStatsView: View {
                         .font(.system(size: 13)).foregroundColor(.black)
                     Spacer()
                     Text("\(yearStats.sport)")
-                        .font(.system(size: 15, weight: .bold)).foregroundColor(.black)
+                        .font(.system(size: 17, weight: .bold)).foregroundColor(.black)
                 }
-                .padding(.horizontal, 12).frame(height: 44)
+                .padding(.horizontal, 12).frame(maxWidth: .infinity).frame(height: 56)
                 .background(Color(hex: "EFFFB6")).cornerRadius(12)
             }
             .padding()
@@ -233,16 +233,18 @@ struct FriendStatsView: View {
     }
 
     private func statSmall(image: String, label: String, value: String, color: Color) -> some View {
-        VStack(spacing: 4) {
-            HStack(spacing: 4) {
-                Image(image).resizable().scaledToFit().frame(width: 18, height: 18)
-                Text(value).font(.system(size: 14, weight: .bold)).foregroundColor(.black)
+        VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Image(image).resizable().scaledToFit().frame(width: 24, height: 24)
+                Text(value).font(.system(size: 17, weight: .bold)).foregroundColor(.black)
             }
-            Text(label).font(.system(size: 11)).foregroundColor(.black.opacity(0.7))
-                .multilineTextAlignment(.center).lineLimit(2)
+            Text(label).font(.system(size: 14)).foregroundColor(.black)
+                .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: .infinity).padding(.vertical, 8)
-        .background(color).cornerRadius(10)
+        .frame(maxWidth: .infinity)
+        .padding(12)
+        .background(color).cornerRadius(16)
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.3), lineWidth: 1))
     }
 }
 
@@ -279,11 +281,17 @@ private struct FriendPercentageBarView: View {
             HStack(spacing: 16) {
                 HStack(spacing: 4) {
                     Circle().fill(Color.red).frame(width: 8, height: 8)
-                    Text("\(Int(drinkingPercentage))%").font(.system(size: 12)).foregroundColor(.white)
+                    Text(NSLocalizedString("your_week_drink", comment: ""))
+                        .font(.system(size: 12)).foregroundColor(.white.opacity(1.0))
+                    Text("\(Int(drinkingPercentage))%")
+                        .font(.system(size: 12)).foregroundColor(.white)
                 }
                 HStack(spacing: 4) {
                     Circle().fill(Color.green).frame(width: 8, height: 8)
-                    Text("\(Int(sportPercentage))%").font(.system(size: 12)).foregroundColor(.white)
+                    Text(NSLocalizedString("your_week_sport", comment: ""))
+                        .font(.system(size: 12)).foregroundColor(.white.opacity(1.0))
+                    Text("\(Int(sportPercentage))%")
+                        .font(.system(size: 12)).foregroundColor(.white)
                 }
             }
         }
