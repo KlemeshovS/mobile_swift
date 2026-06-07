@@ -67,9 +67,10 @@ struct RatingsView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 10) {
                     customTabView
-                        .padding(.horizontal, 20)
-                        .padding(.top, 16)
-                        .padding(.bottom, 12)
+                        .padding(.leading, 20)
+                         .padding(.trailing, 6)
+                         .padding(.top, 16)
+                         .padding(.bottom, 12)
 
                     Button(action: { showProfile = true }) {
                         if let avatarPath = myAvatarUrl, let url = makeFullURL(path: avatarPath) {

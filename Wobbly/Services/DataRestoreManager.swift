@@ -73,6 +73,13 @@ class DataRestoreManager: ObservableObject {
             let dataManager = DrinkDataManager()
             dataManager.saveFullData(exportData)
             
+            if let workouts = exportData.workouts, !workouts.isEmpty {
+                for (dayKey, workout) in workouts {
+                    WorkoutDataStorage.shared.save(workout, for: dayKey)
+                }
+                print("✅ Восстановлено тренировок из бэкапа: \(workouts.count)")
+            }
+            
             print("✅ Ручное восстановление из авто-бэкапа завершено: \(exportData.daysData.count) записей")
             
             // Обновляем UI после восстановления
@@ -155,6 +162,14 @@ class DataRestoreManager: ObservableObject {
             
             // Сохраняем импортированные данные
             drinkDataManager.saveFullData(exportData)
+            
+            // Восстанавливаем тренировки если есть
+            if let workouts = exportData.workouts, !workouts.isEmpty {
+                for (dayKey, workout) in workouts {
+                    WorkoutDataStorage.shared.save(workout, for: dayKey)
+                }
+                print("✅ Восстановлено тренировок: \(workouts.count)")
+            }
             
             print("✅ Импорт завершен: \(exportData.daysData.count) записей")
             

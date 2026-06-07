@@ -41,15 +41,17 @@ struct UserProfileView: View {
     @State private var myFollowers: [FollowModel] = []
     @State private var isLoadingFollows = false
     @State private var selectedFollowUser: FollowModel? = nil
+    
+    @State private var showAllFollows = false
+    @State private var showAllFollowers = false
 
     var body: some View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    colors: [
-                        Color(hex: "1E1E2E").opacity(0.98),
-                        Color(hex: "2A2A3A").opacity(0.98)
-                    ],
+                    colors: currentProgress >= 0
+                        ? [Color(hex: "080F08"), Color(hex: "0A1F10"), Color(hex: "122A18")]
+                        : [Color(hex: "1A0A0A"), Color(hex: "2A1020"), Color(hex: "1E1550")],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -335,6 +337,11 @@ struct UserProfileView: View {
     }
     
     // MARK: - Authenticated View
+    private var currentProgress: Int {
+        let legacy = daysData.mapValues { $0 }
+        return ProgressCalculator.calculate(from: legacy).current
+    }
+    
     private var authenticatedView: some View {
         VStack(spacing: 24) {
             // Avatar
@@ -464,17 +471,35 @@ struct UserProfileView: View {
                     .background(Color.white.opacity(0.04))
                 } else {
                     VStack(spacing: 0) {
-                        ForEach(Array(myFollows.enumerated()), id: \.element.id) { index, follow in
-                            FollowRowView(
-                                follow: follow,
-                                onTap: { selectedFollowUser = follow },
-                                onUnfollow: { Task { await unfollowUser(userId: follow.userId) } },
-                                makeFullURL: makeFullURL
-                            )
-                            if index < myFollows.count - 1 {
-                                Divider()
-                                    .background(Color.white.opacity(0.08))
-                                    .padding(.leading, 64)
+                        let visibleFollows = showAllFollows ? myFollows : Array(myFollows.prefix(10))
+
+                        VStack(spacing: 0) {
+                            ForEach(Array(visibleFollows.enumerated()), id: \.element.id) { index, follow in
+                                FollowRowView(
+                                    follow: follow,
+                                    onTap: { selectedFollowUser = follow },
+                                    onUnfollow: { Task { await unfollowUser(userId: follow.userId) } },
+                                    makeFullURL: makeFullURL
+                                )
+                                if index < visibleFollows.count - 1 {
+                                    Divider()
+                                        .background(Color.white.opacity(0.08))
+                                }
+                            }
+
+                            if myFollows.count > 10 {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                        showAllFollows.toggle()
+                                    }
+                                }) {
+                                    Text(NSLocalizedString(showAllFollows ? "show_less_button" : "show_all_button", comment: ""))
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(Color(hex: "C7FF00"))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                }
+                                .background(Color.white.opacity(0.04))
                             }
                         }
                     }
@@ -504,17 +529,35 @@ struct UserProfileView: View {
                     .background(Color.white.opacity(0.08))
 
                     VStack(spacing: 0) {
-                        ForEach(Array(pendingFollowers.enumerated()), id: \.element.id) { index, follower in
-                            FollowerRowView(
-                                follower: follower,
-                                onTap: { selectedFollowUser = follower },
-                                onFollowBack: { Task { await followBack(username: follower.username) } },
-                                makeFullURL: makeFullURL
-                            )
-                            if index < pendingFollowers.count - 1 {
-                                Divider()
-                                    .background(Color.white.opacity(0.08))
-                                    .padding(.leading, 64)
+                        let visibleFollowers = showAllFollowers ? pendingFollowers : Array(pendingFollowers.prefix(10))
+
+                        VStack(spacing: 0) {
+                            ForEach(Array(visibleFollowers.enumerated()), id: \.element.id) { index, follower in
+                                FollowerRowView(
+                                    follower: follower,
+                                    onTap: { selectedFollowUser = follower },
+                                    onFollowBack: { Task { await followBack(username: follower.username) } },
+                                    makeFullURL: makeFullURL
+                                )
+                                if index < visibleFollowers.count - 1 {
+                                    Divider()
+                                        .background(Color.white.opacity(0.08))
+                                }
+                            }
+
+                            if pendingFollowers.count > 10 {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                        showAllFollowers.toggle()
+                                    }
+                                }) {
+                                    Text(NSLocalizedString(showAllFollowers ? "show_less_button" : "show_all_button", comment: ""))
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(Color(hex: "C7FF00"))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                }
+                                .background(Color.white.opacity(0.04))
                             }
                         }
                     }

@@ -9,15 +9,18 @@ struct ExportData: Codable {
     var dayRecords: [String: DayRecord]? // 🔥 НОВЫЙ формат (опционально)
     let userId: Int?
     let username: String?
+    var workouts: [String: WorkoutData]?
     
     init(daysData: [String: DrinkLevel] = [:],
          dayRecords: [String: DayRecord]? = nil,
+         workouts: [String: WorkoutData]? = nil,
          userId: Int? = nil,
          username: String? = nil) {
-        self.version = "2.1"  // 🔥 Повысим версию для новых полей
+        self.version = "2.1"
         self.exportDate = Date()
         self.daysData = daysData
         self.dayRecords = dayRecords
+        self.workouts = workouts
         self.userId = userId
         self.username = username
     }
@@ -51,6 +54,7 @@ struct ExportData: Codable {
     // Кастомная реализация Codable
     enum CodingKeys: String, CodingKey {
         case version, exportDate, daysData, dayRecords, userId, username
+        case workouts
     }
     
     func encode(to encoder: Encoder) throws {
@@ -67,10 +71,12 @@ struct ExportData: Codable {
         // Кодируем опциональные поля пользователя
         try container.encodeIfPresent(userId, forKey: .userId)
         try container.encodeIfPresent(username, forKey: .username)
+        try container.encodeIfPresent(workouts, forKey: .workouts)
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        workouts = try container.decodeIfPresent([String: WorkoutData].self, forKey: .workouts)
         
         version = try container.decode(String.self, forKey: .version)
         
