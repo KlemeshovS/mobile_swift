@@ -35,8 +35,8 @@ struct AppNotificationView: View {
     @ViewBuilder
     private var content: some View {
         switch item.type {
-        case .achievement(let title, let description, let imageName, let isDrinking):
-            achievementView(title: title, description: description, imageName: imageName, isDrinking: isDrinking)
+        case .achievement(let title, let description, let achievementDescription, let imageName, let isDrinking):
+            achievementView(title: title, description: description, achievementDescription: achievementDescription, imageName: imageName, isDrinking: isDrinking)
 
         case .newFollower(let username, let userId, let avatarUrl):
             followerView(username: username, userId: userId, avatarUrl: avatarUrl)
@@ -49,7 +49,8 @@ struct AppNotificationView: View {
         }
     }
 
-    private func achievementView(title: String, description: String, imageName: String, isDrinking: Bool) -> some View {        HStack(spacing: 14) {
+    private func achievementView(title: String, description: String, achievementDescription: String, imageName: String, isDrinking: Bool) -> some View {
+        HStack(spacing: 14) {
             Image(imageName)
                 .resizable()
                 .scaledToFit()
@@ -62,8 +63,13 @@ struct AppNotificationView: View {
                 Text(title)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
+                Text(achievementDescription)
+                    .font(.system(size: 13))
+                    .foregroundColor(.white.opacity(0.85))
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(description)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(isDrinking ? Color(hex: "FF6B6B") : Color(hex: "C7FF00"))
                     .lineLimit(1)
             }
@@ -74,13 +80,11 @@ struct AppNotificationView: View {
         .padding(.vertical, 14)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        colors: [Color(hex: "2D2B55"), Color(hex: "3E3B6B")],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(LinearGradient(
+                    colors: [Color(hex: "2D2B55"), Color(hex: "3E3B6B")],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(Color(hex: "C7FF00").opacity(0.3), lineWidth: 1)
@@ -89,17 +93,10 @@ struct AppNotificationView: View {
         .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 4)
         .padding(.horizontal, 16)
         .padding(.bottom, 30)
-        .onTapGesture {
-            dismissWithAnimation()
-        }
-        .gesture(
-            DragGesture(minimumDistance: 20)
-                .onEnded { value in
-                    if value.translation.height > 20 {
-                        dismissWithAnimation()
-                    }
-                }
-        )
+        .onTapGesture { dismissWithAnimation() }
+        .gesture(DragGesture(minimumDistance: 20).onEnded { value in
+            if value.translation.height > 20 { dismissWithAnimation() }
+        })
     }
     
     private func followerView(username: String, userId: Int, avatarUrl: String?) -> some View {
