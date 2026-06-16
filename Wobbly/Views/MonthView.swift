@@ -13,6 +13,7 @@ struct MonthView: View {
     let monthName: String
     let isCurrentMonth: Bool
     let daysData: [String: DayRecord]
+    var lastUpdatedDate: Date? = nil
     let onDaySelected: (DayData) -> Void
     let onDayLongPressed: (DayData) -> Void
     
@@ -36,6 +37,7 @@ struct MonthView: View {
                 month: month,
                 year: year,
                 daysData: daysData,
+                lastUpdatedDate: lastUpdatedDate,
                 onDaySelected: onDaySelected,
                 onDayLongPressed: onDayLongPressed
             )

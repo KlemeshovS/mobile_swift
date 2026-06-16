@@ -263,13 +263,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Consistency is a virtue."
+            "value" : "100 days in the dark. The pressure is already crushing your ribs, but you keep swimming deeper. Consistency? No. Just a habit of not surfacing."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Режим соблюдён, хвалим."
+            "value" : "100 дней во тьме. Давление уже ломает рёбра, но ты продолжаешь плыть глубже. Стабильность? Нет. Просто привычка не всплывать."
           }
         }
       }
@@ -297,13 +297,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your liver filed a complaint. It was rejected."
+            "value" : "200 days. Your liver stopped sending letters home. Now it just knocks from inside — morse code for «abyss accepted». You're officially cargo."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Печень уже не пишет письма домой"
+            "value" : "200 дней. Твоя печень перестала писать письма домой. Теперь она просто стучит изнутри — азбукой Морзе: «бездна приняла». Ты официально — груз 200."
           }
         }
       }
@@ -331,13 +331,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "300 drinking days. This isn't a habit anymore - it's a career."
+            "value" : "300 drinking days. This isn't a career — it's a dive without a bottom. Your lungs are full of darkness, and you start to like the taste of pressure. Professional deformation of the soul."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "300 алкодней. Это уже не привычка - это карьера."
+            "value" : "300 алкодней. Это уже не карьера — это погружение без дна. Лёгкие полны тьмы, и вкус давления начинает нравиться. Профессиональная деформация души."
           }
         }
       }
@@ -1113,6 +1113,23 @@
         }
       }
     },
+    "ach_requirement_review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a review in the App Store"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставить отзыв в App Store"
+          }
+        }
+      }
+    },
     "ach_requirement_sober_days_year" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1205,6 +1222,40 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "31 декабря на спорте"
+          }
+        }
+      }
+    },
+    "ach_review_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You left a review. Not because you're nice. Because you want someone else to survive this too. That's almost altruism. Almost."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ты оставил отзыв. Не потому что добрый. А потому что хочешь, чтобы кто-то ещё тоже это пережил. Это почти альтруизм. Почти."
+          }
+        }
+      }
+    },
+    "ach_review_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connoisseur of Fine Things"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ценитель прекрасного"
           }
         }
       }
@@ -1583,19 +1634,53 @@
         }
       }
     },
+    "ach_sober_month_1_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You started the year without a hangover. Your colleagues don't believe you. That's their problem."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ты начал год без похмелья. Коллеги не верят. Это их проблемы."
+          }
+        }
+      }
+    },
     "ach_sober_month_1_title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober January"
+            "value" : "Hangover-Free Start"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Выживший"
+            "state" : "translated",
+            "value" : "Трезвый старт"
+          }
+        }
+      }
+    },
+    "ach_sober_month_2_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "February 23 is a man's day. You're a man. You drink water. The logic is flawless."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "23 февраля — мужской день. Ты мужчина. Пьёшь воду. Логика безупречна."
           }
         }
       }
@@ -1606,13 +1691,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober February"
+            "value" : "Defender of Mineral Water"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Защитник трезвости"
+            "state" : "translated",
+            "value" : "Защитник минералки"
+          }
+        }
+      }
+    },
+    "ach_sober_month_3_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "March 8. Women get flowers. You get a clear head. A fair exchange, right? Right?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 марта. Женщинам цветы. Тебе ясная голова. Честный обмен, да? Да?"
           }
         }
       }
@@ -1623,13 +1725,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober March"
+            "value" : "Mimosa Without Champagne"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Цветы и минералка"
+            "state" : "translated",
+            "value" : "Мимоза без шампанского"
+          }
+        }
+      }
+    },
+    "ach_sober_month_4_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "April 1st. The joke is that you're still sober. Ha ha. Very funny."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 апреля. Шутка в том, что ты всё ещё трезв. Ха-ха. Очень смешно."
           }
         }
       }
@@ -1640,13 +1759,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober April"
+            "value" : "Not a Fool's Joke"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Первоапрельская шутка"
+            "state" : "translated",
+            "value" : "Не шутка дурака"
+          }
+        }
+      }
+    },
+    "ach_sober_month_5_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "May holidays. The meat is great. The company is great. And no hangover. You can handle it."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Майские. Мясо отличное. Компания отличная. И никакого похмелья. Ты справишься."
           }
         }
       }
@@ -1657,13 +1793,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober May"
+            "value" : "Barbecue Without Bitterness"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Шашлык без пива"
+            "state" : "translated",
+            "value" : "Шашлык без горечи"
+          }
+        }
+      }
+    },
+    "ach_sober_month_6_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "June, sun, beer ads left and right. And you — with sparkling water. Hydromet center shrugs."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Июнь, солнце, реклама пива на каждом шагу. А ты — с газировкой. Гидрометцентр пожимает плечами."
           }
         }
       }
@@ -1674,13 +1827,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober June"
+            "value" : "Summer Anomaly"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Аномальное лето"
+            "state" : "translated",
+            "value" : "Летняя аномалия"
+          }
+        }
+      }
+    },
+    "ach_sober_month_7_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "July is dry by name and by fact. Your mouth is dry. Your conscience is clear. Acceptable trade."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Июль сухой и по названию, и по факту. Во рту сухо. Совесть чиста. Приемлемый обмен."
           }
         }
       }
@@ -1691,13 +1861,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober July"
+            "value" : "Dry But Alive"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Сухой июль"
+            "state" : "translated",
+            "value" : "Сухой, но живой"
+          }
+        }
+      }
+    },
+    "ach_sober_month_8_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "August. Tomatoes, cucumbers, sober evenings. Your neighbors drink moonshine. You drink kvass. Different paths, same dacha."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Август. Помидоры, огурцы, трезвые вечера. Соседи пьют самогон. Ты пьёшь квас. Разные пути, одна дача."
           }
         }
       }
@@ -1708,13 +1895,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober August"
+            "value" : "Dacha Normal Guy"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Дачник-трезвенник"
+            "state" : "translated",
+            "value" : "Дачный нормальный"
+          }
+        }
+      }
+    },
+    "ach_sober_month_9_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "September 1st. Children go to school. You go to a sober month. Both of you are a little nervous. But both of you can do it."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 сентября. Дети идут в школу. Ты идёшь в трезвый месяц. Оба немного нервничаете. Но у обоих получится."
           }
         }
       }
@@ -1725,13 +1929,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober September"
+            "value" : "First-Grader's Morning"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Первоклашка"
+            "state" : "translated",
+            "value" : "Утро первоклашки"
+          }
+        }
+      }
+    },
+    "ach_sober_month_10_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "October. Leaves are falling. Willpower stays. Surprisingly."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Октябрь. Листья падают. Сила воли остаётся. Как ни странно."
           }
         }
       }
@@ -1742,13 +1963,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober October"
+            "value" : "Leaf Fall, Will Fall?"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Листопад"
+            "value" : "Листопад, а воля?"
+          }
+        }
+      }
+    },
+    "ach_sober_month_11_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "November 4 — National Unity Day. You are united with your sobriety. That's still unity. Counts."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4 ноября — День народного единства. Ты един со своей трезвостью. Это тоже единство. Считается."
           }
         }
       }
@@ -1759,13 +1997,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober November"
+            "value" : "Unity With Yourself"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Единство с трезвостью"
+            "state" : "translated",
+            "value" : "Единство с собой"
+          }
+        }
+      }
+    },
+    "ach_sober_month_12_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "December. Corporate parties with cola and camera. You remember everything. HR is suspicious. But you're clean."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Декабрь. Корпоративы с колой и камерой. Ты всё помнишь. HR подозревает. Но ты чист."
           }
         }
       }
@@ -1776,13 +2031,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sober December"
+            "value" : "Office Rebel"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Корпоратив провален"
+            "state" : "translated",
+            "value" : "Офисный бунтарь"
           }
         }
       }
@@ -6329,6 +6584,40 @@
         }
       }
     },
+    "menu_rate_app_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate App"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценить приложение"
+          }
+        }
+      }
+    },
+    "menu_rate_app_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a review in the App Store"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставить отзыв в App Store"
+          }
+        }
+      }
+    },
     "menu_language" : {
       "comment" : "Язык",
       "localizations" : {
@@ -7954,13 +8243,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "meters underwater"
+            "value" : "underwater"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "метров под водой"
+            "value" : "под водой"
           }
         }
       }
@@ -7971,13 +8260,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "meters above sea level"
+            "value" : "above sea level"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "метров над уровнем моря"
+            "value" : "над уровнем моря"
+          }
+        }
+      }
+    },
+    "progress_unit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "m"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "м"
           }
         }
       }
@@ -8440,8 +8746,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Измеритель моей дисциплины — Wobbly. Спорт и контроль алкоголя наглядно в одном отчете. А у тебя какие цифры? Ставь Wobbly — увидишь сам"
+            "state" : "translated",
+            "value" : "Wobbly показал, где я себе льстил или врал. А у тебя какие реальные цифры? Скачивай — и увидишь сам"
           }
         }
       }
@@ -8457,8 +8763,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wobbly бросает вызов моей лени. Столько трезвых дней — мой личный рекорд. Спортивных сделаю в этом месяце больше. Погнали — качай Wobbly и догоняй!"
+            "state" : "translated",
+            "value" : "Wobbly заметил мой личный рекорд — а я сам не верил. В этом месяце хочу больше спорта. Скачивай и догоняй, посмотрим!"
           }
         }
       }
@@ -8474,8 +8780,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wobbly не требует. Wobbly просто считает. И твои дни посчитает тоже. Бесплатно и без стыда. Живой человек — живая статистика. Скачай — увидишь"
+            "state" : "translated",
+            "value" : "Wobbly ничего от меня не требует, просто считает. Бесплатно и без стыда. Скачай — увидишь, как выглядят твои дни на самом деле"
           }
         }
       }
@@ -8492,7 +8798,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wobbly — это мой контролер. Спорт и алкоголь в одном приложении. Отчет вижу — результат знаю. А тебе нужен такой? Скачай — и сам себе перестанешь врать"
+            "value" : "Wobbly — мой молчаливый контролер: отметил спортивные или алко-дни — и дальше живу. Скачай — сам себе врать перестанешь, это приятно"
           }
         }
       }
@@ -8508,8 +8814,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Я обещал себе следить. Wobbly помог не врать себе. Хочешь тоже цифры вместо оправданий? Ставь Wobbly — и проверь"
+            "state" : "translated",
+            "value" : "Я дал себе обещание, Wobbly записал все как есть. Хочешь цифры вместо оправданий? Ставь — проверим вместе!"
           }
         }
       }
@@ -8525,8 +8831,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wobbly — не про мотивацию. Wobbly — про честность. А у тебя реальность совпадает с ощущениями? Скачай — узнаешь за 2 минуты"
+            "state" : "translated",
+            "value" : "Wobbly не про мотивацию, а про честность. У тебя как, реальность совпадает с ощущениями? Скачай — проверишь за пару минут"
           }
         }
       }
@@ -8542,8 +8848,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wobbly стал моим дневником. Тоже хочешь заботиться о себе без осуждения? Скачай — и начни просто замечать, без давления"
+            "state" : "translated",
+            "value" : "Wobbly стал моим дневником спортивных и алко-дней без осуждения. Тоже хочешь просто замечать, без «надо»? Скачай, попробуй!"
           }
         }
       }
@@ -8559,8 +8865,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Раньше я себя ругал. Теперь Wobbly показывает — я стараюсь. Ты тоже стараешься — просто не видишь этого. Wobbly покажет. Попробуй!"
+            "state" : "translated",
+            "value" : "Раньше я себя ругал, а Wobbly взял и посчитал. Я не герой, но и не днище. А ты свой счет знаешь? Wobbly покажет цифры — сам увидишь"
           }
         }
       }
@@ -8576,8 +8882,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wobbly превратил мои дни в узор. А каким будет твой узор? Скачай — и увидишь свою картину"
+            "state" : "translated",
+            "value" : "Wobbly превратил мои дни в узор — и смех, и грех. А какой узор получится у тебя? Скачай, увидишь свою картину"
           }
         }
       }
@@ -8593,8 +8899,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Я — персонаж, Wobbly — летопись. А ты герой какого сюжета? Скачай — и напиши свою историю"
+            "state" : "translated",
+            "value" : "У меня своя летопись в Wobbly. А ты герой какого сюжета? Скачай, сравним наши истории"
           }
         }
       }
@@ -8610,8 +8916,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wobbly собирает данные без эмоций. А ты видишь свои паттерны? Без Wobbly — вряд ли. Скачай и проверь гипотезу"
+            "state" : "translated",
+            "value" : "Wobbly не оценивает, просто фиксирует. А ты замечаешь, как повторяются твои пятницы? Без Wobbly — вряд ли. Скачай и проверь, интересно же"
           }
         }
       }
@@ -8627,8 +8933,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Без цифр люди верят в иллюзии. С Wobbly — видят реальность. Хочешь увидеть свою? Скачай или продолжай верить в иллюзии — выбор за тобой"
+            "state" : "translated",
+            "value" : "Без цифр мы верим в иллюзии. Wobbly показывает, как есть. Не всегда приятно, зато честно. Скачай или продолжай верить. Выбор за тобой"
           }
         }
       }
@@ -8644,8 +8950,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wobbly показал мне счет. Давай сравним твой и мой — но для этого тебе его тоже надо скачать. Жду твой скрин"
+            "state" : "translated",
+            "value" : "Wobbly показал мой счет. Хочешь сравнить со своим? Тогда качай — жду твой скрин, посмотрим"
           }
         }
       }
@@ -8661,8 +8967,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Не думай — делай. Wobbly считает. Челлендж: скачай сегодня, через неделю покажешь свой счёт. Слабо?"
+            "state" : "translated",
+            "value" : "Не думай — просто скачай. Wobbly считает. Го челлендж: скачай сегодня, через неделю покажешь свой счет. Слабо?"
           }
         }
       }
@@ -8678,8 +8984,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Я могу быть разным. Wobbly просто фиксирует. Ты можешь быть любым. Wobbly не осудит. Скачай — и начни просто замечать, без \"надо\" и \"должен\""
+            "state" : "translated",
+            "value" : "Я сегодня герой, а завтра овощ — и Wobbly просто фиксирует, не осуждает. Ты можешь быть любым. Скачай — и увидишь себя без прикрас"
           }
         }
       }

@@ -148,6 +148,7 @@ struct FriendCalendarGridView: View {
                                         monthName: monthName(for: ym.month),
                                         isCurrentMonth: isCurrentMonth(ym),
                                         daysData: dayRecordsForMainCalendar,
+                                        lastUpdatedDate: lastUpdatedDate,
                                         onDaySelected: { _ in },
                                         onDayLongPressed: { _ in }
                                     )
@@ -336,35 +337,46 @@ private struct SmallDayCell: View {
     }
 
     var body: some View {
-        ZStack {
-            if let rec = record, !isFuture, !isUnknown, rec.drinkLevel != .none, rec.hasSport {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            gradient: Gradient(colors: [
-                                Color(hex: "C7FF00"),          // центр зелёный
-                                Color(hex: "C7FF00").opacity(0.7),
-                                Color(hex: "C7FF00").opacity(0.3), // переход
-                                rec.drinkLevel == .little ? Color(hex: "FF0072").opacity(0.4) :
-                                rec.drinkLevel == .medium ? Color(hex: "9126EF").opacity(0.4) :
-                                Color(hex: "482FED").opacity(0.4)  // края — алкоголь приглушённо
-                            ]),
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: 14
-                        )
-                    )
-            } else {
-                Circle().fill(cellColor)
-            }
+        GeometryReader { geo in
+            let radius = min(geo.size.width, geo.size.height) / 2
+            let alcoholColor: Color = {
+                guard let rec = record, rec.drinkLevel != .none, rec.hasSport else { return .clear }
+                switch rec.drinkLevel {
+                case .little: return Color(hex: "FF0072")
+                case .medium: return Color(hex: "9126EF")
+                default:      return Color(hex: "482FED")
+                }
+            }()
 
-            Text("\(day)")
-                .font(.system(size: 9))
-                .foregroundColor(
-                    isFuture ? .gray.opacity(0.4) :
-                    isUnknown ? .gray.opacity(0.5) :
-                    .black
-                )
+            ZStack {
+                if let rec = record, !isFuture, !(isUnknown && !isToday), rec.drinkLevel != .none, rec.hasSport {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: [
+                                    Color(hex: "C7FF00"),
+                                    Color(hex: "C7FF00"),
+                                    Color(hex: "C7FF00").opacity(0.7),
+                                    alcoholColor.opacity(0.5)
+                                ]),
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: radius
+                            )
+                        )
+                } else {
+                    Circle().fill(cellColor)
+                }
+
+                Text("\(day)")
+                    .font(.system(size: 9))
+                    .foregroundColor(
+                        isFuture ? .gray.opacity(0.4) :
+                        (isUnknown && !isToday) ? .gray.opacity(0.5) :
+                        .black
+                    )
+                    .frame(width: geo.size.width, height: geo.size.height)
+            }
         }
         .frame(maxWidth: .infinity)
         .aspectRatio(1, contentMode: .fit)
@@ -373,13 +385,15 @@ private struct SmallDayCell: View {
 
     private var cellColor: Color {
         if isFuture { return Color.clear }
-        if isUnknown { return Color.clear }
-        guard let rec = record else { return Color.clear }
+        if isUnknown && !isToday { return Color.clear }
+        guard let rec = record else {
+            return isToday ? Color.blue.opacity(0.1) : Color.clear
+        }
         if rec.hasSport && rec.drinkLevel == .none {
             return Color(hex: "C7FF00").opacity(0.4)
         } else if rec.drinkLevel != .none {
             return rec.drinkLevel.color
         }
-        return Color.clear
+        return isToday ? Color.blue.opacity(0.1) : Color.clear
     }
 }

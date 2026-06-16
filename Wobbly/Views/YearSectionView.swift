@@ -196,19 +196,37 @@ private struct CompactDayCell: View {
         ZStack {
             // Фон
             if let rec = record, !isFuture, rec.drinkLevel != .none && rec.hasSport {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            gradient: Gradient(colors: [
-                                Color(hex: "C7FF00"),
-                                Color(hex: "C7FF00").opacity(0.3),
-                                rec.drinkLevel.color.opacity(0.4)
-                            ]),
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: 10
+                let alcoholColor: Color = {
+                    switch rec.drinkLevel {
+                    case .little: return Color(hex: "FF0072")
+                    case .medium: return Color(hex: "9126EF")
+                    default:      return Color(hex: "482FED")
+                    }
+                }()
+                GeometryReader { geo in
+                    let radius = min(geo.size.width, geo.size.height) / 2
+                    let gradientColors: [Color] = fontSize <= 7 ? [
+                        Color(hex: "C7FF00"),
+                        Color(hex: "C7FF00").opacity(0.7),
+                        Color(hex: "C7FF00").opacity(0.3),
+                        alcoholColor.opacity(0.75)
+                    ] : [
+                        Color(hex: "C7FF00"),
+                        Color(hex: "C7FF00"),
+                        Color(hex: "C7FF00").opacity(0.7),
+                        alcoholColor.opacity(0.5)
+                    ]
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: gradientColors),
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: radius
+                            )
                         )
-                    )
+                        .frame(width: geo.size.width, height: geo.size.height)
+                }
             } else {
                 Circle().fill(cellColor)
             }

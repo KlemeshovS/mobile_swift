@@ -149,18 +149,18 @@ class NewAchievementManager {
         ),
         
         // Трезвые месяцы
-        Achievement(id: "sober_month_1", title: NSLocalizedString("ach_sober_month_1_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 1), isUnlocked: false),
-        Achievement(id: "sober_month_2", title: NSLocalizedString("ach_sober_month_2_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 2), isUnlocked: false),
-        Achievement(id: "sober_month_3", title: NSLocalizedString("ach_sober_month_3_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 3), isUnlocked: false),
-        Achievement(id: "sober_month_4", title: NSLocalizedString("ach_sober_month_4_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 4), isUnlocked: false),
-        Achievement(id: "sober_month_5", title: NSLocalizedString("ach_sober_month_5_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 5), isUnlocked: false),
-        Achievement(id: "sober_month_6", title: NSLocalizedString("ach_sober_month_6_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 6), isUnlocked: false),
-        Achievement(id: "sober_month_7", title: NSLocalizedString("ach_sober_month_7_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 7), isUnlocked: false),
-        Achievement(id: "sober_month_8", title: NSLocalizedString("ach_sober_month_8_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 8), isUnlocked: false),
-        Achievement(id: "sober_month_9", title: NSLocalizedString("ach_sober_month_9_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 9), isUnlocked: false),
-        Achievement(id: "sober_month_10", title: NSLocalizedString("ach_sober_month_10_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 10), isUnlocked: false),
-        Achievement(id: "sober_month_11", title: NSLocalizedString("ach_sober_month_11_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 11), isUnlocked: false),
-        Achievement(id: "sober_month_12", title: NSLocalizedString("ach_sober_month_12_title", comment: ""), description: NSLocalizedString("ach_sober_month_desc", comment: ""), type: .soberMonth(month: 12), isUnlocked: false),
+        Achievement(id: "sober_month_1", title: NSLocalizedString("ach_sober_month_1_title", comment: ""), description: NSLocalizedString("ach_sober_month_1_desc", comment: ""), type: .soberMonth(month: 1), isUnlocked: false),
+        Achievement(id: "sober_month_2", title: NSLocalizedString("ach_sober_month_2_title", comment: ""), description: NSLocalizedString("ach_sober_month_2_desc", comment: ""), type: .soberMonth(month: 2), isUnlocked: false),
+        Achievement(id: "sober_month_3", title: NSLocalizedString("ach_sober_month_3_title", comment: ""), description: NSLocalizedString("ach_sober_month_3_desc", comment: ""), type: .soberMonth(month: 3), isUnlocked: false),
+        Achievement(id: "sober_month_4", title: NSLocalizedString("ach_sober_month_4_title", comment: ""), description: NSLocalizedString("ach_sober_month_4_desc", comment: ""), type: .soberMonth(month: 4), isUnlocked: false),
+        Achievement(id: "sober_month_5", title: NSLocalizedString("ach_sober_month_5_title", comment: ""), description: NSLocalizedString("ach_sober_month_5_desc", comment: ""), type: .soberMonth(month: 5), isUnlocked: false),
+        Achievement(id: "sober_month_6", title: NSLocalizedString("ach_sober_month_6_title", comment: ""), description: NSLocalizedString("ach_sober_month_6_desc", comment: ""), type: .soberMonth(month: 6), isUnlocked: false),
+        Achievement(id: "sober_month_7", title: NSLocalizedString("ach_sober_month_7_title", comment: ""), description: NSLocalizedString("ach_sober_month_7_desc", comment: ""), type: .soberMonth(month: 7), isUnlocked: false),
+        Achievement(id: "sober_month_8", title: NSLocalizedString("ach_sober_month_8_title", comment: ""), description: NSLocalizedString("ach_sober_month_8_desc", comment: ""), type: .soberMonth(month: 8), isUnlocked: false),
+        Achievement(id: "sober_month_9", title: NSLocalizedString("ach_sober_month_9_title", comment: ""), description: NSLocalizedString("ach_sober_month_9_desc", comment: ""), type: .soberMonth(month: 9), isUnlocked: false),
+        Achievement(id: "sober_month_10", title: NSLocalizedString("ach_sober_month_10_title", comment: ""), description: NSLocalizedString("ach_sober_month_10_desc", comment: ""), type: .soberMonth(month: 10), isUnlocked: false),
+        Achievement(id: "sober_month_11", title: NSLocalizedString("ach_sober_month_11_title", comment: ""), description: NSLocalizedString("ach_sober_month_11_desc", comment: ""), type: .soberMonth(month: 11), isUnlocked: false),
+        Achievement(id: "sober_month_12", title: NSLocalizedString("ach_sober_month_12_title", comment: ""), description: NSLocalizedString("ach_sober_month_12_desc", comment: ""), type: .soberMonth(month: 12), isUnlocked: false),
         
         // Спортивные ачивки
         Achievement(
@@ -348,6 +348,15 @@ class NewAchievementManager {
             title: NSLocalizedString("ach_milestone_11022_negative_title", comment: ""),
             description: NSLocalizedString("ach_milestone_11022_negative_desc", comment: ""),
             type: .milestone(target: 11022, isNegative: true),
+            isUnlocked: false
+        ),
+
+        // Ачивка за отзыв в App Store (ручная разблокировка)
+        Achievement(
+            id: "left_review",
+            title: NSLocalizedString("ach_review_title", comment: ""),
+            description: NSLocalizedString("ach_review_desc", comment: ""),
+            type: .leftReview,
             isUnlocked: false
         )
     ]
@@ -583,7 +592,25 @@ class NewAchievementManager {
             } else {
                 return result.max >= target
             }
+
+        case .leftReview:
+            // Разблокируется только вручную через unlockReviewAchievement()
+            return false
         }
+    }
+
+    // MARK: - Manual unlock
+
+    /// Вызвать после того как пользователь оставил отзыв в App Store.
+    @discardableResult
+    func unlockReviewAchievement() -> Achievement? {
+        var achievements = loadAchievements()
+        guard let index = achievements.firstIndex(where: { $0.id == "left_review" }),
+              !achievements[index].isUnlocked else { return nil }
+        achievements[index].isUnlocked = true
+        achievements[index].unlockDate = Date()
+        saveAchievements(achievements)
+        return achievements[index]
     }
     
     private func checkSoberMonth(month: Int, daysData: [String: DrinkLevel]) -> Bool {
