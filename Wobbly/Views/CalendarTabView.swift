@@ -56,9 +56,14 @@ struct CalendarTabView: View {
                 HStack {
                     // Очки вместо месяца и года
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(abs(currentProgressDays))")
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(currentProgressDays >= 0 ? Color.mint : Color.pink)
+                        HStack(alignment: .lastTextBaseline, spacing: 4) {
+                            Text("\(abs(currentProgressDays))")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(currentProgressDays >= 0 ? Color.mint : Color.pink)
+                            Text(NSLocalizedString("progress_unit", comment: ""))
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(currentProgressDays >= 0 ? Color.mint : Color.pink)
+                        }
                         Text(currentProgressDays >= 0
                              ? NSLocalizedString("progress_label_positive", comment: "")
                              : NSLocalizedString("progress_label_negative", comment: ""))

@@ -79,6 +79,7 @@ struct ContentView: View {
                             UIApplication.shared.open(url)
                         }
                         ReviewManager.shared.didRate()
+                        NewAchievementManager.shared.unlockReviewAchievement()
                         withAnimation { showReviewPrompt = false }
                     },
                     onLater: {

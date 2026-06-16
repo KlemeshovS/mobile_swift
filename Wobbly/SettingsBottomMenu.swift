@@ -348,6 +348,19 @@ struct MainMenuContent: View {
                 onImportFromFile()
             }
             
+            // Оценить приложение
+            MenuItem(
+                icon: "star.fill",
+                title: NSLocalizedString("menu_rate_app_title", comment: ""),
+                subtitle: NSLocalizedString("menu_rate_app_subtitle", comment: ""),
+                gradient: [Color(hex: "FFD700"), Color(hex: "FFAA00")]
+            ) {
+                if let url = URL(string: "https://apps.apple.com/app/id6755603610?action=write-review") {
+                    UIApplication.shared.open(url)
+                }
+                NewAchievementManager.shared.unlockReviewAchievement()
+            }
+
             // Пункт "О приложении" со стрелочкой
             Button(action: {
                 HapticManager.shared.impact(.light)

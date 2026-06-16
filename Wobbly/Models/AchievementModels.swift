@@ -18,6 +18,7 @@ enum AchievementType {
     case soberDaysInYear(requiredCount: Int)
     case drinkingDaysInYear(requiredCount: Int)
     case soberMonth(month: Int) // month: 1-12
+    case leftReview
 }
 
 enum SportPeriod {
@@ -70,6 +71,8 @@ struct Achievement: Identifiable, Codable {
             return count
         case .soberMonth(let month):
             return month
+        case .leftReview:
+            return 1
         }
     }
     
@@ -155,6 +158,7 @@ struct Achievement: Identifiable, Codable {
         case "sober_month_10": return "achievement_sober_month_10"
         case "sober_month_11": return "achievement_sober_month_11"
         case "sober_month_12": return "achievement_sober_month_12"
+        case "left_review": return "achievement_review"
         default: return "achievement_default"
         }
     }
@@ -223,7 +227,9 @@ extension Achievement {
             return NSLocalizedString("condition_sport_50", comment: "")
         case "sport_100_year":
             return NSLocalizedString("condition_sport_100", comment: "")
-            
+        case "left_review":
+            return NSLocalizedString("ach_requirement_review", comment: "")
+
         default:
             break
         }
@@ -253,6 +259,8 @@ extension Achievement {
             } else {
                 return String(format: NSLocalizedString("ach_requirement_milestone_positive", comment: ""), target)
             }
+        case .leftReview:
+            return NSLocalizedString("ach_requirement_review", comment: "")
         }
     }
 }
@@ -267,6 +275,7 @@ extension AchievementType: Codable {
         case soberStreak, drinkingStreak, sportCount, uniqueEvent, milestone
         case soberDaysInYear, drinkingDaysInYear
         case soberMonth
+        case leftReview
     }
     
     private struct MilestoneData: Codable {
@@ -311,6 +320,9 @@ extension AchievementType: Codable {
         case .soberMonth(let month):
             try container.encode(BaseType.soberMonth, forKey: .base)
             try container.encode(month, forKey: .associated)
+
+        case .leftReview:
+            try container.encode(BaseType.leftReview, forKey: .base)
         }
     }
     
@@ -350,6 +362,9 @@ extension AchievementType: Codable {
         case .soberMonth:
             let month = try container.decode(Int.self, forKey: .associated)
             self = .soberMonth(month: month)
+
+        case .leftReview:
+            self = .leftReview
         }
     }
     
@@ -378,8 +393,10 @@ extension AchievementType: Codable {
             return "soberMonth:\(month)"
         case .drinkingDaysInYear(let count):
             return "drinkingDaysInYear:\(count)"
+        case .leftReview:
+            return "leftReview"
         }
-        
+
     }
     
     static func from(string: String) throws -> AchievementType {
@@ -456,7 +473,10 @@ extension AchievementType: Codable {
                 throw NSError(domain: "AchievementType", code: 11, userInfo: nil)
             }
             return .soberMonth(month: month)
-            
+
+        case "leftReview":
+            return .leftReview
+
         default:
             throw NSError(domain: "AchievementType", code: 7, userInfo: [NSLocalizedDescriptionKey: "Unknown achievement type: \(firstComponent)"])
         }
