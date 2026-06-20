@@ -434,6 +434,8 @@ class NewAchievementManager {
             }
             
             if !shouldUnlock && achievement.isUnlocked {
+                // Ачивки с ручной разблокировкой не сбрасываем
+                if case .leftReview = achievement.type { continue }
                 // Условие больше не выполняется – сбрасываем
                 currentAchievements[index].isUnlocked = false
                 currentAchievements[index].unlockDate = nil
