@@ -1027,6 +1027,108 @@
         }
       }
     },
+    "ach_no_hangover_90_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90 days without a hangover. That's a full quarter. Time to file a report: \"Sobriety — completed. Results — unclear. Next quarter — repeat.\" Your boss would be proud."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Целый квартал. Пора сдавать отчёт: «Трезвость — выполнена. Результаты — неясны. Следующий квартал — повторить». Начальник бы гордился."
+          }
+        }
+      }
+    },
+    "ach_no_hangover_90_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reporting Period"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Отчётный период"
+          }
+        }
+      }
+    },
+    "ach_no_hangover_180_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Half a year, no hangovers. No morning regrets. And no funny stories either — because funny stories only happen after the third drink. But hey, at least you remember everything. Everything."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Пол год никакого похмелья. Никаких утренних сожалений. И смешных историй тоже нет. Зато ты всё помнишь. Всё."
+          }
+        }
+      }
+    },
+    "ach_no_hangover_180_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forgotten Taste of Shame"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Забытый вкус стыда"
+          }
+        }
+      }
+    },
+    "ach_no_hangover_365_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A whole year. You don't even remember the pain anymore. Just a vague legend from another life. Your friends still drink. But you? You're a fossil of sobriety."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Целый год без похмелья. Ты уже не помнишь боли. Только смутная легенда из другой жизни. Твои друзья всё ещё пьют. А ты? Ты — ископаемое трезвости."
+          }
+        }
+      }
+    },
+    "ach_no_hangover_365_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory of a Hangover"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Память о похмелье"
+          }
+        }
+      }
+    },
     "ach_received_count" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1109,6 +1211,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%d метра над уровнем моря"
+          }
+        }
+      }
+    },
+    "ach_requirement_no_hangover_streak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d days no hangover"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "%d дней без похмелья"
           }
         }
       }
@@ -2358,6 +2477,176 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Алкоголь vs Спорт"
+          }
+        }
+      }
+    },
+    "alcohol_chart_clean_month" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean month — no alcohol"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чистый месяц — без алкоголя"
+          }
+        }
+      }
+    },
+    "alcohol_chart_both_clean" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neither of you has drunk this month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы оба ещё не пили в этом месяце"
+          }
+        }
+      }
+    },
+    "alcohol_chart_not_drunk_yet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You haven't drunk this month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы ещё не пили в этом месяце"
+          }
+        }
+      }
+    },
+    "alcohol_chart_info_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The chart shows your cumulative alcohol score for the current month.\n\nPoints are based on intake level:\n• A little — 1 pt\n• Moderate — 3 pts\n• Heavy — 5 pts\n\nThe higher the line, the more alcohol this month."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "График показывает накопленное количество баллов за текущий месяц.\n\nБаллы начисляются по степени употребления:\n• Чуть-чуть — 1 балл\n• Средне — 3 балла\n• Всё плохо — 5 баллов\n\nЧем выше линия, тем больше алкоголя за месяц."
+          }
+        }
+      }
+    },
+    "alcohol_chart_info_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to read the chart"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как читать график"
+          }
+        }
+      }
+    },
+    "alcohol_chart_legend_actual" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот месяц"
+          }
+        }
+      }
+    },
+    "alcohol_chart_legend_avg" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Average over previous months"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Среднее за прошлые месяцы"
+          }
+        }
+      }
+    },
+    "alcohol_chart_legend_me" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Me"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Я"
+          }
+        }
+      }
+    },
+    "alcohol_chart_points" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pts"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "баллов"
+          }
+        }
+      }
+    },
+    "alcohol_chart_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alcohol this month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Алкоголь в этом месяце"
           }
         }
       }
@@ -6584,40 +6873,6 @@
         }
       }
     },
-    "menu_rate_app_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rate App"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оценить приложение"
-          }
-        }
-      }
-    },
-    "menu_rate_app_subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leave a review in the App Store"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оставить отзыв в App Store"
-          }
-        }
-      }
-    },
     "menu_language" : {
       "comment" : "Язык",
       "localizations" : {
@@ -6665,6 +6920,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Язык приложения"
+          }
+        }
+      }
+    },
+    "menu_rate_app_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a review in the App Store"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставить отзыв в App Store"
+          }
+        }
+      }
+    },
+    "menu_rate_app_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate App"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценить приложение"
           }
         }
       }
@@ -7282,6 +7571,142 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "декабре"
+          }
+        }
+      }
+    },
+    "monthly_average_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly Average"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Среднее за месяц"
+          }
+        }
+      }
+    },
+    "monthly_avg_days_unit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "days"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "дня"
+          }
+        }
+      }
+    },
+    "monthly_avg_prefix" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avg"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В среднем"
+          }
+        }
+      }
+    },
+    "monthly_legend_alcohol" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "avg alcohol days per month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "среднее кол-во алкогольных дней в месяце"
+          }
+        }
+      }
+    },
+    "monthly_legend_sport" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "avg sport days per month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "среднее кол-во спортивных дней в месяце"
+          }
+        }
+      }
+    },
+    "monthly_mode_alcohol" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alcohol"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Алкоголь"
+          }
+        }
+      }
+    },
+    "monthly_mode_combined" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Общее"
+          }
+        }
+      }
+    },
+    "monthly_mode_sport" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sport"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спорт"
           }
         }
       }

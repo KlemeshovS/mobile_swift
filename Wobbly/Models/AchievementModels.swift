@@ -19,6 +19,7 @@ enum AchievementType {
     case drinkingDaysInYear(requiredCount: Int)
     case soberMonth(month: Int) // month: 1-12
     case leftReview
+    case noHangoverStreak(requiredDays: Int) // без medium/heavy N дней подряд
 }
 
 enum SportPeriod {
@@ -73,6 +74,8 @@ struct Achievement: Identifiable, Codable {
             return month
         case .leftReview:
             return 1
+        case .noHangoverStreak(let days):
+            return days
         }
     }
     
@@ -159,6 +162,9 @@ struct Achievement: Identifiable, Codable {
         case "sober_month_11": return "achievement_sober_month_11"
         case "sober_month_12": return "achievement_sober_month_12"
         case "left_review": return "achievement_review"
+        case "no_hangover_90": return "achievement_no_hangover_90"
+        case "no_hangover_180": return "achievement_no_hangover_180"
+        case "no_hangover_365": return "achievement_no_hangover_365"
         default: return "achievement_default"
         }
     }
@@ -261,6 +267,8 @@ extension Achievement {
             }
         case .leftReview:
             return NSLocalizedString("ach_requirement_review", comment: "")
+        case .noHangoverStreak(let days):
+            return String(format: NSLocalizedString("ach_requirement_no_hangover_streak", comment: ""), days)
         }
     }
 }
@@ -276,6 +284,7 @@ extension AchievementType: Codable {
         case soberDaysInYear, drinkingDaysInYear
         case soberMonth
         case leftReview
+        case noHangoverStreak
     }
     
     private struct MilestoneData: Codable {
@@ -323,6 +332,10 @@ extension AchievementType: Codable {
 
         case .leftReview:
             try container.encode(BaseType.leftReview, forKey: .base)
+
+        case .noHangoverStreak(let days):
+            try container.encode(BaseType.noHangoverStreak, forKey: .base)
+            try container.encode(days, forKey: .associated)
         }
     }
     
@@ -365,6 +378,10 @@ extension AchievementType: Codable {
 
         case .leftReview:
             self = .leftReview
+
+        case .noHangoverStreak:
+            let days = try container.decode(Int.self, forKey: .associated)
+            self = .noHangoverStreak(requiredDays: days)
         }
     }
     
@@ -395,8 +412,9 @@ extension AchievementType: Codable {
             return "drinkingDaysInYear:\(count)"
         case .leftReview:
             return "leftReview"
+        case .noHangoverStreak(let days):
+            return "noHangoverStreak:\(days)"
         }
-
     }
     
     static func from(string: String) throws -> AchievementType {
@@ -476,6 +494,12 @@ extension AchievementType: Codable {
 
         case "leftReview":
             return .leftReview
+
+        case "noHangoverStreak":
+            guard components.count == 2, let days = Int(components[1]) else {
+                throw NSError(domain: "AchievementType", code: 12, userInfo: nil)
+            }
+            return .noHangoverStreak(requiredDays: days)
 
         default:
             throw NSError(domain: "AchievementType", code: 7, userInfo: [NSLocalizedDescriptionKey: "Unknown achievement type: \(firstComponent)"])

@@ -138,6 +138,10 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .drinkDataChanged)) { _ in
             loadCalendarData()
+            // Проверяем запрос отзыва после отметки дня (алкоголь или спорт)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                tryShowReview()
+            }
         }
         .fileImporter(
             isPresented: $showFileImporter,
@@ -286,6 +290,14 @@ struct ContentView: View {
         }
     }
         
+    private func tryShowReview() {
+        guard !showReviewPrompt else { return }
+        if ReviewManager.shared.shouldShowPrompt(daysData: daysData) {
+            withAnimation { showReviewPrompt = true }
+            ReviewManager.shared.didShowPrompt()
+        }
+    }
+
     private func loadCalendarData() {
         let drinkManager = DrinkDataManager()
         let legacyData = drinkManager.loadData()
@@ -404,7 +416,8 @@ struct ContentView: View {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         showTopThreePopup = true
                     }
-                }
+                },
+                onTryShowReview: { tryShowReview() }
             )
             .zIndex(0)
         }
@@ -789,6 +802,7 @@ struct MainContentView: View {
     @Binding var explanationText: String
         
     var onShowTopThreePopup: (Int, Bool) -> Void
+    var onTryShowReview: (() -> Void)? = nil
 
     
     private var legacyDaysData: [String: DrinkLevel] {
@@ -814,6 +828,10 @@ struct MainContentView: View {
                                 withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                                     selectedAchievement = achievement
                                     showAchievementPopup = true
+                                }
+                                // Проверяем запрос отзыва после разблокировки ачивки
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                    onTryShowReview?()
                                 }
                             },
                             onShowExplanation: { title, text in
