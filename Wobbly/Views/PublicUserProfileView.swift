@@ -25,6 +25,12 @@ struct PublicUserProfileView: View {
     @State private var friendCalendar: UserAPIService.FriendCalendarResponse? = nil
     @State private var isLoadingCalendar = false
     @State private var calendarNotFriends = false
+    @State private var showFullScreenAvatar = false
+    private let myDaysData: [String: DrinkLevel] = DrinkDataManager().loadData()
+    @State private var myUsername: String = ""
+    @State private var infoOverlayShowing = false
+    @State private var infoOverlayTitle = ""
+    @State private var infoOverlayBody = ""
     
     enum FollowStatus {
         case notFollowing
@@ -60,6 +66,7 @@ struct PublicUserProfileView: View {
                                 .scaledToFill()
                                 .frame(width: 100, height: 100)
                                 .clipShape(Circle())
+                                .onTapGesture { showFullScreenAvatar = true }
                         } else {
                             Circle()
                                 .fill(Color.gray.opacity(0.3))
@@ -111,6 +118,14 @@ struct PublicUserProfileView: View {
                     }
                     .padding(.bottom, 30)
                 }
+
+                // Инфо-попап (как у блоков статистики)
+                FancyMotivationView(
+                    isShowing: $infoOverlayShowing,
+                    text: infoOverlayBody,
+                    isPositive: true,
+                    customTitle: infoOverlayTitle
+                )
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -136,6 +151,17 @@ struct PublicUserProfileView: View {
             }
             Task { await loadActualScore() }
             Task { await loadFriendCalendar() }
+            Task {
+                if let session = try? await UserAPIService.shared.getSession(),
+                   let name = session.username, !name.isEmpty {
+                    myUsername = name
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showFullScreenAvatar) {
+            if let url = makeFullURL(path: item.avatarUrl) {
+                AvatarFullscreenView(url: url, isPresented: $showFullScreenAvatar)
+            }
         }
     }
     
@@ -212,10 +238,47 @@ struct PublicUserProfileView: View {
                 // Статистика друга
                 FriendStatsView(days: cal.days, updatedAt: cal.updatedAt)
                     .padding(.top, 8)
+                // Среднее за месяц
+                MonthlyAverageView(
+                    daysData: friendDrinkLevels(from: cal.days),
+                    selectedYear: Calendar.current.component(.year, from: Date()),
+                    username: item.username
+                )
+                .padding(.top, 8)
+                // График алкоголя: друг vs я
+                AlcoholChartView(
+                    daysData: friendDrinkLevels(from: cal.days),
+                    comparisonData: myDaysData,
+                    primaryLabel: item.username,
+                    comparisonLabel: myUsername.isEmpty ? NSLocalizedString("alcohol_chart_legend_me", comment: "") : myUsername,
+                    onShowInfo: { title, body in
+                        infoOverlayTitle = title
+                        infoOverlayBody = body
+                        infoOverlayShowing = true
+                    }
+                )
+                .padding(.top, 8)
             }
         }
         // Если friendCalendar == nil и нет ошибки — ничего не показываем
         // (не авторизован или загрузка ещё не началась)
+    }
+
+    private func friendDrinkLevels(from days: [String: Int]) -> [String: DrinkLevel] {
+        var result: [String: DrinkLevel] = [:]
+        for (key, value) in days {
+            switch value {
+            case 1: result[key] = .little
+            case 2: result[key] = .medium
+            case 3: result[key] = .heavy
+            case 4: result[key] = .sport
+            case 5: result[key] = .little_sport
+            case 6: result[key] = .medium_sport
+            case 7: result[key] = .heavy_sport
+            default: break
+            }
+        }
+        return result
     }
     
     @ViewBuilder
@@ -378,6 +441,41 @@ struct PublicUserProfileView: View {
         let base = AppEnvironment.current.baseURL
             .replacingOccurrences(of: "/api/v1", with: "")
         return URL(string: base + path)
+    }
+}
+
+private struct AvatarFullscreenView: View {
+    let url: URL
+    @Binding var isPresented: Bool
+    @State private var dragOffset: CGFloat = 0
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(1 - Double(min(dragOffset, 200)) / 300)
+                .ignoresSafeArea()
+            KFImage(url)
+                .resizable()
+                .scaledToFit()
+                .padding(24)
+                .offset(y: dragOffset)
+                .scaleEffect(max(0.85, 1 - dragOffset / 800))
+        }
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    if value.translation.height > 0 {
+                        dragOffset = value.translation.height
+                    }
+                }
+                .onEnded { value in
+                    if value.translation.height > 120 {
+                        isPresented = false
+                    } else {
+                        withAnimation(.spring()) { dragOffset = 0 }
+                    }
+                }
+        )
+        .onTapGesture { isPresented = false }
     }
 }
 

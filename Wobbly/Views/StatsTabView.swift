@@ -309,7 +309,16 @@ struct StatsTabView: View {
                             // Ваша неделя
                             WeekStatsView(daysData: localDaysData, selectedYear: selectedYear)
                                 .padding(.horizontal, 5)
-                            
+
+                            // Среднее за месяц
+                            MonthlyAverageView(daysData: localDaysData, selectedYear: selectedYear)
+                                .padding(.horizontal, 5)
+
+                            // График алкоголя в текущем месяце
+                            AlcoholChartView(daysData: localDaysData, selectedYear: selectedYear,
+                                             onShowInfo: onShowExplanation)
+                                .padding(.horizontal, 5)
+
                             // БЛОК С ФАКТАМИ О ТРЕЗВОСТИ
                             VStack(alignment: .leading, spacing: 12) {
                                 let progressDays = calculateSoftSoberStreak()
