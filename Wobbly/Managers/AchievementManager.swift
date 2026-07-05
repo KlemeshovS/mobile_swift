@@ -192,6 +192,29 @@ class NewAchievementManager {
             isUnlocked: false
         ),
         
+        // Ачивки "без похмелья" (без medium/heavy N дней подряд)
+        Achievement(
+            id: "no_hangover_90",
+            title: NSLocalizedString("ach_no_hangover_90_title", comment: ""),
+            description: NSLocalizedString("ach_no_hangover_90_desc", comment: ""),
+            type: .noHangoverStreak(requiredDays: 90),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "no_hangover_180",
+            title: NSLocalizedString("ach_no_hangover_180_title", comment: ""),
+            description: NSLocalizedString("ach_no_hangover_180_desc", comment: ""),
+            type: .noHangoverStreak(requiredDays: 180),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "no_hangover_365",
+            title: NSLocalizedString("ach_no_hangover_365_title", comment: ""),
+            description: NSLocalizedString("ach_no_hangover_365_desc", comment: ""),
+            type: .noHangoverStreak(requiredDays: 365),
+            isUnlocked: false
+        ),
+
         // Уникальные ачивки
         Achievement(
             id: "sober_new_year",
@@ -598,6 +621,9 @@ class NewAchievementManager {
         case .leftReview:
             // Разблокируется только вручную через unlockReviewAchievement()
             return false
+
+        case .noHangoverStreak(let requiredDays):
+            return checkNoHangoverStreakAchievement(requiredDays: requiredDays, daysData: daysData)
         }
     }
 
@@ -651,6 +677,38 @@ class NewAchievementManager {
         return false
     }
     
+    private func checkNoHangoverStreakAchievement(requiredDays: Int, daysData: [String: DrinkLevel]) -> Bool {
+        // Считаем максимальный стрик дней без medium/heavy (little и спорт разрешены)
+        let calendar = Calendar.current
+        let startDate = PeriodManager.shared.getAchievementStartDate(daysData: daysData)
+        let today = calendar.startOfDay(for: Date())
+
+        var maxStreak = 0
+        var currentStreak = 0
+        var date = calendar.startOfDay(for: startDate)
+
+        while date <= today {
+            let year = calendar.component(.year, from: date)
+            let month = calendar.component(.month, from: date) - 1  // 0-based
+            let day = calendar.component(.day, from: date)
+            let key = "\(year)-\(month)-\(day)"
+            let level = daysData[key] ?? .none
+
+            let isHangover = (level == .medium || level == .heavy ||
+                              level == .medium_sport || level == .heavy_sport)
+
+            if isHangover {
+                currentStreak = 0
+            } else {
+                currentStreak += 1
+                maxStreak = max(maxStreak, currentStreak)
+            }
+            date = calendar.date(byAdding: .day, value: 1, to: date) ?? date.addingTimeInterval(86400)
+        }
+
+        return maxStreak >= requiredDays
+    }
+
     private func checkSoberStreakAchievement(requiredDays: Int, daysData: [String: DrinkLevel]) -> Bool {
         // Используем StreakHistoryManager для расчета
         let streakManager = StreakHistoryManager.shared

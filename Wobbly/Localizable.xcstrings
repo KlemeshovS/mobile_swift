@@ -1027,6 +1027,108 @@
         }
       }
     },
+    "ach_no_hangover_90_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90 days without a hangover. That's a full quarter. Time to file a report: \"Sobriety — completed. Results — unclear. Next quarter — repeat.\" Your boss would be proud."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Целый квартал. Пора сдавать отчёт: «Трезвость — выполнена. Результаты — неясны. Следующий квартал — повторить». Начальник бы гордился."
+          }
+        }
+      }
+    },
+    "ach_no_hangover_90_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reporting Period"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Отчётный период"
+          }
+        }
+      }
+    },
+    "ach_no_hangover_180_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Half a year, no hangovers. No morning regrets. And no funny stories either — because funny stories only happen after the third drink. But hey, at least you remember everything. Everything."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Пол год никакого похмелья. Никаких утренних сожалений. И смешных историй тоже нет. Зато ты всё помнишь. Всё."
+          }
+        }
+      }
+    },
+    "ach_no_hangover_180_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forgotten Taste of Shame"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Забытый вкус стыда"
+          }
+        }
+      }
+    },
+    "ach_no_hangover_365_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A whole year. You don't even remember the pain anymore. Just a vague legend from another life. Your friends still drink. But you? You're a fossil of sobriety."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Целый год без похмелья. Ты уже не помнишь боли. Только смутная легенда из другой жизни. Твои друзья всё ещё пьют. А ты? Ты — ископаемое трезвости."
+          }
+        }
+      }
+    },
+    "ach_no_hangover_365_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory of a Hangover"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Память о похмелье"
+          }
+        }
+      }
+    },
     "ach_received_count" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1109,6 +1211,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%d метра над уровнем моря"
+          }
+        }
+      }
+    },
+    "ach_requirement_no_hangover_streak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d days no hangover"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "%d дней без похмелья"
           }
         }
       }
@@ -2375,6 +2494,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Чистый месяц — без алкоголя"
+          }
+        }
+      }
+    },
+    "alcohol_chart_both_clean" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neither of you has drunk this month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы оба ещё не пили в этом месяце"
+          }
+        }
+      }
+    },
+    "alcohol_chart_not_drunk_yet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You haven't drunk this month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы ещё не пили в этом месяце"
           }
         }
       }

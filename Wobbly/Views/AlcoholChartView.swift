@@ -191,12 +191,8 @@ struct AlcoholChartView: View {
             }
             .padding(.bottom, 14)
 
-            if isClean {
-                cleanMonthView
-            } else {
-                chartView
-                legendView
-            }
+            chartView
+            legendView
         }
         .padding(16)
         .background(Color.white.opacity(0.07))
@@ -360,7 +356,7 @@ struct AlcoholChartView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
-                if !averageTrajectory.isEmpty {
+                if !averageTrajectory.isEmpty || isClean {
                     Text(comparisonText)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(comparisonColor)
@@ -385,6 +381,9 @@ struct AlcoholChartView: View {
     }
 
     private var comparisonText: String {
+        if isClean {
+            return NSLocalizedString("alcohol_chart_not_drunk_yet", comment: "")
+        }
         let diff = totalScore - Int(avgAtToday.rounded())
         let lang = LanguageManager.shared.currentLanguage
         if lang == .russian {
@@ -410,7 +409,12 @@ struct AlcoholChartView: View {
         let primScore = totalScore
         let compScore = comparisonChartData.last?.cumulative ?? 0
         let diff = primScore - compScore
-        guard diff != 0 else { return nil }
+        if diff == 0 {
+            guard primScore > 0 else {
+                return NSLocalizedString("alcohol_chart_both_clean", comment: "")
+            }
+            return nil
+        }
         let lang = LanguageManager.shared.currentLanguage
         let adverb = abs(diff) >= 5 ? (lang == .russian ? "сильно " : "a lot ") : ""
         if lang == .russian {

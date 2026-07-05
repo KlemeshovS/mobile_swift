@@ -616,12 +616,16 @@ struct StatsTabView: View {
     
     private func forceRefreshAchievements() {
         let updatedAchievements = NewAchievementManager.shared.loadUnlockedAchievements()
-        self.achievements = updatedAchievements.filter { $0.isUnlocked }
+        self.achievements = updatedAchievements
+            .filter { $0.isUnlocked }
+            .sorted { ($0.unlockDate ?? .distantPast) > ($1.unlockDate ?? .distantPast) }
     }
-    
+
     private func checkAchievements() {
         let updatedAchievements = achievementManager.recalculateAllAchievements(daysData: localDaysData)
-        self.achievements = updatedAchievements.filter { $0.isUnlocked }
+        self.achievements = updatedAchievements
+            .filter { $0.isUnlocked }
+            .sorted { ($0.unlockDate ?? .distantPast) > ($1.unlockDate ?? .distantPast) }
         print("🏆 StatsTabView: обновлено \(self.achievements.count) разблокированных ачивок")
     }
     
