@@ -310,6 +310,10 @@ struct StatsTabView: View {
                             WeekStatsView(daysData: localDaysData, selectedYear: selectedYear)
                                 .padding(.horizontal, 5)
 
+                            // Корреляция спорт / алкоголь
+                            SportCorrelationView(daysData: localDaysData, selectedYear: selectedYear)
+                                .padding(.horizontal, 5)
+
                             // Среднее за месяц
                             MonthlyAverageView(daysData: localDaysData, selectedYear: selectedYear)
                                 .padding(.horizontal, 5)
