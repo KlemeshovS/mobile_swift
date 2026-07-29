@@ -191,8 +191,12 @@ struct StatsTabView: View {
                             
                             // БЛОК ПРОГРЕССА ТРЕЗВОСТИ
                             VStack(alignment: .leading, spacing: 12) {
-                                SobrietyProgressView(progressDays: currentProgressDays)
-                                    .id(currentProgressDays)
+                                SobrietyProgressView(
+                                    progressDays: currentProgressDays,
+                                    daysData: localDaysData,
+                                    onShowInfo: onShowExplanation
+                                )
+                                .id(currentProgressDays)
                             }
                             .padding(.horizontal, 5)
                             
