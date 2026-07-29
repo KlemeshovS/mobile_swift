@@ -9,12 +9,15 @@ import SwiftUI
 
 struct SobrietyProgressView: View {
     let progressDays: Int
+    var daysData: [String: DrinkLevel] = [:]
+    var onShowInfo: ((String, String) -> Void)? = nil
     let maxDays: Int = 444
     private let maxNegativeDays = 500  // порог для переключения на большой счётчик
-    
+
     @State private var animatedProgress: Double = 0
     @State private var glowAnimation: Bool = false
-    
+    @AppStorage("sobrietyWidget_showChart") private var showChart = false
+
     // Массив вех для положительных значений
     private let milestones = [
         (days: 50, titleKey: "milestone_50_label"),
@@ -24,14 +27,14 @@ struct SobrietyProgressView: View {
         (days: 443, titleKey: "milestone_443_label")
     ]
     
-    // Массив вех после года
-    private let postYearMilestones = [1234, 4810, 5642, 7010, 8848]
-    
+    // Массив вех после года — все именованные горы (синхронно с ScoreHistoryView)
+    private let postYearMilestones = [1234, 1917, 3491, 4478, 4506, 4810, 5054, 5642, 7010, 8848]
+
     // Массив вех для отрицательных значений (задаем положительные числа, отображаем без минуса)
     private let negativeMilestones = [50, 100, 202, 300, 500]
-    
-    // Массив больших отрицательных рубежей (после 500)
-    private let postNegativeMilestones = [1642, 3800, 6066, 10047, 11022]
+
+    // Массив больших отрицательных рубежей (после 500) — синхронно с ScoreHistoryView
+    private let postNegativeMilestones = [1642, 3800, 6066, 7729, 10047, 11022]
     
     // Определяем следующий рубеж после года
     private func nextPostYearMilestone() -> Int? {
@@ -115,32 +118,57 @@ struct SobrietyProgressView: View {
                 Text(NSLocalizedString(titleKey, comment: ""))
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(.white)
-                
+
                 Spacer()
-                
-                // Счётчик
-                if progressDays <= maxDays && progressDays >= -maxNegativeDays {
+
+                // Счётчик (только в режиме прогресса)
+                if !showChart && progressDays <= maxDays && progressDays >= -maxNegativeDays {
                     Text(formattedValue)
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(progressDays < 0 ? .red.opacity(0.9) : .white.opacity(0.9))
                 }
+
+                // Кнопка переключения: прогресс ↔ график (всегда крайняя справа)
+                Button(action: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        showChart.toggle()
+                    }
+                    HapticManager.shared.impact(.light)
+                }) {
+                    Image(systemName: showChart ? "list.bullet" : "chart.xyaxis.line")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(showChart ? Color(hex: "C7FF00") : .white.opacity(0.6))
+                        .frame(width: 28, height: 28)
+                        .background(Color.white.opacity(showChart ? 0.12 : 0.06))
+                        .cornerRadius(8)
+                }
             }
             
-            // Отображение в зависимости от количества дней
-            if progressDays < 0 {
-                if abs(progressDays) > maxNegativeDays {
-                    // БОЛЬШОЙ ОТРИЦАТЕЛЬНЫЙ ПРОГРЕСС
-                    largeNegativeView
-                } else {
-                    // ОБЫЧНЫЙ ОТРИЦАТЕЛЬНЫЙ ПРОГРЕСС (шкала)
-                    normalNegativeView
-                }
-            } else if progressDays < maxDays {
-                // ПОЛОЖИТЕЛЬНЫЙ ПРОГРЕСС ДО ГОДА
-                normalPositiveView
+            // Контент: прогресс или график динамики очков
+            if showChart {
+                ScoreHistoryView(
+                    daysData: daysData,
+                    selectedYear: Calendar.current.component(.year, from: Date()),
+                    embedded: true,
+                    onShowInfo: onShowInfo
+                )
             } else {
-                // ПРОГРЕСС ПОСЛЕ ГОДА (>365)
-                largePositiveView
+                // Отображение в зависимости от количества дней
+                if progressDays < 0 {
+                    if abs(progressDays) > maxNegativeDays {
+                        // БОЛЬШОЙ ОТРИЦАТЕЛЬНЫЙ ПРОГРЕСС
+                        largeNegativeView
+                    } else {
+                        // ОБЫЧНЫЙ ОТРИЦАТЕЛЬНЫЙ ПРОГРЕСС (шкала)
+                        normalNegativeView
+                    }
+                } else if progressDays < maxDays {
+                    // ПОЛОЖИТЕЛЬНЫЙ ПРОГРЕСС ДО ГОДА
+                    normalPositiveView
+                } else {
+                    // ПРОГРЕСС ПОСЛЕ ГОДА (>365)
+                    largePositiveView
+                }
             }
             
             // Мотивационное сообщение (закомментировано, оставлено как было)
@@ -177,7 +205,7 @@ struct SobrietyProgressView: View {
             updateAnimation()
         }
     }
-    
+
     // MARK: - Вспомогательные View
     
     @ViewBuilder
@@ -377,14 +405,44 @@ struct SobrietyProgressView: View {
         }
         .frame(maxWidth: .infinity)
         
-        // Вехи после года - подсвечиваем только достигнутые
-        HStack(spacing: 0) {
-            ForEach(postYearMilestones, id: \.self) { milestone in
-                PostYearMilestoneIndicator(
-                    milestone: milestone,
-                    isCompleted: progressDays >= milestone
-                )
-                .frame(maxWidth: .infinity)
+        // Вехи после года — горизонтальный скролл, по ~5 видно сразу
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 0) {
+                    ForEach(postYearMilestones, id: \.self) { milestone in
+                        PostYearMilestoneIndicator(
+                            milestone: milestone,
+                            isCompleted: progressDays >= milestone
+                        )
+                        .frame(width: 56)
+                        .id(milestone)
+                        .onTapGesture {
+                            let suffix = NSLocalizedString("positive_days_suffix", comment: "")
+                            let name = NSLocalizedString("ach_milestone_\(milestone)_title", comment: "")
+                            let fact = NSLocalizedString("milestone_\(milestone)_fact", comment: "")
+                            onShowInfo?("\(name) \(milestone)\(suffix)", fact)
+                            HapticManager.shared.impact(.light)
+                        }
+                    }
+                }
+            }
+            .mask(
+                HStack(spacing: 0) {
+                    Rectangle()
+                    LinearGradient(
+                        colors: [.black, .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: 44)
+                }
+            )
+            .onAppear {
+                // Прокручиваем к следующей незакрытой горе
+                let target = nextPostYearMilestone() ?? postYearMilestones.last ?? 8848
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    withAnimation(.none) { proxy.scrollTo(target, anchor: .center) }
+                }
             }
         }
         .padding(.top, 4)
@@ -474,35 +532,47 @@ struct MilestoneIndicator: View {
 struct PostYearMilestoneIndicator: View {
     let milestone: Int
     let isCompleted: Bool
-    
+    var isPositive: Bool = true
+
+    private var completedColor: Color {
+        isPositive ? .yellow : Color(hex: "FF0072")
+    }
+    private var icon: String {
+        isPositive ? "trophy.fill" : "drop.fill"
+    }
+    private var iconOutline: String {
+        isPositive ? "trophy" : "drop"
+    }
+    private var suffixKey: String {
+        isPositive ? "positive_days_suffix" : "negative_days_suffix"
+    }
+
     var body: some View {
         VStack(spacing: 4) {
             // Иконка
             ZStack {
                 if isCompleted {
-                    Image(systemName: "trophy.fill")
+                    Image(systemName: icon)
                         .font(.system(size: 16))
-                        .foregroundColor(.yellow)
-                        .shadow(color: .yellow.opacity(0.5), radius: 2, x: 0, y: 0)
+                        .foregroundColor(completedColor)
+                        .shadow(color: completedColor.opacity(0.5), radius: 2, x: 0, y: 0)
                 } else {
                     Circle()
                         .stroke(Color.white.opacity(0.3), lineWidth: 1.5)
                         .frame(width: 16, height: 16)
                         .overlay(
-                            Image(systemName: "trophy")
+                            Image(systemName: iconOutline)
                                 .font(.system(size: 9))
                                 .foregroundColor(.white.opacity(0.5))
                         )
                 }
             }
             .frame(width: 24, height: 24)
-            
-            // Название вехи
-            Text("\(milestone)" + NSLocalizedString("positive_days_suffix", comment: ""))
+
+            // Высота/глубина в метрах
+            Text(verbatim: "\(milestone)" + NSLocalizedString(suffixKey, comment: ""))
                 .font(.system(size: 9, weight: isCompleted ? .bold : .regular))
-                .foregroundColor(
-                    isCompleted ? .yellow : .white.opacity(0.6)
-                )
+                .foregroundColor(isCompleted ? completedColor : .white.opacity(0.6))
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)

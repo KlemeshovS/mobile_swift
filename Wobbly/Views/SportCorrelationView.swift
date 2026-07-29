@@ -114,6 +114,13 @@ struct SportCorrelationView: View {
                 : "You never drink on sport days 🎉"
         }
 
+        // Без спорта — вообще не пьёт
+        if d.noSportPct == 0 {
+            return lang == .russian
+                ? "В дни без спорта ты не пьёшь совсем"
+                : "You never drink on non-sport days"
+        }
+
         let absDiff = abs(d.sportPct - d.noSportPct)
         let absDaysDiff = abs(d.sportWithAlcohol - d.noSportWithAlcohol)
 
@@ -127,16 +134,16 @@ struct SportCorrelationView: View {
         let ratio = d.sportPct < d.noSportPct
             ? d.noSportPct / max(d.sportPct, 1)
             : d.sportPct / max(d.noSportPct, 1)
-        let ratioStr = ratio >= 2 ? String(format: "%.0fx", ratio) : ""
+        let ratioStr = ratio >= 2 ? String(format: "%.0f", ratio) : ""
 
         if d.sportPct < d.noSportPct {
             return lang == .russian
-                ? (ratioStr.isEmpty ? "В дни со спортом ты пьёшь реже" : "В дни со спортом ты пьёшь в \(ratioStr) реже")
-                : (ratioStr.isEmpty ? "You drink less on sport days" : "You drink \(ratioStr) less on sport days")
+                ? (ratioStr.isEmpty ? "В дни со спортом ты пьёшь реже" : "В дни со спортом ты пьёшь в \(ratioStr) раз реже")
+                : (ratioStr.isEmpty ? "You drink less on sport days" : "You drink \(ratioStr)x less on sport days")
         } else {
             return lang == .russian
-                ? (ratioStr.isEmpty ? "В дни со спортом ты пьёшь чаще — интересно 🤔" : "В дни со спортом ты пьёшь в \(ratioStr) чаще — интересно 🤔")
-                : (ratioStr.isEmpty ? "You actually drink more on sport days — interesting 🤔" : "You drink \(ratioStr) more on sport days — interesting 🤔")
+                ? (ratioStr.isEmpty ? "В дни со спортом ты пьёшь чаще — интересно 🤔" : "В дни со спортом ты пьёшь в \(ratioStr) раз чаще — интересно 🤔")
+                : (ratioStr.isEmpty ? "You actually drink more on sport days — interesting 🤔" : "You drink \(ratioStr)x more on sport days — interesting 🤔")
         }
     }
 

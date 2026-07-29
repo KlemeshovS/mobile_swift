@@ -3138,7 +3138,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "В дни без спорта"
+            "value" : "В дни без тренировок пьешь"
           }
         }
       }
@@ -3155,7 +3155,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "В дни со спортом"
+            "value" : "В дни с тренировками пьешь"
           }
         }
       }
@@ -7339,6 +7339,295 @@
         }
       }
     },
+    "milestone_1234_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ai-Petri's meteorological station has been operating since 1895 — one of the oldest in Eastern Europe. The mountain holds records for continuous fog (148 days in a row) and wind gusts exceeding 50 m/s. Its name means 'Saint Peter' in Greek."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Метеостанция на Ай-Петри работает с 1895 года — одна из старейших в Восточной Европе. Гора держит рекорды по числу дней с туманом (148 дней подряд) и порывам ветра свыше 50 м/с. Название переводится с греческого как «Святой Пётр»."
+          }
+        }
+      }
+    },
+    "milestone_1642_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lake Baikal, 1,642 m deep, holds 20% of all Earth's unfrozen surface fresh water. It is 25–30 million years old and so ancient it evolved its own unique species, including the nerpa — the world's only freshwater seal."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Байкал глубиной 1642 м содержит 20% всей незамёрзшей пресной воды на Земле. Возраст озера — 25–30 млн лет. Оно настолько древнее, что породило уникальные виды, включая нерпу — единственного в мире пресноводного тюленя."
+          }
+        }
+      }
+    },
+    "milestone_1917_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mount Washington held the world wind speed record for 62 years: 372 km/h, recorded on April 12, 1934. The summit observatory has operated continuously since 1870, making it the world's longest-running mountain weather station."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гора Вашингтон удерживала мировой рекорд скорости ветра 62 года: 372 км/ч, зафиксированных 12 апреля 1934 года. Вершинная обсерватория работает непрерывно с 1870 года — старейшая горная метеостанция в мире."
+          }
+        }
+      }
+    },
+    "milestone_202_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dean's Blue Hole in the Bahamas (202 m) was the world's deepest known blue hole until 2016. These underwater sinkholes formed when limestone dissolved during the last ice age, when sea levels were 120 m lower than today."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голубая дыра Дина на Багамах (202 м) считалась самой глубокой в мире до 2016 года. Такие подводные воронки образовались в известняке во время последнего ледникового периода, когда уровень моря был на 120 м ниже нынешнего."
+          }
+        }
+      }
+    },
+    "milestone_3491_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Munku-Sardyk ('eternal bald peaks' in Mongolian) sits exactly on the Russia–Mongolia border — you can stand in two countries at once on the summit. Its glaciers feed the rivers that drain into Lake Baikal."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мунку-Сардык («вечные гольцы» по-монгольски) расположен прямо на границе России и Монголии — на вершине можно стоять в двух странах одновременно. Ледники горы питают реки бассейна Байкала."
+          }
+        }
+      }
+    },
+    "milestone_3800_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Titanic rests at 3,784 m on the North Atlantic floor, in total darkness under 380 atmospheres of pressure at −2°C. The wreck was discovered in 1985 by Robert Ballard after decades of searching. It splits into two sections 600 m apart."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Титаник лежит на глубине 3784 м в Северной Атлантике — в полной темноте, при давлении 380 атмосфер и температуре −2°C. Обломки обнаружены в 1985 году Робертом Баллардом. Корабль разломился на две части, которые лежат в 600 м друг от друга."
+          }
+        }
+      }
+    },
+    "milestone_4478_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Matterhorn's pyramid was carved by four glaciers eroding it from all sides simultaneously — a geological process called a 'horn.' First climbed in 1865, it has claimed over 500 lives — more than any other Alpine peak."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пирамида Маттерхорна образована четырьмя ледниками, одновременно обтачивавшими гору со всех сторон — геологический процесс, называемый «карлингом». С первого восхождения в 1865 году гора унесла более 500 жизней — больше, чем любая другая вершина Альп."
+          }
+        }
+      }
+    },
+    "milestone_4506_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Belukha is equidistant from all four oceans: Pacific, Arctic, Atlantic, and Indian. Three glaciers on its slopes give birth to the Katun River. Artist Nicholas Roerich believed it marked the entrance to the legendary land of Shambhala."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Белуха равноудалена от всех четырёх океанов: Тихого, Северного Ледовитого, Атлантического и Индийского. С трёх её ледников берёт начало Катунь. Художник Николай Рерих считал гору входом в легендарную Шамбалу."
+          }
+        }
+      }
+    },
+    "milestone_4810_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mont Blanc was first climbed on August 8, 1786 — one of the first recorded sport ascents in history. The 11.6 km Mont Blanc Tunnel beneath it was the world's longest road tunnel when it opened in 1965. The summit moves about 14 cm per year due to glacial flow."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Монблан впервые покорён 8 августа 1786 года — одно из первых зафиксированных спортивных восхождений в истории. 11,6-километровый тоннель под горой был самым длинным автодорожным тоннелем мира при открытии в 1965 году. Вершина смещается примерно на 14 см в год из-за движения ледников."
+          }
+        }
+      }
+    },
+    "milestone_5054_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kazbek is a dormant stratovolcano that last erupted about 6,000 years ago. In Greek mythology, Prometheus was chained to its cliffs for giving fire to humanity. A 14th-century monastery, Betlemi Cave Church, clings to its slopes at 3,674 m."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Казбек — потухший стратовулкан, последнее извержение которого произошло около 6000 лет назад. По греческой мифологии, к его скалам был прикован Прометей за то, что принёс людям огонь. На склоне горы на высоте 3674 м находится пещерный монастырь Бетлеми XIV века."
+          }
+        }
+      }
+    },
+    "milestone_5642_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elbrus is the highest volcano in Europe and contains 23 glaciers that hold roughly 1% of Russia's entire freshwater reserves. It has two summits: the west peak (5,642 m) stands 21 m higher than the east. First summited in 1829 during a Russian scientific expedition."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эльбрус — самый высокий вулкан Европы. Его 23 ледника хранят около 1% всех запасов пресной воды России. У горы две вершины: западная (5642 м) выше восточной на 21 м. Впервые покорён в 1829 году в ходе российской научной экспедиции."
+          }
+        }
+      }
+    },
+    "milestone_6066_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Atacama Trench runs along Chile's coast and reaches over 8,000 m. The subduction zone beneath it generated the 1960 Valdivia earthquake — magnitude 9.5, the most powerful ever recorded. The resulting tsunami crossed the Pacific and reached Japan."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Атакамская впадина протянулась вдоль берегов Чили и достигает более 8000 м. Зона субдукции под ней породила Вальдивийское землетрясение 1960 года магнитудой 9,5 — самое мощное из когда-либо зафиксированных. Вызванное им цунами пересекло Тихий океан и дошло до Японии."
+          }
+        }
+      }
+    },
+    "milestone_7010_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khan Tengri ('Lord of the Spirits') is the northernmost 7,000-meter peak on Earth. Its summit is composed of pink marble. At sunset, the marble glows blood-red — a phenomenon local people called the 'Bloody Mountain.' First climbed by Soviet alpinists in 1931."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хан-Тенгри («Повелитель духов») — самый северный семитысячник Земли. Его вершина сложена из розового мрамора. На закате мрамор загорается кроваво-красным цветом — явление, которое местные называли «кровавой горой». Впервые покорён советскими альпинистами в 1931 году."
+          }
+        }
+      }
+    },
+    "milestone_7729_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Sunda Trench (7,729 m) is the deepest point in the Indian Ocean. It formed where the Indo-Australian Plate subducts beneath the Eurasian Plate — the same geological process that caused the 2004 Indian Ocean tsunami, which killed over 230,000 people."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зондский желоб (7729 м) — самая глубокая точка Индийского океана. Он образован в результате субдукции Индо-Австралийской плиты под Евразийскую — тот же процесс вызвал цунами в Индийском океане в 2004 году, унёсшее жизни более 230 000 человек."
+          }
+        }
+      }
+    },
+    "milestone_8848_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everest grows about 4 mm per year from tectonic uplift but loses height from erosion. Above 8,000 m — the 'Death Zone' — there is so little oxygen that the body cannot acclimatize even at rest. Edmund Hillary and Tenzing Norgay first reached the summit on May 29, 1953."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эверест ежегодно «растёт» примерно на 4 мм из-за тектонического подъёма, но и снижается от эрозии. Выше 8000 м — «зоне смерти» — кислорода так мало, что организм не может акклиматизироваться даже в состоянии покоя. Эдмунд Хиллари и Тенцинг Норгей впервые достигли вершины 29 мая 1953 года."
+          }
+        }
+      }
+    },
+    "milestone_10047_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Kermadec Trench (10,047 m) is one of Earth's deepest. Scientists discovered supergiant amphipods here — crustaceans up to 34 cm long — thriving under 1,000 atmospheres of pressure at near-freezing temperatures, challenging assumptions about deep-sea life."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Впадина Кермадек (10 047 м) — одна из глубочайших на Земле. Учёные обнаружили здесь гигантских бокоплавов длиной до 34 см, живущих при давлении 1000 атмосфер и температуре около нуля — это опровергло привычные представления о жизни в глубинах океана."
+          }
+        }
+      }
+    },
+    "milestone_11022_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Challenger Deep (11,022 m) in the Mariana Trench is the deepest known point on Earth. Only 3 people have ever been there: Don Walsh and Jacques Piccard in 1960, and James Cameron in 2012. The pressure is 1,086 times greater than at sea level — equivalent to 50 jumbo jets stacked on a person."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бездна Челленджера (11 022 м) в Марианской впадине — глубочайшая известная точка Земли. Лишь 3 человека побывали там: Дон Уолш и Жак Пикар в 1960 году и Джеймс Кэмерон в 2012-м. Давление в 1086 раз превышает атмосферное — как 50 самолётов Boeing 747, давящих на одного человека."
+          }
+        }
+      }
+    },
     "milestone_halfyear" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9027,6 +9316,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сохранить"
+          }
+        }
+      }
+    },
+    "score_history_current_negative" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current score"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущий счёт"
+          }
+        }
+      }
+    },
+    "score_history_current_positive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current score"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущий счёт"
+          }
+        }
+      }
+    },
+    "score_history_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score dynamics"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Динамика очков"
           }
         }
       }

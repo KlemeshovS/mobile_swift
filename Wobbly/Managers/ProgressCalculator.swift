@@ -12,6 +12,13 @@ struct ProgressResult {
     let min: Int          // исторический минимум
 }
 
+/// Одна точка истории очков — используется в ScoreHistoryView
+struct ScoreHistoryPoint {
+    let dayOfYear: Int
+    let score: Int
+    let month: Int      // 1-based
+}
+
 struct ProgressCalculator {
     static func calculate(from daysData: [String: DrinkLevel]) -> ProgressResult {
         let calendar = Calendar.current
@@ -112,7 +119,93 @@ struct ProgressCalculator {
         return ProgressResult(current: currentProgress, max: maxProgress, min: minProgress)
     }
     
-    private static func findFirstMarkedDate(daysData: [String: DrinkLevel]) -> Date? {
+    // MARK: - История очков (для ScoreHistoryView)
+
+    /// Возвращает дневную историю очков за указанный год, используя ту же логику, что и calculate().
+    static func calculateHistory(from daysData: [String: DrinkLevel], forYear year: Int) -> [ScoreHistoryPoint] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        guard let firstMarkedDate = findFirstMarkedDate(daysData: daysData) else { return [] }
+
+        var startDate = firstMarkedDate
+        if let daysAgo = calendar.dateComponents([.day], from: startDate, to: today).day,
+           daysAgo > 3650 {
+            startDate = calendar.date(byAdding: .day, value: -3650, to: today)!
+        }
+
+        // Конец диапазона для выбранного года
+        let currentYear = calendar.component(.year, from: Date())
+        let yearEnd: Date
+        if year == currentYear {
+            yearEnd = today
+        } else {
+            var endComps = DateComponents()
+            endComps.year = year; endComps.month = 12; endComps.day = 31
+            yearEnd = calendar.date(from: endComps) ?? today
+        }
+
+        // Стартуем РОВНО с той же даты, что и calculate() — без yearStart!
+        // Это гарантирует совпадение итогового score с currentProgressDays.
+        var currentProgress = 0
+        var consecutiveDrinkDays = 0
+        var consecutiveSoberDays = 0
+        var history: [ScoreHistoryPoint] = []
+
+        var date = startDate
+        while date <= yearEnd {
+            let c = calendar.dateComponents([.year, .month, .day], from: date)
+            guard let y = c.year, let m = c.month, let d = c.day else {
+                date = calendar.date(byAdding: .day, value: 1, to: date)!; continue
+            }
+            let key = "\(y)-\(m - 1)-\(d)"
+            let level = daysData[key] ?? .none
+
+            switch level {
+            case .none:
+                let weeks = consecutiveSoberDays / 7
+                currentProgress += Int(ceil(5.0 * bonusCoefficient(for: weeks)))
+                consecutiveDrinkDays = 0; consecutiveSoberDays += 1
+            case .sport:
+                let weeks = consecutiveSoberDays / 7
+                currentProgress += Int(ceil(20.0 * bonusCoefficient(for: weeks)))
+                consecutiveDrinkDays = 0; consecutiveSoberDays += 1
+            case .little:
+                consecutiveDrinkDays += 1; consecutiveSoberDays = 0
+                currentProgress -= calculatePenalty(base: 5, consecutiveDays: consecutiveDrinkDays)
+            case .little_sport:
+                consecutiveDrinkDays += 1; consecutiveSoberDays = 0
+                currentProgress = currentProgress - calculatePenalty(base: 5, consecutiveDays: consecutiveDrinkDays) + 20
+            case .medium:
+                consecutiveDrinkDays += 1; consecutiveSoberDays = 0
+                currentProgress -= calculatePenalty(base: 20, consecutiveDays: consecutiveDrinkDays)
+            case .heavy:
+                consecutiveDrinkDays += 1; consecutiveSoberDays = 0
+                currentProgress -= calculatePenalty(base: 35, consecutiveDays: consecutiveDrinkDays)
+            case .medium_sport:
+                consecutiveDrinkDays += 1; consecutiveSoberDays = 0
+                currentProgress = currentProgress - calculatePenalty(base: 20, consecutiveDays: consecutiveDrinkDays) + 5
+            case .heavy_sport:
+                consecutiveDrinkDays += 1; consecutiveSoberDays = 0
+                currentProgress -= calculatePenalty(base: 35, consecutiveDays: consecutiveDrinkDays)
+            case .unknown:
+                break
+            }
+
+            if y == year {
+                let doy = calendar.ordinality(of: .day, in: .year, for: date) ?? 1
+                history.append(ScoreHistoryPoint(dayOfYear: doy, score: currentProgress, month: m))
+            }
+
+            date = calendar.date(byAdding: .day, value: 1, to: date)!
+        }
+
+        return history
+    }
+
+    // MARK: - Helpers (internal для использования в calculateHistory)
+
+    static func findFirstMarkedDate(daysData: [String: DrinkLevel]) -> Date? {
         let calendar = Calendar.current
         var earliestDate: Date? = nil
         
@@ -140,7 +233,7 @@ struct ProgressCalculator {
         return earliestDate
     }
     
-    private static func bonusCoefficient(for weeks: Int) -> Double {
+    static func bonusCoefficient(for weeks: Int) -> Double {
         switch weeks {
         case 0: return 1.0
         case 1: return 1.2
@@ -150,7 +243,7 @@ struct ProgressCalculator {
         }
     }
     
-    private static func calculatePenalty(base: Int, consecutiveDays: Int) -> Int {
+    static func calculatePenalty(base: Int, consecutiveDays: Int) -> Int {
         let coefficient: Double
         switch consecutiveDays {
         case 1: coefficient = 1.0

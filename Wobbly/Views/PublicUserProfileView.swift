@@ -258,6 +258,12 @@ struct PublicUserProfileView: View {
                     }
                 )
                 .padding(.top, 8)
+                // Корреляция спорта и алкоголя у друга
+                SportCorrelationView(
+                    daysData: friendDrinkLevels(from: cal.days),
+                    selectedYear: Calendar.current.component(.year, from: Date())
+                )
+                .padding(.top, 8)
             }
         }
         // Если friendCalendar == nil и нет ошибки — ничего не показываем
