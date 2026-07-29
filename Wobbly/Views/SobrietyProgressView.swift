@@ -35,12 +35,21 @@ struct SobrietyProgressView: View {
 
     // Массив больших отрицательных рубежей (после 500) — синхронно с ScoreHistoryView
     private let postNegativeMilestones = [1642, 3800, 6066, 7729, 10047, 11022]
+
+    // Все именованные глубины для скролла (включая 202м)
+    private let allDepthMilestones = [202, 1642, 3800, 6066, 7729, 10047, 11022]
     
     // Определяем следующий рубеж после года
     private func nextPostYearMilestone() -> Int? {
         return postYearMilestones.first { $0 > progressDays }
     }
     
+    // Следующая именованная глубина для авто-скролла
+    private func nextDepthScrollTarget() -> Int {
+        let absVal = abs(progressDays)
+        return allDepthMilestones.first { $0 > absVal } ?? allDepthMilestones.last ?? 11022
+    }
+
     // Определяем следующий рубеж для отрицательных значений
     private func nextNegativeMilestone() -> Int? {
         let absoluteValue = abs(progressDays)
@@ -303,14 +312,40 @@ struct SobrietyProgressView: View {
         }
         .frame(maxWidth: .infinity)
         
-        // Вехи после 500
-        HStack(spacing: 0) {
-            ForEach(postNegativeMilestones, id: \.self) { milestone in
-                PostNegativeMilestoneIndicator(
-                    milestone: milestone,
-                    isCompleted: abs(progressDays) >= milestone
-                )
-                .frame(maxWidth: .infinity)
+        // Глубины — горизонтальный скролл с тапом (все 7 именованных)
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 0) {
+                    ForEach(allDepthMilestones, id: \.self) { ms in
+                        PostYearMilestoneIndicator(
+                            milestone: ms,
+                            isCompleted: abs(progressDays) >= ms,
+                            isPositive: false
+                        )
+                        .frame(width: 56)
+                        .id(ms)
+                        .onTapGesture {
+                            let suffix = NSLocalizedString("negative_days_suffix", comment: "")
+                            let name = NSLocalizedString("ach_milestone_\(ms)_negative_title", comment: "")
+                            let fact = NSLocalizedString("milestone_\(ms)_negative_fact", comment: "")
+                            onShowInfo?("\(name) \(ms)\(suffix)", fact)
+                            HapticManager.shared.impact(.light)
+                        }
+                    }
+                }
+            }
+            .mask(
+                HStack(spacing: 0) {
+                    Rectangle()
+                    LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                        .frame(width: 44)
+                }
+            )
+            .onAppear {
+                let target = nextDepthScrollTarget()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    withAnimation(.none) { proxy.scrollTo(target, anchor: .center) }
+                }
             }
         }
         .padding(.top, 4)
