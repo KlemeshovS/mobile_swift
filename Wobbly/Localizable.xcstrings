@@ -2763,10 +2763,16 @@
     "auth_required_for_follows" : {
       "extractionState" : "manual",
       "localizations" : {
-        "ru" : {
+        "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Авторизуйтесь чтобы добавлять друзей"
+            "value" : "Sign in to add friends and view each other's stats"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Авторизуйтесь чтобы добавлять друзей и смотреть статистику друг друга"
           }
         }
       }
@@ -7305,6 +7311,23 @@
         }
       }
     },
+    "milestone_202_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dean's Blue Hole in the Bahamas (202 m) was the world's deepest known blue hole until 2016. These underwater sinkholes formed when limestone dissolved during the last ice age, when sea levels were 120 m lower than today."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голубая дыра Дина на Багамах (202 м) считалась самой глубокой в мире до 2016 года. Такие подводные воронки образовались в известняке во время последнего ледникового периода, когда уровень моря был на 120 м ниже нынешнего."
+          }
+        }
+      }
+    },
     "milestone_319_label" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7386,23 +7409,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Гора Вашингтон удерживала мировой рекорд скорости ветра 62 года: 372 км/ч, зафиксированных 12 апреля 1934 года. Вершинная обсерватория работает непрерывно с 1870 года — старейшая горная метеостанция в мире."
-          }
-        }
-      }
-    },
-    "milestone_202_negative_fact" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dean's Blue Hole in the Bahamas (202 m) was the world's deepest known blue hole until 2016. These underwater sinkholes formed when limestone dissolved during the last ice age, when sea levels were 120 m lower than today."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Голубая дыра Дина на Багамах (202 м) считалась самой глубокой в мире до 2016 года. Такие подводные воронки образовались в известняке во время последнего ледникового периода, когда уровень моря был на 120 м ниже нынешнего."
           }
         }
       }
