@@ -28,16 +28,16 @@ struct SobrietyProgressView: View {
     ]
     
     // Массив вех после года — все именованные горы (синхронно с ScoreHistoryView)
-    private let postYearMilestones = [1234, 1917, 3491, 4478, 4506, 4810, 5054, 5642, 7010, 8848]
+    private let postYearMilestones = [1234, 1917, 3491, 4478, 4506, 4810, 5054, 5642, 7010, 8848, 21900]
 
     // Массив вех для отрицательных значений (задаем положительные числа, отображаем без минуса)
     private let negativeMilestones = [50, 100, 202, 300, 500]
 
     // Массив больших отрицательных рубежей (после 500) — синхронно с ScoreHistoryView
-    private let postNegativeMilestones = [1642, 3800, 6066, 7729, 10047, 11022]
+    private let postNegativeMilestones = [1642, 3800, 6066, 7729, 10047, 11022, 20000]
 
     // Все именованные глубины для скролла (включая 202м)
-    private let allDepthMilestones = [202, 1642, 3800, 6066, 7729, 10047, 11022]
+    private let allDepthMilestones = [202, 1642, 3800, 6066, 7729, 10047, 11022, 20000]
     
     // Определяем следующий рубеж после года
     private func nextPostYearMilestone() -> Int? {

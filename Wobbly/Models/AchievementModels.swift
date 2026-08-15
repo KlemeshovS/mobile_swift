@@ -17,6 +17,7 @@ enum AchievementType {
     case milestone(target: Int, isNegative: Bool)
     case soberDaysInYear(requiredCount: Int)
     case drinkingDaysInYear(requiredCount: Int)
+    case drinkingLevelDaysInYear(level: DrinkLevel, requiredCount: Int) // дни года с конкретным уровнем (little/medium/heavy)
     case soberMonth(month: Int) // month: 1-12
     case leftReview
     case noHangoverStreak(requiredDays: Int) // без medium/heavy N дней подряд
@@ -70,6 +71,8 @@ struct Achievement: Identifiable, Codable {
             return count
         case .drinkingDaysInYear(let count):
             return count
+        case .drinkingLevelDaysInYear(_, let count):
+            return count
         case .soberMonth(let month):
             return month
         case .leftReview:
@@ -78,7 +81,7 @@ struct Achievement: Identifiable, Codable {
             return days
         }
     }
-    
+
     var isDrinking: Bool {
         switch type {
         case .drinkingStreak:
@@ -86,6 +89,8 @@ struct Achievement: Identifiable, Codable {
         case .milestone(_, let isNegative):
             return isNegative
         case .drinkingDaysInYear:
+            return true
+        case .drinkingLevelDaysInYear:
             return true
         default:
             return false
@@ -138,6 +143,8 @@ struct Achievement: Identifiable, Codable {
         case "milestone_7729_negative": return "achievement_milestone_7729_negative"
         case "milestone_10047_negative": return "achievement_milestone_10047_negative"
         case "milestone_11022_negative": return "achievement_milestone_11022_negative"
+        case "milestone_21900": return "achievement_milestone_21900"
+        case "milestone_20000_negative": return "achievement_milestone_20000_negative"
         case "milestone_1917": return "achievement_milestone_1917"
         case "milestone_3491": return "achievement_milestone_3491"
         case "milestone_4478": return "achievement_milestone_4478"
@@ -149,6 +156,12 @@ struct Achievement: Identifiable, Codable {
         case "drink_days_year_100": return "achievement_drink_days_year_100"
         case "drink_days_year_200": return "achievement_drink_days_year_200"
         case "drink_days_year_300": return "achievement_drink_days_year_300"
+        case "drink_little_days_year_50": return "achievement_drink_little_days_year_50"
+        case "drink_little_days_year_100": return "achievement_drink_little_days_year_100"
+        case "drink_medium_days_year_50": return "achievement_drink_medium_days_year_50"
+        case "drink_medium_days_year_100": return "achievement_drink_medium_days_year_100"
+        case "drink_heavy_days_year_50": return "achievement_drink_heavy_days_year_50"
+        case "drink_heavy_days_year_100": return "achievement_drink_heavy_days_year_100"
         case "sober_month_1": return "achievement_sober_month_1"
         case "sober_month_2": return "achievement_sober_month_2"
         case "sober_month_3": return "achievement_sober_month_3"
@@ -255,6 +268,8 @@ extension Achievement {
             return String(format: NSLocalizedString("ach_requirement_sober_days_year", comment: ""), count)
         case .drinkingDaysInYear(let count):
             return String(format: NSLocalizedString("ach_requirement_drinking_days_year", comment: ""), count)
+        case .drinkingLevelDaysInYear(let level, let count):
+            return String(format: NSLocalizedString("ach_requirement_drinking_level_days_year", comment: ""), count, level.localizedTitle)
         case .soberMonth(let month):
             let monthKey = "month_prepositional_\(month)"
             let monthName = NSLocalizedString(monthKey, comment: "")
@@ -281,15 +296,20 @@ extension AchievementType: Codable {
     
     private enum BaseType: String, Codable {
         case soberStreak, drinkingStreak, sportCount, uniqueEvent, milestone
-        case soberDaysInYear, drinkingDaysInYear
+        case soberDaysInYear, drinkingDaysInYear, drinkingLevelDaysInYear
         case soberMonth
         case leftReview
         case noHangoverStreak
     }
-    
+
     private struct MilestoneData: Codable {
         let target: Int
         let isNegative: Bool
+    }
+
+    private struct DrinkingLevelDaysData: Codable {
+        let level: DrinkLevel
+        let count: Int
     }
     
     // MARK: - Encodable
@@ -325,7 +345,12 @@ extension AchievementType: Codable {
         case .drinkingDaysInYear(let count):
             try container.encode(BaseType.drinkingDaysInYear, forKey: .base)
             try container.encode(count, forKey: .associated)
-            
+
+        case .drinkingLevelDaysInYear(let level, let count):
+            try container.encode(BaseType.drinkingLevelDaysInYear, forKey: .base)
+            let data = DrinkingLevelDaysData(level: level, count: count)
+            try container.encode(data, forKey: .associated)
+
         case .soberMonth(let month):
             try container.encode(BaseType.soberMonth, forKey: .base)
             try container.encode(month, forKey: .associated)
@@ -338,7 +363,7 @@ extension AchievementType: Codable {
             try container.encode(days, forKey: .associated)
         }
     }
-    
+
     // MARK: - Decodable
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -371,7 +396,11 @@ extension AchievementType: Codable {
         case .drinkingDaysInYear:
             let count = try container.decode(Int.self, forKey: .associated)
             self = .drinkingDaysInYear(requiredCount: count)
-            
+
+        case .drinkingLevelDaysInYear:
+            let data = try container.decode(DrinkingLevelDaysData.self, forKey: .associated)
+            self = .drinkingLevelDaysInYear(level: data.level, requiredCount: data.count)
+
         case .soberMonth:
             let month = try container.decode(Int.self, forKey: .associated)
             self = .soberMonth(month: month)
@@ -410,6 +439,8 @@ extension AchievementType: Codable {
             return "soberMonth:\(month)"
         case .drinkingDaysInYear(let count):
             return "drinkingDaysInYear:\(count)"
+        case .drinkingLevelDaysInYear(let level, let count):
+            return "drinkingLevelDaysInYear:\(level.rawValue):\(count)"
         case .leftReview:
             return "leftReview"
         case .noHangoverStreak(let days):
@@ -485,7 +516,15 @@ extension AchievementType: Codable {
                 throw NSError(domain: "AchievementType", code: 10, userInfo: nil)
             }
             return .drinkingDaysInYear(requiredCount: count)
-            
+
+        case "drinkingLevelDaysInYear":
+            guard components.count == 3,
+                  let level = DrinkLevel(rawValue: String(components[1])),
+                  let count = Int(components[2]) else {
+                throw NSError(domain: "AchievementType", code: 13, userInfo: nil)
+            }
+            return .drinkingLevelDaysInYear(level: level, requiredCount: count)
+
         case "soberMonth":
             guard components.count == 2, let month = Int(components[1]) else {
                 throw NSError(domain: "AchievementType", code: 11, userInfo: nil)

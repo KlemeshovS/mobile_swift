@@ -37,7 +37,8 @@ struct ScoreHistoryView: View {
         NamedMilestone(score: 5054,  nameKey: "ach_milestone_5054_title"),  // Казбек
         NamedMilestone(score: 5642,  nameKey: "ach_milestone_5642_title"),  // Эльбрус
         NamedMilestone(score: 7010,  nameKey: "ach_milestone_7010_title"),  // Хан-Тенгри
-        NamedMilestone(score: 8848,  nameKey: "ach_milestone_8848_title")   // Эверест
+        NamedMilestone(score: 8848,  nameKey: "ach_milestone_8848_title"),  // Эверест
+        NamedMilestone(score: 21900, nameKey: "ach_milestone_21900_title") // Гора Олимп (Марс)
     ]
 
     private let namedNegative: [NamedMilestone] = [
@@ -47,7 +48,8 @@ struct ScoreHistoryView: View {
         NamedMilestone(score: -6066,  nameKey: "ach_milestone_6066_negative_title"),  // Атакамская впадина
         NamedMilestone(score: -7729,  nameKey: "ach_milestone_7729_negative_title"),  // Зондский желоб
         NamedMilestone(score: -10047, nameKey: "ach_milestone_10047_negative_title"), // Кермадек
-        NamedMilestone(score: -11022, nameKey: "ach_milestone_11022_negative_title")  // Марианская впадина
+        NamedMilestone(score: -11022, nameKey: "ach_milestone_11022_negative_title"), // Марианская впадина
+        NamedMilestone(score: -20000, nameKey: "ach_milestone_20000_negative_title")  // В гостях у Аида
     ]
 
     // MARK: - Milestone dot model
