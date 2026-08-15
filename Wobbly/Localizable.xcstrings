@@ -383,6 +383,210 @@
         }
       }
     },
+    "ach_drink_heavy_year_50_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 fully-wasted days a year. Half of those stories aren't your memories — they're other people's retellings."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 дней «всрало» в году. Половина этих историй — не твои воспоминания, а чужие пересказы."
+          }
+        }
+      }
+    },
+    "ach_drink_heavy_year_50_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Legend Nobody Remembers"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Легенда, которую никто не помнит"
+          }
+        }
+      }
+    },
+    "ach_drink_heavy_year_100_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100 fully-blackout days a year — over a quarter of your life offline. Rock bottom already has your name on the mailbox."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100 дней «всрало» за год — больше четверти жизни в отключке. У дна для тебя уже готова прописка."
+          }
+        }
+      }
+    },
+    "ach_drink_heavy_year_100_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Honorary Resident of Rock Bottom"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почётный Житель Дна"
+          }
+        }
+      }
+    },
+    "ach_drink_little_year_50_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 days a year of \"it's just a little.\" Your liver started counting, and it's not a fan of the trend."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 дней в году «ну это же чуть-чуть». Твоя печень завела счётчик — и он ей не нравится."
+          }
+        }
+      }
+    },
+    "ach_drink_little_year_50_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Master of Just a Little"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мастер Чуть-Чуть"
+          }
+        }
+      }
+    },
+    "ach_drink_little_year_100_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100 \"just a little\" days a year. That's basically a second job now. The pay is a mild hangover and concerned looks from friends."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100 дней «чучуть» за год — это уже вторая работа. Зарплата: лёгкое похмелье и вопросы от близких."
+          }
+        }
+      }
+    },
+    "ach_drink_little_year_100_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sipping Champion"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чемпион Дегустаций"
+          }
+        }
+      }
+    },
+    "ach_drink_medium_year_50_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 medium-level days a year. The bartender pours your drink before you even sit down."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 средних дней в году. Бармен наливает твой напиток раньше, чем ты успеваешь сесть."
+          }
+        }
+      }
+    },
+    "ach_drink_medium_year_50_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regular, Moderately"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завсегдатай Средней Руки"
+          }
+        }
+      }
+    },
+    "ach_drink_medium_year_100_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100 medium days a year. Your liver now works without weekends or vacation."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100 средних дней за год. Твоя печень теперь работает без выходных и без отпуска."
+          }
+        }
+      }
+    },
+    "ach_drink_medium_year_100_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Customer of the Month, Every Month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Клиент Месяца"
+          }
+        }
+      }
+    },
     "ach_milestone_146_desc" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1051,6 +1255,70 @@
         }
       }
     },
+    "ach_milestone_20000_negative_desc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "20,000 meters — deeper than the Mariana Trench, deeper than anything that actually exists on Earth. This is where the underworld begins, and Hades is waiting for you with a stone-cold sober stare. Charon doesn't take coins down here — only excuses."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "20 000 метров — глубже Марианской впадины, глубже всего, что вообще существует на Земле. Здесь начинается царство мёртвых, и Аид уже ждёт тебя с трезвым взглядом. Харон в этих водах денег не берёт — только оправдания."
+          }
+        }
+      }
+    },
+    "ach_milestone_20000_negative_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visiting Hades"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "В гостях у Аида"
+          }
+        }
+      }
+    },
+    "ach_milestone_21900_desc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "21,900 meters — the tallest volcano in the entire Solar System, and it's not even on Earth, it's on Mars. You've climbed higher than the gods of Olympus themselves, higher than the atmosphere, higher than any excuse to drink. Too bad nectar and ambrosia don't count as an open bar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "21 900 метров — самый высокий вулкан во всей Солнечной системе, и он не на Земле, а на Марсе. Ты поднялся выше богов Олимпа, выше атмосферы, выше любых оправданий выпить. Жаль, нектар и амброзия — это не открытый бар."
+          }
+        }
+      }
+    },
+    "ach_milestone_21900_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olympus Mons"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Гора Олимп"
+          }
+        }
+      }
+    },
     "ach_no_hangover_90_desc" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1183,6 +1451,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%d алкогольных дней в году"
+          }
+        }
+      }
+    },
+    "ach_requirement_drinking_level_days_year" : {
+      "comment" : "Text for the \"drinking level\" achievement. The first argument is the number of days. The second argument is the name of the drink level.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d \"%@\" days in a year"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d дней «%@» в году"
           }
         }
       }
@@ -7600,6 +7886,23 @@
         }
       }
     },
+    "milestone_21900_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olympus Mons (21,900 m) is the tallest known volcano in the Solar System — nearly 2.5 times higher than Everest, with a base roughly the size of France. Its slopes are so gentle a climber could, in theory, walk to the summit; the real killer would be Mars's atmosphere, just 1% as thick as Earth's."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гора Олимп (21 900 м) — самый высокий известный вулкан Солнечной системы, почти в 2,5 раза выше Эвереста, а его основание размером примерно с Францию. Склоны настолько пологие, что теоретически до вершины можно дойти пешком — проблема лишь в марсианской атмосфере, которая в 100 раз разреженнее земной."
+          }
+        }
+      }
+    },
     "milestone_10047_negative_fact" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7630,6 +7933,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Бездна Челленджера (11 022 м) в Марианской впадине — глубочайшая известная точка Земли. Лишь 3 человека побывали там: Дон Уолш и Жак Пикар в 1960 году и Джеймс Кэмерон в 2012-м. Давление в 1086 раз превышает атмосферное — как 50 самолётов Boeing 747, давящих на одного человека."
+          }
+        }
+      }
+    },
+    "milestone_20000_negative_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No place on Earth is this deep — even Challenger Deep, the ocean's lowest point, reaches only 11,034 m, barely halfway. In Greek myth, Hades ruled the underworld here, and Tartarus lay even deeper still, as far below his throne as the sky stretches above the earth."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Такой глубины не существует нигде на Земле — даже Бездна Челленджера, самая глубокая точка океана, достигает лишь 11 034 м, чуть больше половины пути. В греческой мифологии здесь царил Аид, владыка мёртвых, а ещё глубже лежал Тартар — настолько же далёкий от его трона, насколько небо простирается над землёй."
           }
         }
       }

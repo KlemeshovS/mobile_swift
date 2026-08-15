@@ -43,9 +43,11 @@ class StreakHistoryManager {
         }
         alcoholDates.sort()
         
-        // Если нет алкогольных дней – все дни от startDate до today трезвые
+        // Если нет алкогольных дней – все дни от startDate до today трезвые.
+        // +1, т.к. считаем включительно оба конца диапазона (как и цикл ниже,
+        // который проходит посуточно от startDate до today включительно).
         if alcoholDates.isEmpty {
-            let daysCount = calendar.dateComponents([.day], from: startDate, to: today).day ?? 0
+            let daysCount = (calendar.dateComponents([.day], from: startDate, to: today).day ?? -1) + 1
             return max(0, daysCount)
         }
         

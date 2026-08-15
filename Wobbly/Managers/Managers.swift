@@ -340,7 +340,7 @@ class PeriodManager {
     
     func getAchievementStartDate(daysData: [String: DrinkLevel]) -> Date {
         let installDate = firstInstallDate
-        
+
         // Ищем самую раннюю дату в данных
         var earliestDataDate = Date.distantFuture
         for dateKey in daysData.keys {
@@ -348,11 +348,14 @@ class PeriodManager {
                 earliestDataDate = min(earliestDataDate, date)
             }
         }
-        
-        // Если есть исторические данные - используем их дату
-        // Если нет данных - используем дату установки
-        let startDate = earliestDataDate != Date.distantFuture ? earliestDataDate : installDate
-        
+
+        // Приложением пользуются с даты установки, даже если первая отметка
+        // появилась позже (пользователь мог не отмечать дни какое-то время).
+        // Берём МИНИМУМ из даты установки и самой ранней отметки, а не одно
+        // вместо другого — иначе дни, прожитые в приложении без отметок,
+        // ошибочно считались бы "до начала использования".
+        let startDate = min(installDate, earliestDataDate == .distantFuture ? installDate : earliestDataDate)
+
         return startDate
     }
     

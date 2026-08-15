@@ -147,7 +147,51 @@ class NewAchievementManager {
             type: .drinkingDaysInYear(requiredCount: 300),
             isUnlocked: false
         ),
-        
+
+        // Дни года по конкретному уровню алкоголя (чуть-чуть / средне / всрало)
+        Achievement(
+            id: "drink_little_days_year_50",
+            title: NSLocalizedString("ach_drink_little_year_50_title", comment: ""),
+            description: NSLocalizedString("ach_drink_little_year_50_desc", comment: ""),
+            type: .drinkingLevelDaysInYear(level: .little, requiredCount: 50),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "drink_little_days_year_100",
+            title: NSLocalizedString("ach_drink_little_year_100_title", comment: ""),
+            description: NSLocalizedString("ach_drink_little_year_100_desc", comment: ""),
+            type: .drinkingLevelDaysInYear(level: .little, requiredCount: 100),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "drink_medium_days_year_50",
+            title: NSLocalizedString("ach_drink_medium_year_50_title", comment: ""),
+            description: NSLocalizedString("ach_drink_medium_year_50_desc", comment: ""),
+            type: .drinkingLevelDaysInYear(level: .medium, requiredCount: 50),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "drink_medium_days_year_100",
+            title: NSLocalizedString("ach_drink_medium_year_100_title", comment: ""),
+            description: NSLocalizedString("ach_drink_medium_year_100_desc", comment: ""),
+            type: .drinkingLevelDaysInYear(level: .medium, requiredCount: 100),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "drink_heavy_days_year_50",
+            title: NSLocalizedString("ach_drink_heavy_year_50_title", comment: ""),
+            description: NSLocalizedString("ach_drink_heavy_year_50_desc", comment: ""),
+            type: .drinkingLevelDaysInYear(level: .heavy, requiredCount: 50),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "drink_heavy_days_year_100",
+            title: NSLocalizedString("ach_drink_heavy_year_100_title", comment: ""),
+            description: NSLocalizedString("ach_drink_heavy_year_100_desc", comment: ""),
+            type: .drinkingLevelDaysInYear(level: .heavy, requiredCount: 100),
+            isUnlocked: false
+        ),
+
         // Трезвые месяцы
         Achievement(id: "sober_month_1", title: NSLocalizedString("ach_sober_month_1_title", comment: ""), description: NSLocalizedString("ach_sober_month_1_desc", comment: ""), type: .soberMonth(month: 1), isUnlocked: false),
         Achievement(id: "sober_month_2", title: NSLocalizedString("ach_sober_month_2_title", comment: ""), description: NSLocalizedString("ach_sober_month_2_desc", comment: ""), type: .soberMonth(month: 2), isUnlocked: false),
@@ -374,6 +418,23 @@ class NewAchievementManager {
             isUnlocked: false
         ),
 
+        // Гора Олимп (Марс) — самый высокий вулкан Солнечной системы
+        Achievement(
+            id: "milestone_21900",
+            title: NSLocalizedString("ach_milestone_21900_title", comment: ""),
+            description: NSLocalizedString("ach_milestone_21900_desc", comment: ""),
+            type: .milestone(target: 21900, isNegative: false),
+            isUnlocked: false
+        ),
+        // В гостях у Аида — символическая глубина царства мёртвых
+        Achievement(
+            id: "milestone_20000_negative",
+            title: NSLocalizedString("ach_milestone_20000_negative_title", comment: ""),
+            description: NSLocalizedString("ach_milestone_20000_negative_desc", comment: ""),
+            type: .milestone(target: 20000, isNegative: true),
+            isUnlocked: false
+        ),
+
         // Ачивка за отзыв в App Store (ручная разблокировка)
         Achievement(
             id: "left_review",
@@ -430,7 +491,7 @@ class NewAchievementManager {
             // Пересчитываем счётчик всегда когда ачивка разблокирована
             if shouldUnlock {
                 switch achievement.type {
-                case .soberDaysInYear, .drinkingDaysInYear:
+                case .soberDaysInYear, .drinkingDaysInYear, .drinkingLevelDaysInYear:
                     let newCount = countYearsAchieved(type: achievement.type, daysData: daysData)
                     if currentAchievements[index].unlockCount != newCount {
                         currentAchievements[index].unlockCount = newCount
@@ -457,8 +518,17 @@ class NewAchievementManager {
             }
             
             if !shouldUnlock && achievement.isUnlocked {
-                // Ачивки с ручной разблокировкой не сбрасываем
-                if case .leftReview = achievement.type { continue }
+                // Ачивки с ручной разблокировкой и milestone-вехи не сбрасываем
+                // автоматически: отзыв — потому что он вручную подтверждается,
+                // milestone — потому что однажды достигнутая веха (высота/глубина)
+                // должна оставаться в истории достижений, даже если текущий
+                // прогресс упал ниже порога.
+                switch achievement.type {
+                case .leftReview, .milestone:
+                    continue
+                default:
+                    break
+                }
                 // Условие больше не выполняется – сбрасываем
                 currentAchievements[index].isUnlocked = false
                 currentAchievements[index].unlockDate = nil
@@ -579,6 +649,10 @@ class NewAchievementManager {
                 if checkDrinkingDaysInYear(requiredCount: required, daysData: daysData, forYear: year) {
                     count += 1
                 }
+            case .drinkingLevelDaysInYear(let level, let required):
+                if countDrinkingLevelDaysInYear(level: level, daysData: daysData, forYear: year) >= required {
+                    count += 1
+                }
             default:
                 break
             }
@@ -606,7 +680,10 @@ class NewAchievementManager {
 
         case .drinkingDaysInYear(let requiredCount):
             return checkDrinkingDaysInYear(requiredCount: requiredCount, daysData: daysData)
-            
+
+        case .drinkingLevelDaysInYear(let level, let requiredCount):
+            return countDrinkingLevelDaysInYear(level: level, daysData: daysData) >= requiredCount
+
         case .soberMonth(let month):
             return checkSoberMonth(month: month, daysData: daysData)
             
@@ -905,7 +982,41 @@ class NewAchievementManager {
         
         return drinkCount >= requiredCount
     }
-        
+
+    // Кол-во дней в году с конкретным уровнем алкоголя (little/medium/heavy),
+    // независимо от того, был ли в этот день ещё и спорт (little_sport и т.п.
+    // засчитываются к своему базовому уровню).
+    private func countDrinkingLevelDaysInYear(level: DrinkLevel, daysData: [String: DrinkLevel], forYear: Int? = nil) -> Int {
+        let calendar = Calendar.current
+        let targetYear = forYear ?? calendar.component(.year, from: Date())
+        let startDate = PeriodManager.shared.getAchievementStartDate(daysData: daysData)
+
+        let startOfYear = calendar.date(from: DateComponents(year: targetYear, month: 1, day: 1))!
+        guard startOfYear >= startDate || targetYear == calendar.component(.year, from: Date()) else { return 0 }
+
+        var count = 0
+        for (dateString, recordedLevel) in daysData {
+            let parts = dateString.split(separator: "-").map { String($0) }
+            guard parts.count == 3,
+                  let year = Int(parts[0]),
+                  year == targetYear else { continue }
+
+            if matchesDrinkingLevel(recordedLevel, target: level) { count += 1 }
+        }
+
+        return count
+    }
+
+    private func matchesDrinkingLevel(_ recorded: DrinkLevel, target: DrinkLevel) -> Bool {
+        switch target {
+        case .little: return recorded == .little || recorded == .little_sport
+        case .medium: return recorded == .medium || recorded == .medium_sport
+        case .heavy: return recorded == .heavy || recorded == .heavy_sport
+        default: return recorded == target
+        }
+    }
+
+
     private func loadAchievements() -> [Achievement] {
         let fullData = dataManager.loadFullAppData() // ← Используем новый метод!
         
