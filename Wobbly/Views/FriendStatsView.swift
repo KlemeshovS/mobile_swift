@@ -91,12 +91,38 @@ struct FriendStatsView: View {
                          totalDays: totalDaysPassed, totalDrinking: little + medium + heavy)
     }
 
+    // Самая ранняя дата, для которой у друга вообще есть запись (пьяный или спортивный день).
+    // "Чистые" трезвые дни без спорта не сохраняются как записи (см. CalendarTabView.setDayRecord),
+    // поэтому это не "дата первого трезвого дня", а просто нижняя граница диапазона,
+    // защищающая от бесконечного отката назад, если друг ни разу не пил.
+    private var earliestRecordedDate: Date? {
+        let calendar = Calendar.current
+        var earliest: Date?
+        for key in days.keys {
+            let components = key.split(separator: "-").map { String($0) }
+            guard components.count == 3,
+                  let y = Int(components[0]), let m = Int(components[1]), let d = Int(components[2]) else { continue }
+            var dc = DateComponents()
+            dc.year = y
+            dc.month = m + 1 // ключи 0-based по месяцу
+            dc.day = d
+            guard let date = calendar.date(from: dc) else { continue }
+            if earliest == nil || date < earliest! { earliest = date }
+        }
+        return earliest
+    }
+
     private func calculateSoberStreak() -> Int {
         let calendar = Calendar.current
         let today = updatedDate ?? Date()
+        // Без даты установки друга (её нет в профиле) отталкиваемся от самой ранней
+        // известной записи. Если записей нет вообще — считать стрик не от чего, 0.
+        guard let startDate = earliestRecordedDate else { return 0 }
+        let maxDays = max(0, (calendar.dateComponents([.day], from: startDate, to: today).day ?? 0) + 1)
         var streak = 0
-        for offset in 0..<2000 {
-            guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { break }
+        for offset in 0..<maxDays {
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: today),
+                  date >= startDate else { break }
             let y = calendar.component(.year, from: date)
             let m = calendar.component(.month, from: date) - 1
             let d = calendar.component(.day, from: date)

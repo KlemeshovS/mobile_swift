@@ -1655,6 +1655,23 @@
         }
       }
     },
+    "ach_requirement_trigger_count_year" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d times with the \"%@\" trigger this year"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d раз с триггером «%@» за этот год"
+          }
+        }
+      }
+    },
     "ach_review_desc" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2620,6 +2637,244 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Гуру самоистязания"
+          }
+        }
+      }
+    },
+    "ach_trigger_boredom_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 times the reason wasn't an occasion — it was the lack of one. Boredom is the cheapest bartender in town."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 раз причиной был не повод, а его отсутствие. Скука — самый дешёвый бармен в городе."
+          }
+        }
+      }
+    },
+    "ach_trigger_boredom_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cure for Boredom"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лекарство от Скуки"
+          }
+        }
+      }
+    },
+    "ach_trigger_company_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 times someone said \"come on, just one\" — and you said yes every time. Your liver doesn't have free will either, apparently."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 раз кто-то сказал «ну давай, по одной» — и ты каждый раз соглашался. Своей воли у печени тоже, видимо, нет."
+          }
+        }
+      }
+    },
+    "ach_trigger_company_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pushover"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тряпка"
+          }
+        }
+      }
+    },
+    "ach_trigger_conflict_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 times a bottle seemed like a better answer than words after a fight. Diplomacy's not your strong suit, but at least it's consistent."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 раз после ссоры бутылка казалась лучшим ответом, чем слова. Дипломатия так себе, зато стабильно."
+          }
+        }
+      }
+    },
+    "ach_trigger_conflict_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veteran of Verbal Battles"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ветеран Словесных Баталий"
+          }
+        }
+      }
+    },
+    "ach_trigger_habit_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 times you didn't even need a reason — your body already knew the way. Pavlov's reflex, but with proof."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 раз даже повод искать не пришлось — тело само знает дорогу. Рефлекс Павлова, только с градусом."
+          }
+        }
+      }
+    },
+    "ach_trigger_habit_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On Autopilot"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На Автопилоте"
+          }
+        }
+      }
+    },
+    "ach_trigger_loneliness_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 times you drank alone. Drinking buddy, conversation partner, and excuse — all in one person. Efficient, really."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 раз ты пил в одиночестве. Собутыльник, собеседник и повод — всё в одном лице. Экономично, чё."
+          }
+        }
+      }
+    },
+    "ach_trigger_loneliness_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Party of One"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сам Себе Компания"
+          }
+        }
+      }
+    },
+    "ach_trigger_party_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 parties, and you're always the center of attention. The question is whether you remember any of them."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 тусовок, и ты всегда в центре. Вопрос в том, помнишь ли ты хоть одну из них."
+          }
+        }
+      }
+    },
+    "ach_trigger_party_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Life of the Party"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Душа Компании"
+          }
+        }
+      }
+    },
+    "ach_trigger_stress_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 times stress was your excuse. Your boss has no idea he became your personal bartender."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 раз стресс был твоим поводом. Начальник не в курсе, что стал твоим личным барменом."
+          }
+        }
+      }
+    },
+    "ach_trigger_stress_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stress-Resistant"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стрессоустойчивый"
           }
         }
       }
@@ -3811,6 +4066,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Размер файла аватара превышает допустимый"
+          }
+        }
+      }
+    },
+    "error_triggers_conflict" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trigger diary was updated on another device"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дневник триггеров был обновлён на другом устройстве"
+          }
+        }
+      }
+    },
+    "error_triggers_too_large" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trigger diary is too large"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дневник триггеров слишком большой"
           }
         }
       }
@@ -7886,23 +8175,6 @@
         }
       }
     },
-    "milestone_21900_fact" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Olympus Mons (21,900 m) is the tallest known volcano in the Solar System — nearly 2.5 times higher than Everest, with a base roughly the size of France. Its slopes are so gentle a climber could, in theory, walk to the summit; the real killer would be Mars's atmosphere, just 1% as thick as Earth's."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Гора Олимп (21 900 м) — самый высокий известный вулкан Солнечной системы, почти в 2,5 раза выше Эвереста, а его основание размером примерно с Францию. Склоны настолько пологие, что теоретически до вершины можно дойти пешком — проблема лишь в марсианской атмосфере, которая в 100 раз разреженнее земной."
-          }
-        }
-      }
-    },
     "milestone_10047_negative_fact" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7950,6 +8222,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Такой глубины не существует нигде на Земле — даже Бездна Челленджера, самая глубокая точка океана, достигает лишь 11 034 м, чуть больше половины пути. В греческой мифологии здесь царил Аид, владыка мёртвых, а ещё глубже лежал Тартар — настолько же далёкий от его трона, насколько небо простирается над землёй."
+          }
+        }
+      }
+    },
+    "milestone_21900_fact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olympus Mons (21,900 m) is the tallest known volcano in the Solar System — nearly 2.5 times higher than Everest, with a base roughly the size of France. Its slopes are so gentle a climber could, in theory, walk to the summit; the real killer would be Mars's atmosphere, just 1% as thick as Earth's."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гора Олимп (21 900 м) — самый высокий известный вулкан Солнечной системы, почти в 2,5 раза выше Эвереста, а его основание размером примерно с Францию. Склоны настолько пологие, что теоретически до вершины можно дойти пешком — проблема лишь в марсианской атмосфере, которая в 100 раз разреженнее земной."
           }
         }
       }
@@ -11191,6 +11480,176 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Трезвых дней"
+          }
+        }
+      }
+    },
+    "trigger_boredom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boredom"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скука"
+          }
+        }
+      }
+    },
+    "trigger_company" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peer pressure"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уговорили"
+          }
+        }
+      }
+    },
+    "trigger_conflict" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conflict"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Конфликт"
+          }
+        }
+      }
+    },
+    "trigger_habit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Привычка"
+          }
+        }
+      }
+    },
+    "trigger_insights_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why you drink"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему ты пьёшь"
+          }
+        }
+      }
+    },
+    "trigger_loneliness" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loneliness"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одиночество"
+          }
+        }
+      }
+    },
+    "trigger_other" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другое"
+          }
+        }
+      }
+    },
+    "trigger_party" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Party"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тусовка"
+          }
+        }
+      }
+    },
+    "trigger_prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Why? (optional)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему? (необязательно)"
+          }
+        }
+      }
+    },
+    "trigger_stress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stress"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стресс"
           }
         }
       }

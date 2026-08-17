@@ -201,6 +201,7 @@ struct ContentView: View {
                 }
                 
                 await CalendarSyncManager.shared.sync()
+                await TriggerSyncManager.shared.sync()
                 await AppNotificationManager.shared.checkNewFollowers()
 
                 let dataManager = DrinkDataManager()

@@ -79,7 +79,14 @@ class DataRestoreManager: ObservableObject {
                 }
                 print("✅ Восстановлено тренировок из бэкапа: \(workouts.count)")
             }
-            
+
+            if let triggers = exportData.triggers, !triggers.isEmpty {
+                for (dayKey, dayTriggers) in triggers {
+                    TriggerManager.shared.setTriggers(dayTriggers, for: dayKey)
+                }
+                print("✅ Восстановлено триггеров из бэкапа: \(triggers.count)")
+            }
+
             print("✅ Ручное восстановление из авто-бэкапа завершено: \(exportData.daysData.count) записей")
             
             // Обновляем UI после восстановления
@@ -170,7 +177,17 @@ class DataRestoreManager: ObservableObject {
                 }
                 print("✅ Восстановлено тренировок: \(workouts.count)")
             }
-            
+
+            // Восстанавливаем дневник триггеров если есть (мёржим по дням; в старых
+            // файлах этого поля просто нет — decodeIfPresent даёт nil, ветка не выполняется,
+            // существующие локальные триггеры не трогаются)
+            if let triggers = exportData.triggers, !triggers.isEmpty {
+                for (dayKey, dayTriggers) in triggers {
+                    TriggerManager.shared.setTriggers(dayTriggers, for: dayKey)
+                }
+                print("✅ Восстановлено триггеров: \(triggers.count)")
+            }
+
             print("✅ Импорт завершен: \(exportData.daysData.count) записей")
             
             // После успешного импорта

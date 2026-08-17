@@ -10,10 +10,12 @@ struct ExportData: Codable {
     let userId: Int?
     let username: String?
     var workouts: [String: WorkoutData]?
-    
+    var triggers: [String: [DrinkTrigger]]? // Дневник триггеров (опционально, для обратной совместимости со старыми файлами)
+
     init(daysData: [String: DrinkLevel] = [:],
          dayRecords: [String: DayRecord]? = nil,
          workouts: [String: WorkoutData]? = nil,
+         triggers: [String: [DrinkTrigger]]? = nil,
          userId: Int? = nil,
          username: String? = nil) {
         self.version = "2.1"
@@ -21,6 +23,7 @@ struct ExportData: Codable {
         self.daysData = daysData
         self.dayRecords = dayRecords
         self.workouts = workouts
+        self.triggers = triggers
         self.userId = userId
         self.username = username
     }
@@ -54,7 +57,7 @@ struct ExportData: Codable {
     // Кастомная реализация Codable
     enum CodingKeys: String, CodingKey {
         case version, exportDate, daysData, dayRecords, userId, username
-        case workouts
+        case workouts, triggers
     }
     
     func encode(to encoder: Encoder) throws {
@@ -72,12 +75,14 @@ struct ExportData: Codable {
         try container.encodeIfPresent(userId, forKey: .userId)
         try container.encodeIfPresent(username, forKey: .username)
         try container.encodeIfPresent(workouts, forKey: .workouts)
+        try container.encodeIfPresent(triggers, forKey: .triggers)
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         workouts = try container.decodeIfPresent([String: WorkoutData].self, forKey: .workouts)
-        
+        triggers = try container.decodeIfPresent([String: [DrinkTrigger]].self, forKey: .triggers)
+
         version = try container.decode(String.self, forKey: .version)
         
         // Декодируем данные в зависимости от версии

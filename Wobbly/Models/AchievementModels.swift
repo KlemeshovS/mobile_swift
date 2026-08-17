@@ -21,6 +21,7 @@ enum AchievementType {
     case soberMonth(month: Int) // month: 1-12
     case leftReview
     case noHangoverStreak(requiredDays: Int) // без medium/heavy N дней подряд
+    case triggerCountInYear(trigger: DrinkTrigger, requiredCount: Int) // N раз с конкретным триггером за год
 }
 
 enum SportPeriod {
@@ -79,6 +80,8 @@ struct Achievement: Identifiable, Codable {
             return 1
         case .noHangoverStreak(let days):
             return days
+        case .triggerCountInYear(_, let count):
+            return count
         }
     }
 
@@ -91,6 +94,8 @@ struct Achievement: Identifiable, Codable {
         case .drinkingDaysInYear:
             return true
         case .drinkingLevelDaysInYear:
+            return true
+        case .triggerCountInYear:
             return true
         default:
             return false
@@ -162,6 +167,13 @@ struct Achievement: Identifiable, Codable {
         case "drink_medium_days_year_100": return "achievement_drink_medium_days_year_100"
         case "drink_heavy_days_year_50": return "achievement_drink_heavy_days_year_50"
         case "drink_heavy_days_year_100": return "achievement_drink_heavy_days_year_100"
+        case "trigger_stress_year_10": return "achievement_trigger_stress_year_10"
+        case "trigger_boredom_year_10": return "achievement_trigger_boredom_year_10"
+        case "trigger_party_year_10": return "achievement_trigger_party_year_10"
+        case "trigger_company_year_10": return "achievement_trigger_company_year_10"
+        case "trigger_loneliness_year_10": return "achievement_trigger_loneliness_year_10"
+        case "trigger_conflict_year_10": return "achievement_trigger_conflict_year_10"
+        case "trigger_habit_year_10": return "achievement_trigger_habit_year_10"
         case "sober_month_1": return "achievement_sober_month_1"
         case "sober_month_2": return "achievement_sober_month_2"
         case "sober_month_3": return "achievement_sober_month_3"
@@ -284,6 +296,8 @@ extension Achievement {
             return NSLocalizedString("ach_requirement_review", comment: "")
         case .noHangoverStreak(let days):
             return String(format: NSLocalizedString("ach_requirement_no_hangover_streak", comment: ""), days)
+        case .triggerCountInYear(let trigger, let count):
+            return String(format: NSLocalizedString("ach_requirement_trigger_count_year", comment: ""), count, trigger.localizedTitle)
         }
     }
 }
@@ -300,6 +314,7 @@ extension AchievementType: Codable {
         case soberMonth
         case leftReview
         case noHangoverStreak
+        case triggerCountInYear
     }
 
     private struct MilestoneData: Codable {
@@ -309,6 +324,11 @@ extension AchievementType: Codable {
 
     private struct DrinkingLevelDaysData: Codable {
         let level: DrinkLevel
+        let count: Int
+    }
+
+    private struct TriggerCountData: Codable {
+        let trigger: DrinkTrigger
         let count: Int
     }
     
@@ -361,6 +381,11 @@ extension AchievementType: Codable {
         case .noHangoverStreak(let days):
             try container.encode(BaseType.noHangoverStreak, forKey: .base)
             try container.encode(days, forKey: .associated)
+
+        case .triggerCountInYear(let trigger, let count):
+            try container.encode(BaseType.triggerCountInYear, forKey: .base)
+            let data = TriggerCountData(trigger: trigger, count: count)
+            try container.encode(data, forKey: .associated)
         }
     }
 
@@ -411,6 +436,10 @@ extension AchievementType: Codable {
         case .noHangoverStreak:
             let days = try container.decode(Int.self, forKey: .associated)
             self = .noHangoverStreak(requiredDays: days)
+
+        case .triggerCountInYear:
+            let data = try container.decode(TriggerCountData.self, forKey: .associated)
+            self = .triggerCountInYear(trigger: data.trigger, requiredCount: data.count)
         }
     }
     
@@ -445,6 +474,8 @@ extension AchievementType: Codable {
             return "leftReview"
         case .noHangoverStreak(let days):
             return "noHangoverStreak:\(days)"
+        case .triggerCountInYear(let trigger, let count):
+            return "triggerCountInYear:\(trigger.rawValue):\(count)"
         }
     }
     
@@ -539,6 +570,14 @@ extension AchievementType: Codable {
                 throw NSError(domain: "AchievementType", code: 12, userInfo: nil)
             }
             return .noHangoverStreak(requiredDays: days)
+
+        case "triggerCountInYear":
+            guard components.count == 3,
+                  let trigger = DrinkTrigger(rawValue: String(components[1])),
+                  let count = Int(components[2]) else {
+                throw NSError(domain: "AchievementType", code: 14, userInfo: nil)
+            }
+            return .triggerCountInYear(trigger: trigger, requiredCount: count)
 
         default:
             throw NSError(domain: "AchievementType", code: 7, userInfo: [NSLocalizedDescriptionKey: "Unknown achievement type: \(firstComponent)"])

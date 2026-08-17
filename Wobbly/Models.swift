@@ -104,6 +104,38 @@ enum DrinkLevel: String, CaseIterable, Codable, Hashable {
     }
 }
 
+// MARK: - Drink Trigger (дневник триггеров)
+// Хранится отдельно от DayRecord/FullAppData (см. TriggerManager) — намеренно,
+// т.к. DayRecord повсеместно проходит лоссовый round-trip через DrinkLevel
+// (синк, экспорт, восстановление, пересчёт ачивок), где любое доп. поле было бы стёрто.
+// rawValue зафиксирован явно (а не выведен из имени кейса) — это формат хранения
+// в экспортных файлах и в персистентности ачивок (AchievementType.toString()).
+// Если переименовывать кейсы в коде для читаемости, не меняя raw value — старые
+// файлы/сохранённые ачивки продолжат корректно декодироваться.
+enum DrinkTrigger: String, CaseIterable, Codable, Hashable {
+    case stress = "stress"
+    case boredom = "boredom"
+    case party = "party"
+    case company = "company"
+    case loneliness = "loneliness"
+    case conflict = "conflict"
+    case habit = "habit"
+    case other = "other"
+
+    var localizedTitle: String {
+        switch self {
+        case .stress: return NSLocalizedString("trigger_stress", comment: "")
+        case .boredom: return NSLocalizedString("trigger_boredom", comment: "")
+        case .party: return NSLocalizedString("trigger_party", comment: "")
+        case .company: return NSLocalizedString("trigger_company", comment: "")
+        case .loneliness: return NSLocalizedString("trigger_loneliness", comment: "")
+        case .conflict: return NSLocalizedString("trigger_conflict", comment: "")
+        case .habit: return NSLocalizedString("trigger_habit", comment: "")
+        case .other: return NSLocalizedString("trigger_other", comment: "")
+        }
+    }
+}
+
 // MARK: - Day Data
 struct DayData: Identifiable, Hashable, Codable {
     let id = UUID()
