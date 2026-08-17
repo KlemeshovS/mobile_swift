@@ -83,6 +83,7 @@ class AuthService: NSObject, ObservableObject {
         UserDefaults.standard.set(session.username, forKey: "userName")
         UserDefaults.standard.set(session.participateInRating, forKey: "userParticipateInRating")
         await CalendarSyncManager.shared.sync()
+        await TriggerSyncManager.shared.sync()
     }
    
     // MARK: - Apple Sign-In
@@ -120,6 +121,7 @@ class AuthService: NSObject, ObservableObject {
         UserDefaults.standard.set(session.username, forKey: "userName")
         UserDefaults.standard.set(session.participateInRating, forKey: "userParticipateInRating")
         await CalendarSyncManager.shared.sync()
+        await TriggerSyncManager.shared.sync()
     }
     
     // MARK: - Выход

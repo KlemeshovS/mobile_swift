@@ -17,10 +17,12 @@ class ExportService {
         let fullData = dataManager.loadFullData()
 
         let workouts = WorkoutDataStorage.shared.loadAll()
+        let triggers = TriggerManager.shared.allTriggers()
 
         let exportData = ExportData(
             daysData: fullData.daysData,
-            workouts: workouts.isEmpty ? nil : workouts
+            workouts: workouts.isEmpty ? nil : workouts,
+            triggers: triggers.isEmpty ? nil : triggers
         )
 
         do {
@@ -61,7 +63,16 @@ class ExportService {
                 }
                 print("✅ Восстановлено тренировок: \(workouts.count)")
             }
-            
+
+            // Восстанавливаем дневник триггеров если есть (мёржим по дням, старые
+            // файлы без этого поля просто ничего здесь не делают)
+            if let triggers = exportData.triggers, !triggers.isEmpty {
+                for (dayKey, dayTriggers) in triggers {
+                    TriggerManager.shared.setTriggers(dayTriggers, for: dayKey)
+                }
+                print("✅ Восстановлено триггеров: \(triggers.count)")
+            }
+
             print("✅ Данные восстановлены из файла: \(exportData.daysData.count) записей")
             return true
             

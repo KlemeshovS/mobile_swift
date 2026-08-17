@@ -318,6 +318,10 @@ struct StatsTabView: View {
                             SportCorrelationView(daysData: localDaysData, selectedYear: selectedYear)
                                 .padding(.horizontal, 5)
 
+                            // Дневник триггеров — топ причин выпить
+                            TriggerInsightsView(selectedYear: selectedYear)
+                                .padding(.horizontal, 5)
+
                             // Среднее за месяц
                             MonthlyAverageView(daysData: localDaysData, selectedYear: selectedYear)
                                 .padding(.horizontal, 5)
@@ -789,9 +793,11 @@ struct StatsTabView: View {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let startDate = globalStartDate
+        guard today >= startDate else { return 0 }
+        let maxDays = (calendar.dateComponents([.day], from: startDate, to: today).day ?? 0) + 1
 
         var streak = 0
-        for dayOffset in 0..<2000 {
+        for dayOffset in 0..<maxDays {
             guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today),
                   date >= startDate else { break }
 
@@ -846,8 +852,10 @@ struct StatsTabView: View {
             return streak
         } else {
             // Текущий год
+            guard today >= startDate else { return 0 }
+            let maxDays = (calendar.dateComponents([.day], from: startDate, to: today).day ?? 0) + 1
             var streak = 0
-            for dayOffset in 0..<2000 { // достаточно большой запас
+            for dayOffset in 0..<maxDays {
                 guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today),
                       date >= startDate,
                       calendar.component(.year, from: date) == selectedYear else { break }

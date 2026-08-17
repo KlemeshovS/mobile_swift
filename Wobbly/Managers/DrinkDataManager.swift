@@ -420,10 +420,14 @@ class DrinkDataManager {
     private func calculateCurrentSoberStreak(daysData: [String: DrinkLevel]) -> Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
+        let startDate = PeriodManager.shared.getAchievementStartDate(daysData: daysData)
+        guard today >= startDate else { return 0 }
+        let maxDays = (calendar.dateComponents([.day], from: startDate, to: today).day ?? 0) + 1
         var streak = 0
-        
-        for dayOffset in 0..<365 {
-            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { break }
+
+        for dayOffset in 0..<maxDays {
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today),
+                  date >= startDate else { break }
             let comps = calendar.dateComponents([.year, .month, .day], from: date)
             guard let y = comps.year, let m = comps.month, let d = comps.day else { break }
             let key = "\(y)-\(m - 1)-\(d)"

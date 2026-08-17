@@ -57,7 +57,9 @@ enum UserAPIError: Error, LocalizedError {
     case followsLimitReached
     case notFollowing
     case notFriends
-    
+    case triggersConflict
+    case triggersTooLarge
+
     var errorDescription: String? {
         switch self {
         case .missingAuthorizationHeader:
@@ -114,6 +116,10 @@ enum UserAPIError: Error, LocalizedError {
             return NSLocalizedString("error_not_following", comment: "")
         case .notFriends:
             return NSLocalizedString("error_not_friends", comment: "")
+        case .triggersConflict:
+            return NSLocalizedString("error_triggers_conflict", comment: "")
+        case .triggersTooLarge:
+            return NSLocalizedString("error_triggers_too_large", comment: "")
         }
     }
 }
@@ -376,6 +382,10 @@ class UserAPIService {
                 return UserAPIError.avatarTooLarge
             case "AVATAR_INVALID_IMAGE":
                 return UserAPIError.avatarInvalidImage
+            case "TRIGGERS_CONFLICT":
+                return UserAPIError.triggersConflict
+            case "TRIGGERS_TOO_LARGE":
+                return UserAPIError.triggersTooLarge
             default:
                 return UserAPIError.unknownError(code: errorResponse.code, message: errorResponse.message)
             }
@@ -919,7 +929,73 @@ class UserAPIService {
             throw handleAPIError(data: data, response: httpResponse)
         }
     }
-    
+
+    // MARK: - Triggers Backup
+
+    struct TriggersResponse: Codable {
+        let triggers: [String: [String]]
+        let updatedAt: String
+    }
+
+    private struct TriggersSaveBody: Encodable {
+        let triggers: [String: [String]]
+        let clientUpdatedAt: String?
+    }
+
+    func getTriggers() async throws -> TriggersResponse {
+        try await performAuthenticatedRequest { token in
+            guard let url = URL(string: "\(self.baseURL)/me/calendar/triggers") else {
+                throw UserAPIError.invalidResponse
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            self.configureRequest(&request)
+
+            let (data, response) = try await self.session.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw UserAPIError.invalidResponse
+            }
+            switch httpResponse.statusCode {
+            case 200:
+                return try JSONDecoder().decode(TriggersResponse.self, from: data)
+            case 401:
+                throw UserAPIError.invalidToken
+            default:
+                throw self.handleAPIError(data: data, response: httpResponse)
+            }
+        }
+    }
+
+    func putTriggers(triggers: [String: [String]], clientUpdatedAt: String?) async throws -> TriggersResponse {
+        try await performAuthenticatedRequest { token in
+            guard let url = URL(string: "\(self.baseURL)/me/calendar/triggers") else {
+                throw UserAPIError.invalidResponse
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "PUT"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            self.configureRequest(&request)
+
+            let body = TriggersSaveBody(triggers: triggers, clientUpdatedAt: clientUpdatedAt)
+            request.httpBody = try JSONEncoder().encode(body)
+
+            let (data, response) = try await self.session.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw UserAPIError.invalidResponse
+            }
+            switch httpResponse.statusCode {
+            case 200:
+                return try JSONDecoder().decode(TriggersResponse.self, from: data)
+            case 401:
+                throw UserAPIError.invalidToken
+            default:
+                throw self.handleAPIError(data: data, response: httpResponse)
+            }
+        }
+    }
+
     func getFriendCalendar(userId: Int) async throws -> FriendCalendarResponse {
         let token = try requireToken()
         guard let url = URL(string: "\(baseURL)/users/\(userId)/calendar") else {

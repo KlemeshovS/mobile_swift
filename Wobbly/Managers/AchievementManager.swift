@@ -192,6 +192,57 @@ class NewAchievementManager {
             isUnlocked: false
         ),
 
+        // Дневник триггеров — 10 раз с конкретной причиной за год
+        Achievement(
+            id: "trigger_stress_year_10",
+            title: NSLocalizedString("ach_trigger_stress_title", comment: ""),
+            description: NSLocalizedString("ach_trigger_stress_desc", comment: ""),
+            type: .triggerCountInYear(trigger: .stress, requiredCount: 10),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "trigger_boredom_year_10",
+            title: NSLocalizedString("ach_trigger_boredom_title", comment: ""),
+            description: NSLocalizedString("ach_trigger_boredom_desc", comment: ""),
+            type: .triggerCountInYear(trigger: .boredom, requiredCount: 10),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "trigger_party_year_10",
+            title: NSLocalizedString("ach_trigger_party_title", comment: ""),
+            description: NSLocalizedString("ach_trigger_party_desc", comment: ""),
+            type: .triggerCountInYear(trigger: .party, requiredCount: 10),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "trigger_company_year_10",
+            title: NSLocalizedString("ach_trigger_company_title", comment: ""),
+            description: NSLocalizedString("ach_trigger_company_desc", comment: ""),
+            type: .triggerCountInYear(trigger: .company, requiredCount: 10),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "trigger_loneliness_year_10",
+            title: NSLocalizedString("ach_trigger_loneliness_title", comment: ""),
+            description: NSLocalizedString("ach_trigger_loneliness_desc", comment: ""),
+            type: .triggerCountInYear(trigger: .loneliness, requiredCount: 10),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "trigger_conflict_year_10",
+            title: NSLocalizedString("ach_trigger_conflict_title", comment: ""),
+            description: NSLocalizedString("ach_trigger_conflict_desc", comment: ""),
+            type: .triggerCountInYear(trigger: .conflict, requiredCount: 10),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "trigger_habit_year_10",
+            title: NSLocalizedString("ach_trigger_habit_title", comment: ""),
+            description: NSLocalizedString("ach_trigger_habit_desc", comment: ""),
+            type: .triggerCountInYear(trigger: .habit, requiredCount: 10),
+            isUnlocked: false
+        ),
+
         // Трезвые месяцы
         Achievement(id: "sober_month_1", title: NSLocalizedString("ach_sober_month_1_title", comment: ""), description: NSLocalizedString("ach_sober_month_1_desc", comment: ""), type: .soberMonth(month: 1), isUnlocked: false),
         Achievement(id: "sober_month_2", title: NSLocalizedString("ach_sober_month_2_title", comment: ""), description: NSLocalizedString("ach_sober_month_2_desc", comment: ""), type: .soberMonth(month: 2), isUnlocked: false),
@@ -491,7 +542,7 @@ class NewAchievementManager {
             // Пересчитываем счётчик всегда когда ачивка разблокирована
             if shouldUnlock {
                 switch achievement.type {
-                case .soberDaysInYear, .drinkingDaysInYear, .drinkingLevelDaysInYear:
+                case .soberDaysInYear, .drinkingDaysInYear, .drinkingLevelDaysInYear, .triggerCountInYear:
                     let newCount = countYearsAchieved(type: achievement.type, daysData: daysData)
                     if currentAchievements[index].unlockCount != newCount {
                         currentAchievements[index].unlockCount = newCount
@@ -653,11 +704,15 @@ class NewAchievementManager {
                 if countDrinkingLevelDaysInYear(level: level, daysData: daysData, forYear: year) >= required {
                     count += 1
                 }
+            case .triggerCountInYear(let trigger, let required):
+                if countTriggerCountInYear(trigger: trigger, forYear: year) >= required {
+                    count += 1
+                }
             default:
                 break
             }
         }
-        
+
         return count
     }
     
@@ -701,6 +756,9 @@ class NewAchievementManager {
 
         case .noHangoverStreak(let requiredDays):
             return checkNoHangoverStreakAchievement(requiredDays: requiredDays, daysData: daysData)
+
+        case .triggerCountInYear(let trigger, let requiredCount):
+            return countTriggerCountInYear(trigger: trigger) >= requiredCount
         }
     }
 
@@ -1002,6 +1060,24 @@ class NewAchievementManager {
                   year == targetYear else { continue }
 
             if matchesDrinkingLevel(recordedLevel, target: level) { count += 1 }
+        }
+
+        return count
+    }
+
+    // Кол-во дней в году, где среди отмеченных триггеров (дневник причин выпить)
+    // встречается конкретный тег. Данные берём из TriggerManager — они хранятся
+    // отдельно от daysData/DrinkLevel (см. TriggerManager.swift).
+    private func countTriggerCountInYear(trigger: DrinkTrigger, forYear: Int? = nil) -> Int {
+        let calendar = Calendar.current
+        let targetYear = forYear ?? calendar.component(.year, from: Date())
+
+        var count = 0
+        for (dateString, triggers) in TriggerManager.shared.allTriggers() {
+            guard triggers.contains(trigger) else { continue }
+            let parts = dateString.split(separator: "-").map { String($0) }
+            guard parts.count == 3, let year = Int(parts[0]), year == targetYear else { continue }
+            count += 1
         }
 
         return count
