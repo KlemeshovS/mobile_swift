@@ -68,13 +68,12 @@ struct CustomTabBar: View {
 
             // Пари между друзьями
             TabBarButton(
-                selectedImage: "flag.checkered",
-                unselectedImage: "flag.checkered",
+                selectedImage: "bets-selected",
+                unselectedImage: "bets",
                 title: NSLocalizedString("bets_tab_title", comment: ""),
                 isSelected: selectedTab == 3,
                 selectedTextColor: selectedTextColor,
                 unselectedTextColor: unselectedTextColor,
-                useSystemImage: true,
                 showBadge: betsManager.hasUnseenIncomingChallenges,
                 action: {
                     if selectedTab != 3 {
@@ -101,7 +100,6 @@ struct TabBarButton: View {
     let isSelected: Bool
     let selectedTextColor: Color
     let unselectedTextColor: Color
-    var useSystemImage: Bool = false
     var showBadge: Bool = false
     let action: () -> Void
 
@@ -111,19 +109,11 @@ struct TabBarButton: View {
         Button(action: action) {
             VStack(spacing: 6) {
                 ZStack(alignment: .topTrailing) {
-                    Group {
-                        if useSystemImage {
-                            Image(systemName: isSelected ? selectedImage : unselectedImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                        } else {
-                            Image(isSelected ? selectedImage : unselectedImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                        }
-                    }
-                    .frame(width: imageSize, height: imageSize)
-                    .foregroundColor(isSelected ? selectedTextColor : unselectedTextColor)
+                    Image(isSelected ? selectedImage : unselectedImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: imageSize, height: imageSize)
+                        .foregroundColor(isSelected ? selectedTextColor : unselectedTextColor)
 
                     if showBadge {
                         Circle()
