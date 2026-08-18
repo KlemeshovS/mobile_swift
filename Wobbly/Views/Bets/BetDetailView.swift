@@ -67,6 +67,8 @@ struct BetDetailView: View {
 
                 if let snapshot = bet.resultSnapshot, !snapshot.isEmpty {
                     resultCard(bet: bet, snapshot: snapshot)
+                } else if bet.status == .active, let live = bet.liveSnapshot, !live.isEmpty {
+                    liveScoreCard(bet: bet, snapshot: live)
                 }
 
                 if let errorMessage = errorMessage {
@@ -140,6 +142,45 @@ struct BetDetailView: View {
                 Spacer()
                 Text(snapshot["opponentValue"]?.displayString ?? "—")
                     .foregroundColor(.white)
+            }
+        }
+        .font(.system(size: 14))
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(0.05)))
+    }
+
+    private func liveScoreCard(bet: Bet, snapshot: [String: AnyCodableValue]) -> some View {
+        let cVal = snapshot["challengerValue"]?.intValue
+        let oVal = snapshot["opponentValue"]?.intValue
+        let challengerLeads: Bool? = {
+            guard let c = cVal, let o = oVal, c != o else { return nil }
+            return bet.betType.higherValueLeads ? c > o : c < o
+        }()
+        func color(isChallenger: Bool) -> Color {
+            guard let challengerLeads = challengerLeads else { return .white }
+            return challengerLeads == isChallenger ? Color(hex: "C7FF00") : Color(hex: "FF0072")
+        }
+
+        return VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("bets_detail_live_score", comment: ""))
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.white.opacity(0.5))
+                .textCase(.uppercase)
+            HStack {
+                Text(bet.challenger.username ?? "—")
+                    .foregroundColor(.white.opacity(0.7))
+                Spacer()
+                Text(snapshot["challengerValue"]?.displayString ?? "—")
+                    .fontWeight(.semibold)
+                    .foregroundColor(color(isChallenger: true))
+            }
+            HStack {
+                Text(bet.opponent.username ?? "—")
+                    .foregroundColor(.white.opacity(0.7))
+                Spacer()
+                Text(snapshot["opponentValue"]?.displayString ?? "—")
+                    .fontWeight(.semibold)
+                    .foregroundColor(color(isChallenger: false))
             }
         }
         .font(.system(size: 14))
