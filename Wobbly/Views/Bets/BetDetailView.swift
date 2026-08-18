@@ -45,6 +45,13 @@ struct BetDetailView: View {
                     Button(NSLocalizedString("close_button", comment: "")) { dismiss() }
                         .foregroundColor(.white.opacity(0.8))
                 }
+                if let bet = bet {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Text(statusText(bet))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(statusColor(bet))
+                    }
+                }
             }
         }
         .navigationViewStyle(.stack)
@@ -116,7 +123,6 @@ struct BetDetailView: View {
             Divider().background(Color.white.opacity(0.1))
 
             infoRow(durationLabel(bet), durationText(bet))
-            infoRow(NSLocalizedString("bets_detail_status", comment: ""), statusText(bet))
             if bet.status == .active, let remaining = bet.daysRemaining {
                 infoRow(NSLocalizedString("bets_detail_days_remaining", comment: ""), "\(remaining) \(betDaysWord(remaining))")
             }
@@ -278,6 +284,16 @@ struct BetDetailView: View {
             return targetEndDate
         }
         return "—"
+    }
+
+    private func statusColor(_ bet: Bet) -> Color {
+        switch bet.myOutcome {
+        case .won: return Color(hex: "C7FF00")
+        case .lost: return Color(hex: "FF0072")
+        case .draw: return .white.opacity(0.6)
+        case .voided: return .white.opacity(0.4)
+        case .pending: return Color(hex: "8B5CF6")
+        }
     }
 
     private func statusText(_ bet: Bet) -> String {
