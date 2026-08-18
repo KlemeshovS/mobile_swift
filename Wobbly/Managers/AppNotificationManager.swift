@@ -4,11 +4,20 @@
 import Foundation
 import SwiftUI
 
+enum BetEventKind {
+    case challenged  // мне бросили вызов
+    case accepted    // мой вызов приняли — "сделка подтверждена"
+    case declined    // мой вызов отклонили
+    case expired     // мой вызов не приняли вовремя
+    case finished    // пари завершилось (естественно или через слив)
+}
+
 enum AppNotificationType {
     case achievement(title: String, description: String, achievementDescription: String, imageName: String, isDrinking: Bool)
     case newFollower(username: String, userId: Int, avatarUrl: String?)
     case customMessage(text: String)
     case healthSyncProposal(text: String, onAccept: () -> Void, onDecline: () -> Void)
+    case betEvent(kind: BetEventKind, bet: Bet)
 }
 
 struct AppNotificationItem: Identifiable {
@@ -114,6 +123,56 @@ class AppNotificationManager: ObservableObject {
         UserDefaults.standard.set(Array(notifiedIds), forKey: notifiedKey)
     }
     
+    // MARK: - Проверка новых событий по пари
+    func checkNewBetEvents() async {
+        guard AuthStateManager.shared.sessionType == .authenticated else { return }
+        let myId = AuthStateManager.shared.userId
+
+        let snapshotKey = "knownBetStates"
+        let oldSnapshot = UserDefaults.standard.dictionary(forKey: snapshotKey) as? [String: String] ?? [:]
+
+        let bets = await BetsManager.shared.refresh()
+
+        var newSnapshot: [String: String] = [:]
+        for bet in bets {
+            newSnapshot["\(bet.id)"] = "\(bet.status.rawValue)|\(bet.resolutionType?.rawValue ?? "")"
+        }
+
+        // Первый запуск — просто запоминаем текущее состояние, без уведомлений
+        guard !oldSnapshot.isEmpty else {
+            UserDefaults.standard.set(newSnapshot, forKey: snapshotKey)
+            return
+        }
+
+        for bet in bets {
+            let oldState = oldSnapshot["\(bet.id)"]
+
+            if oldState == nil {
+                // Новое пари, о котором мы ещё не знали
+                if bet.status == .pending && bet.opponent.userId == myId {
+                    enqueue(AppNotificationItem(type: .betEvent(kind: .challenged, bet: bet)))
+                }
+                continue
+            }
+
+            let oldStatus = oldState?.split(separator: "|", maxSplits: 1).first.map(String.init) ?? ""
+
+            if oldStatus == "pending" && bet.status == .active {
+                enqueue(AppNotificationItem(type: .betEvent(kind: .accepted, bet: bet)))
+            } else if oldStatus == "pending" && bet.status == .resolved
+                        && bet.resolutionType == .declined && bet.challenger.userId == myId {
+                enqueue(AppNotificationItem(type: .betEvent(kind: .declined, bet: bet)))
+            } else if oldStatus == "pending" && bet.status == .resolved
+                        && bet.resolutionType == .expired && bet.challenger.userId == myId {
+                enqueue(AppNotificationItem(type: .betEvent(kind: .expired, bet: bet)))
+            } else if oldStatus == "active" && bet.status == .resolved {
+                enqueue(AppNotificationItem(type: .betEvent(kind: .finished, bet: bet)))
+            }
+        }
+
+        UserDefaults.standard.set(newSnapshot, forKey: snapshotKey)
+    }
+
     func showCustomMessage(_ text: String) {
         let item = AppNotificationItem(type: .customMessage(text: text))
         enqueue(item)

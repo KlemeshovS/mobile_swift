@@ -59,6 +59,11 @@ enum UserAPIError: Error, LocalizedError {
     case notFriends
     case triggersConflict
     case triggersTooLarge
+    case betNotFound
+    case betCannotChallengeSelf
+    case betNotMutualFriend
+    case betInvalidState
+    case betForbidden
 
     var errorDescription: String? {
         switch self {
@@ -120,6 +125,16 @@ enum UserAPIError: Error, LocalizedError {
             return NSLocalizedString("error_triggers_conflict", comment: "")
         case .triggersTooLarge:
             return NSLocalizedString("error_triggers_too_large", comment: "")
+        case .betNotFound:
+            return NSLocalizedString("error_bet_not_found", comment: "")
+        case .betCannotChallengeSelf:
+            return NSLocalizedString("error_bet_cannot_challenge_self", comment: "")
+        case .betNotMutualFriend:
+            return NSLocalizedString("error_bet_not_mutual_friend", comment: "")
+        case .betInvalidState:
+            return NSLocalizedString("error_bet_invalid_state", comment: "")
+        case .betForbidden:
+            return NSLocalizedString("error_bet_forbidden", comment: "")
         }
     }
 }
@@ -386,6 +401,16 @@ class UserAPIService {
                 return UserAPIError.triggersConflict
             case "TRIGGERS_TOO_LARGE":
                 return UserAPIError.triggersTooLarge
+            case "BET_NOT_FOUND":
+                return UserAPIError.betNotFound
+            case "BET_CANNOT_CHALLENGE_SELF":
+                return UserAPIError.betCannotChallengeSelf
+            case "BET_NOT_MUTUAL_FRIEND":
+                return UserAPIError.betNotMutualFriend
+            case "BET_INVALID_STATE":
+                return UserAPIError.betInvalidState
+            case "BET_FORBIDDEN":
+                return UserAPIError.betForbidden
             default:
                 return UserAPIError.unknownError(code: errorResponse.code, message: errorResponse.message)
             }
@@ -1021,5 +1046,136 @@ class UserAPIService {
             throw handleAPIError(data: data, response: httpResponse)
         }
     }
-    
+
+    // MARK: - Bets (Пари между друзьями)
+
+    private struct BetCreateBody: Encodable {
+        let opponentUserId: Int
+        let betType: String
+        let durationMode: String
+        let durationDays: Int?
+        let targetEndDate: String?
+    }
+
+    func createBet(
+        opponentUserId: Int,
+        betType: BetType,
+        durationMode: BetDurationMode,
+        durationDays: Int?,
+        targetEndDate: String?
+    ) async throws -> Bet {
+        try await performAuthenticatedRequest { token in
+            guard let url = URL(string: "\(self.baseURL)/me/bets") else {
+                throw UserAPIError.invalidResponse
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            self.configureRequest(&request)
+
+            let body = BetCreateBody(
+                opponentUserId: opponentUserId,
+                betType: betType.rawValue,
+                durationMode: durationMode.rawValue,
+                durationDays: durationDays,
+                targetEndDate: targetEndDate
+            )
+            request.httpBody = try JSONEncoder().encode(body)
+
+            let (data, response) = try await self.session.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw UserAPIError.invalidResponse
+            }
+            switch httpResponse.statusCode {
+            case 200, 201:
+                return try JSONDecoder().decode(Bet.self, from: data)
+            case 401:
+                throw UserAPIError.invalidToken
+            default:
+                throw self.handleAPIError(data: data, response: httpResponse)
+            }
+        }
+    }
+
+    func getBets() async throws -> BetListResponse {
+        try await performAuthenticatedRequest { token in
+            guard let url = URL(string: "\(self.baseURL)/me/bets") else {
+                throw UserAPIError.invalidResponse
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            self.configureRequest(&request)
+
+            let (data, response) = try await self.session.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw UserAPIError.invalidResponse
+            }
+            switch httpResponse.statusCode {
+            case 200:
+                return try JSONDecoder().decode(BetListResponse.self, from: data)
+            case 401:
+                throw UserAPIError.invalidToken
+            default:
+                throw self.handleAPIError(data: data, response: httpResponse)
+            }
+        }
+    }
+
+    func getBet(id: Int) async throws -> Bet {
+        try await performAuthenticatedRequest { token in
+            guard let url = URL(string: "\(self.baseURL)/me/bets/\(id)") else {
+                throw UserAPIError.invalidResponse
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            self.configureRequest(&request)
+
+            let (data, response) = try await self.session.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw UserAPIError.invalidResponse
+            }
+            switch httpResponse.statusCode {
+            case 200:
+                return try JSONDecoder().decode(Bet.self, from: data)
+            case 401:
+                throw UserAPIError.invalidToken
+            default:
+                throw self.handleAPIError(data: data, response: httpResponse)
+            }
+        }
+    }
+
+    private func postBetAction(id: Int, action: String) async throws -> Bet {
+        try await performAuthenticatedRequest { token in
+            guard let url = URL(string: "\(self.baseURL)/me/bets/\(id)/\(action)") else {
+                throw UserAPIError.invalidResponse
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            self.configureRequest(&request)
+
+            let (data, response) = try await self.session.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw UserAPIError.invalidResponse
+            }
+            switch httpResponse.statusCode {
+            case 200:
+                return try JSONDecoder().decode(Bet.self, from: data)
+            case 401:
+                throw UserAPIError.invalidToken
+            default:
+                throw self.handleAPIError(data: data, response: httpResponse)
+            }
+        }
+    }
+
+    func acceptBet(id: Int) async throws -> Bet { try await postBetAction(id: id, action: "accept") }
+    func declineBet(id: Int) async throws -> Bet { try await postBetAction(id: id, action: "decline") }
+    func cancelBet(id: Int) async throws -> Bet { try await postBetAction(id: id, action: "cancel") }
+    func forfeitBet(id: Int) async throws -> Bet { try await postBetAction(id: id, action: "forfeit") }
+
 }

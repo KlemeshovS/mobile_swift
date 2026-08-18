@@ -46,7 +46,95 @@ struct AppNotificationView: View {
 
         case .customMessage(let text):
             customMessageView(text: text)
+
+        case .betEvent(let kind, let bet):
+            betEventView(kind: kind, bet: bet)
         }
+    }
+
+    private func betEventView(kind: BetEventKind, bet: Bet) -> some View {
+        let opponentName = bet.opponentSide.username ?? "?"
+        let (icon, title, subtitle, accentColor): (String, String, String, Color) = {
+            switch kind {
+            case .challenged:
+                return (
+                    "bolt.fill",
+                    NSLocalizedString("notification_bet_challenged_title", comment: ""),
+                    String(format: NSLocalizedString("notification_bet_challenged_subtitle", comment: ""), opponentName),
+                    Color(hex: "8B5CF6")
+                )
+            case .accepted:
+                return (
+                    "checkmark.seal.fill",
+                    NSLocalizedString("notification_bet_accepted_title", comment: ""),
+                    String(format: NSLocalizedString("notification_bet_accepted_subtitle", comment: ""), opponentName),
+                    Color(hex: "C7FF00")
+                )
+            case .declined:
+                return (
+                    "xmark.seal.fill",
+                    NSLocalizedString("notification_bet_declined_title", comment: ""),
+                    String(format: NSLocalizedString("notification_bet_declined_subtitle", comment: ""), opponentName),
+                    Color(hex: "FF0072")
+                )
+            case .expired:
+                return (
+                    "clock.badge.exclamationmark.fill",
+                    NSLocalizedString("notification_bet_expired_title", comment: ""),
+                    String(format: NSLocalizedString("notification_bet_expired_subtitle", comment: ""), opponentName),
+                    .white.opacity(0.6)
+                )
+            case .finished:
+                let won = bet.myOutcome == .won
+                return (
+                    won ? "trophy.fill" : "flag.checkered",
+                    NSLocalizedString("notification_bet_finished_title", comment: ""),
+                    String(format: NSLocalizedString("notification_bet_finished_subtitle", comment: ""), opponentName),
+                    won ? Color(hex: "C7FF00") : Color(hex: "FF0072")
+                )
+            }
+        }()
+
+        return HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 24))
+                .foregroundColor(accentColor)
+                .frame(width: 44, height: 44)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.7))
+                Text(subtitle)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(LinearGradient(
+                    colors: [Color(hex: "2D2B55"), Color(hex: "3E3B6B")],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(accentColor.opacity(0.3), lineWidth: 1)
+                )
+        )
+        .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 4)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 30)
+        .onTapGesture { dismissWithAnimation() }
+        .gesture(DragGesture(minimumDistance: 20).onEnded { value in
+            if value.translation.height > 20 { dismissWithAnimation() }
+        })
     }
 
     private func achievementView(title: String, description: String, achievementDescription: String, imageName: String, isDrinking: Bool) -> some View {

@@ -9,7 +9,8 @@ import SwiftUI
 
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
-    
+    @ObservedObject private var betsManager = BetsManager.shared
+
     private let selectedColor = Color(hex: "8B5CF6") // Фиолетовый
     private let unselectedColor = Color(hex: "6B7280") // Серый
     private let backgroundColor = Color(hex: "1F2937") // Темно-серый
@@ -64,6 +65,24 @@ struct CustomTabBar: View {
                     }
                 }
             )
+
+            // Пари между друзьями
+            TabBarButton(
+                selectedImage: "flag.checkered.2.crossed",
+                unselectedImage: "flag.checkered.2.crossed",
+                title: NSLocalizedString("bets_tab_title", comment: ""),
+                isSelected: selectedTab == 3,
+                selectedTextColor: selectedTextColor,
+                unselectedTextColor: unselectedTextColor,
+                useSystemImage: true,
+                showBadge: betsManager.hasUnseenIncomingChallenges,
+                action: {
+                    if selectedTab != 3 {
+                        HapticManager.shared.impact(.light)
+                        selectedTab = 3
+                    }
+                }
+            )
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -82,19 +101,38 @@ struct TabBarButton: View {
     let isSelected: Bool
     let selectedTextColor: Color
     let unselectedTextColor: Color
+    var useSystemImage: Bool = false
+    var showBadge: Bool = false
     let action: () -> Void
-    
+
     private let imageSize: CGFloat = 32
-    
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {
-                Image(isSelected ? selectedImage : unselectedImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                ZStack(alignment: .topTrailing) {
+                    Group {
+                        if useSystemImage {
+                            Image(systemName: isSelected ? selectedImage : unselectedImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        } else {
+                            Image(isSelected ? selectedImage : unselectedImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        }
+                    }
                     .frame(width: imageSize, height: imageSize)
                     .foregroundColor(isSelected ? selectedTextColor : unselectedTextColor)
-                
+
+                    if showBadge {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 9, height: 9)
+                            .offset(x: 4, y: -2)
+                    }
+                }
+
                 Text(title)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(isSelected ? selectedTextColor : unselectedTextColor)

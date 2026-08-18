@@ -243,6 +243,43 @@ class NewAchievementManager {
             isUnlocked: false
         ),
 
+        // Пари между друзьями
+        Achievement(
+            id: "bet_total_5",
+            title: NSLocalizedString("ach_bet_total_5_title", comment: ""),
+            description: NSLocalizedString("ach_bet_total_5_desc", comment: ""),
+            type: .betOutcomeCount(kind: .total, requiredCount: 5),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "bet_total_15",
+            title: NSLocalizedString("ach_bet_total_15_title", comment: ""),
+            description: NSLocalizedString("ach_bet_total_15_desc", comment: ""),
+            type: .betOutcomeCount(kind: .total, requiredCount: 15),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "bet_win_5",
+            title: NSLocalizedString("ach_bet_win_5_title", comment: ""),
+            description: NSLocalizedString("ach_bet_win_5_desc", comment: ""),
+            type: .betOutcomeCount(kind: .won, requiredCount: 5),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "bet_loss_5",
+            title: NSLocalizedString("ach_bet_loss_5_title", comment: ""),
+            description: NSLocalizedString("ach_bet_loss_5_desc", comment: ""),
+            type: .betOutcomeCount(kind: .lost, requiredCount: 5),
+            isUnlocked: false
+        ),
+        Achievement(
+            id: "bet_declined_3",
+            title: NSLocalizedString("ach_bet_declined_3_title", comment: ""),
+            description: NSLocalizedString("ach_bet_declined_3_desc", comment: ""),
+            type: .betOutcomeCount(kind: .declined, requiredCount: 3),
+            isUnlocked: false
+        ),
+
         // Трезвые месяцы
         Achievement(id: "sober_month_1", title: NSLocalizedString("ach_sober_month_1_title", comment: ""), description: NSLocalizedString("ach_sober_month_1_desc", comment: ""), type: .soberMonth(month: 1), isUnlocked: false),
         Achievement(id: "sober_month_2", title: NSLocalizedString("ach_sober_month_2_title", comment: ""), description: NSLocalizedString("ach_sober_month_2_desc", comment: ""), type: .soberMonth(month: 2), isUnlocked: false),
@@ -759,6 +796,20 @@ class NewAchievementManager {
 
         case .triggerCountInYear(let trigger, let requiredCount):
             return countTriggerCountInYear(trigger: trigger) >= requiredCount
+
+        case .betOutcomeCount(let kind, let requiredCount):
+            return countBetOutcome(kind: kind) >= requiredCount
+        }
+    }
+
+    /// Синхронный кэш BetsManager (обновляется при фетче /me/bets) — сами данные о
+    /// пари приходят с сервера асинхронно, поэтому здесь читаем последний снапшот.
+    private func countBetOutcome(kind: BetOutcomeKind) -> Int {
+        switch kind {
+        case .won: return BetsManager.shared.wonCount
+        case .lost: return BetsManager.shared.lostCount
+        case .declined: return BetsManager.shared.declinedByMeCount
+        case .total: return BetsManager.shared.totalCount
         }
     }
 

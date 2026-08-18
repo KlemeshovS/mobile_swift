@@ -203,9 +203,12 @@ struct ContentView: View {
                 await CalendarSyncManager.shared.sync()
                 await TriggerSyncManager.shared.sync()
                 await AppNotificationManager.shared.checkNewFollowers()
+                await AppNotificationManager.shared.checkNewBetEvents()
 
                 let dataManager = DrinkDataManager()
                 let legacyForNotifications = dataManager.loadData()
+                // checkNewBetEvents() выше уже обновил BetsManager.shared — betOutcomeCount
+                // ачивки читают его синхронно внутри checkAllAchievements ниже.
                 AppNotificationManager.shared.checkNewAchievements(daysData: legacyForNotifications)
 
                 // Синхронизация с Apple Health
@@ -842,8 +845,11 @@ struct MainContentView: View {
                             }
                         )
                         .ignoresSafeArea(edges: .bottom)
-                    } else {
+                    } else if selectedTab == 2 {
                         RatingsView(onShowTopThreePopup: onShowTopThreePopup, daysData: legacyDaysData)
+                            .ignoresSafeArea(edges: .bottom)
+                    } else {
+                        BetsTabView()
                             .ignoresSafeArea(edges: .bottom)
                     }
                 }
