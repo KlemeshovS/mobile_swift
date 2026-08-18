@@ -143,10 +143,18 @@ struct BetCardView: View {
 
             Spacer()
 
-            Text(statusText)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(statusColor)
-                .multilineTextAlignment(.trailing)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(statusText)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(statusColor)
+                    .multilineTextAlignment(.trailing)
+
+                if let remaining = bet.daysRemaining {
+                    Text("\(remaining) \(betDaysWord(remaining))")
+                        .font(.system(size: 11))
+                        .foregroundColor(.white.opacity(0.4))
+                }
+            }
         }
         .padding(14)
         .background(

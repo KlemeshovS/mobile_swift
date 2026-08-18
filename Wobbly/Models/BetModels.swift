@@ -155,6 +155,48 @@ struct Bet: Codable, Identifiable, Equatable {
         let myId = AuthStateManager.shared.userId
         return winnerId == myId ? .won : .lost
     }
+
+    private static let isoFormatterFractional: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    private static let isoFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    private static func parseISODate(_ value: String?) -> Date? {
+        guard let value = value else { return nil }
+        return isoFormatterFractional.date(from: value) ?? isoFormatter.date(from: value)
+    }
+
+    var startDate: Date? { Bet.parseISODate(startAt) }
+    var endDate: Date? { Bet.parseISODate(endAt) }
+
+    /// Сколько дней длится пари целиком: для period — заданное число, для fixed_date — считаем от старта до конца.
+    var totalDurationDays: Int? {
+        if durationMode == .period, let days = durationDays { return days }
+        guard let start = startDate, let end = endDate else { return nil }
+        let days = Calendar.current.dateComponents([.day], from: start, to: end).day ?? 0
+        return max(days, 1)
+    }
+
+    /// Сколько дней осталось до конца активного пари. `endAt` — эксклюзивная граница
+    /// (начало следующих суток после последнего дня пари), поэтому округляем вверх.
+    var daysRemaining: Int? {
+        guard status == .active, let end = endDate else { return nil }
+        let seconds = end.timeIntervalSinceNow
+        if seconds <= 0 { return 0 }
+        return Int(ceil(seconds / 86400))
+    }
+
+    var daysElapsed: Int? {
+        guard let total = totalDurationDays, let remaining = daysRemaining else { return nil }
+        return max(0, min(total, total - remaining))
+    }
 }
 
 enum BetOutcomeForUser {
@@ -168,4 +210,20 @@ enum BetOutcomeForUser {
 struct BetListResponse: Codable {
     let items: [Bet]
     let total: Int
+}
+
+func betDaysWord(_ n: Int) -> String {
+    let lang = LanguageManager.shared.currentLanguage
+    if lang == .russian {
+        let mod100 = n % 100
+        let mod10 = n % 10
+        if mod100 >= 11 && mod100 <= 14 { return "дней" }
+        switch mod10 {
+        case 1: return "день"
+        case 2, 3, 4: return "дня"
+        default: return "дней"
+        }
+    } else {
+        return n == 1 ? "day" : "days"
+    }
 }

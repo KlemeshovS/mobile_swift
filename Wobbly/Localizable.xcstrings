@@ -4425,6 +4425,23 @@
         }
       }
     },
+    "bets_detail_days_remaining" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time left"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Осталось"
+          }
+        }
+      }
+    },
     "bets_detail_duration" : {
       "extractionState" : "manual",
       "localizations" : {
