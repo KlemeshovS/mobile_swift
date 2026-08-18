@@ -32,7 +32,9 @@ struct PublicUserProfileView: View {
     @State private var infoOverlayTitle = ""
     @State private var infoOverlayBody = ""
     @State private var showCreateBet = false
-    
+    @ObservedObject private var betsManager = BetsManager.shared
+    @State private var selectedBet: Bet?
+
     enum FollowStatus {
         case notFollowing
         case following(isMutual: Bool)
@@ -158,6 +160,9 @@ struct PublicUserProfileView: View {
                     myUsername = name
                 }
             }
+            if AuthStateManager.shared.sessionType == .authenticated {
+                Task { await betsManager.refresh() }
+            }
         }
         .fullScreenCover(isPresented: $showFullScreenAvatar) {
             if let url = makeFullURL(path: item.avatarUrl) {
@@ -173,10 +178,22 @@ struct PublicUserProfileView: View {
                 createdAt: nil
             ))
         }
+        .sheet(item: $selectedBet) { bet in
+            BetDetailView(betId: bet.id)
+        }
     }
     
     private var scoreForGradient: Int {
         actualScore ?? item.score
+    }
+
+    /// Активные и ожидающие ответа пари с этим конкретным другом — показываются
+    /// под кнопкой "Бросить вызов", той же плашкой, что и в списке пари.
+    private var betsWithThisFriend: [Bet] {
+        betsManager.bets.filter { bet in
+            (bet.status == .active || bet.status == .pending)
+                && (bet.challenger.userId == item.userId || bet.opponent.userId == item.userId)
+        }
     }
     
     private var friendStatus: UserStatus? {
@@ -371,12 +388,34 @@ struct PublicUserProfileView: View {
                         )
                         .cornerRadius(12)
                     }
+
+                    if !betsWithThisFriend.isEmpty {
+                        betsWithThisFriendSection
+                    }
                 }
             }
             .padding(.horizontal, 16)
         }
     }
-    
+
+    private var betsWithThisFriendSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(NSLocalizedString("bets_section_with_friend", comment: ""))
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.white.opacity(0.5))
+                .textCase(.uppercase)
+
+            ForEach(betsWithThisFriend) { bet in
+                Button {
+                    selectedBet = bet
+                } label: {
+                    BetCardView(bet: bet)
+                }
+            }
+        }
+        .padding(.top, 4)
+    }
+
     // MARK: - API Calls
     
     private func loadFollowStatus() async {
