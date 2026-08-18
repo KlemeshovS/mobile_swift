@@ -102,8 +102,11 @@ final class BetsManager: ObservableObject {
         return bets.filter { $0.resolutionType == .declined && $0.opponent.userId == myId }.count
     }
 
+    /// "Заключённых" пари — т.е. принятых оппонентом, а не просто отправленных вызовов.
+    /// Отправленный, но ещё не принятый (или отклонённый/отменённый/просроченный) вызов
+    /// в счёт не идёт.
     var totalCount: Int {
-        bets.count
+        bets.filter { $0.acceptedAt != nil }.count
     }
 
     // MARK: - Действия (обновляют кэш точечно после успешного ответа)
