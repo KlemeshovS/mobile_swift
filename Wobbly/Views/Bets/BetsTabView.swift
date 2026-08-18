@@ -30,6 +30,7 @@ struct BetsTabView: View {
             }
             .navigationTitle(NSLocalizedString("bets_tab_title", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {

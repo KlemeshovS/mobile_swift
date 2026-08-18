@@ -19,7 +19,7 @@ struct CustomTabBar: View {
     var unselectedTextColor: Color = .gray
     
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             TabBarButton(
                 selectedImage: "cal-selected",
                 unselectedImage: "cal",
@@ -68,8 +68,8 @@ struct CustomTabBar: View {
 
             // Пари между друзьями
             TabBarButton(
-                selectedImage: "flag.checkered.2.crossed",
-                unselectedImage: "flag.checkered.2.crossed",
+                selectedImage: "flag.checkered",
+                unselectedImage: "flag.checkered",
                 title: NSLocalizedString("bets_tab_title", comment: ""),
                 isSelected: selectedTab == 3,
                 selectedTextColor: selectedTextColor,

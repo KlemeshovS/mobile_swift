@@ -39,6 +39,7 @@ struct BetDetailView: View {
             }
             .navigationTitle(NSLocalizedString("bets_detail_title", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(NSLocalizedString("close_button", comment: "")) { dismiss() }
@@ -82,17 +83,13 @@ struct BetDetailView: View {
 
     private func participantColumn(_ participant: BetParticipant, isWinner: Bool) -> some View {
         VStack(spacing: 6) {
-            Circle()
-                .fill(Color.white.opacity(0.12))
-                .frame(width: 64, height: 64)
-                .overlay(
-                    Text(String((participant.username ?? "?").prefix(1)).uppercased())
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.8))
-                )
-                .overlay(
-                    Circle().stroke(isWinner ? Color(hex: "C7FF00") : .clear, lineWidth: 3)
-                )
+            BetAvatarView(
+                username: participant.username,
+                avatarUrl: participant.avatarUrl,
+                size: 64,
+                ringColor: isWinner ? Color(hex: "C7FF00") : nil
+            )
+            .padding(.top, 4)
             Text(participant.username ?? "—")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.white)

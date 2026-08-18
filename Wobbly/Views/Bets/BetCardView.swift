@@ -15,10 +15,11 @@ func betAvatarURL(path: String?) -> URL? {
     return URL(string: base + path)
 }
 
-private struct BetAvatarView: View {
+struct BetAvatarView: View {
     let username: String?
     let avatarUrl: String?
     let size: CGFloat
+    var ringColor: Color? = nil
 
     var body: some View {
         KFImage(betAvatarURL(path: avatarUrl))
@@ -35,7 +36,9 @@ private struct BetAvatarView: View {
             .scaledToFill()
             .frame(width: size, height: size)
             .clipShape(Circle())
-            .overlay(Circle().stroke(Color.white.opacity(0.15), lineWidth: 1))
+            .overlay(
+                Circle().stroke(ringColor ?? Color.white.opacity(0.15), lineWidth: ringColor != nil ? 3 : 1)
+            )
     }
 }
 

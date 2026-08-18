@@ -10,6 +10,9 @@ import SwiftUI
 struct CreateBetView: View {
     @Environment(\.dismiss) private var dismiss
 
+    /// Если экран открыт с профиля конкретного друга — сразу выбираем его.
+    var preselectedOpponent: FollowModel? = nil
+
     @State private var friends: [FollowModel] = []
     @State private var isLoadingFriends = true
     @State private var friendsError: String?
@@ -28,6 +31,8 @@ struct CreateBetView: View {
         (14, "bet_duration_2_weeks"),
         (30, "bet_duration_1_month"),
         (60, "bet_duration_2_months"),
+        (90, "bet_duration_3_months"),
+        (180, "bet_duration_6_months"),
     ]
 
     var body: some View {
@@ -59,6 +64,7 @@ struct CreateBetView: View {
             }
             .navigationTitle(NSLocalizedString("bets_create_title", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(NSLocalizedString("cancel", comment: "")) { dismiss() }
@@ -67,7 +73,10 @@ struct CreateBetView: View {
             }
         }
         .navigationViewStyle(.stack)
-        .task { await loadFriends() }
+        .task {
+            selectedFriend = preselectedOpponent
+            await loadFriends()
+        }
     }
 
     // MARK: - Friend picker
@@ -75,6 +84,10 @@ struct CreateBetView: View {
     private var friendPicker: some View {
         VStack(alignment: .leading, spacing: 10) {
             sectionTitle(NSLocalizedString("bets_create_pick_friend", comment: ""))
+
+            Text(NSLocalizedString("bets_create_mutual_friends_hint", comment: ""))
+                .font(.system(size: 12))
+                .foregroundColor(.white.opacity(0.45))
 
             if isLoadingFriends {
                 ProgressView().tint(.white)
@@ -85,13 +98,27 @@ struct CreateBetView: View {
                     .font(.system(size: 13))
                     .foregroundColor(.white.opacity(0.6))
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
+                ScrollView(.horizontal, showsIndicators: true) {
                     HStack(spacing: 12) {
                         ForEach(friends) { friend in
                             friendChip(friend)
                         }
                     }
+                    .padding(.top, 6)
+                    .padding(.bottom, 4)
                 }
+                // Затухание по правому краю — сигнал, что список можно проскроллить дальше.
+                .mask(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .black, location: 0),
+                            .init(color: .black, location: 0.92),
+                            .init(color: .clear, location: 1),
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
             }
         }
     }
@@ -102,17 +129,12 @@ struct CreateBetView: View {
             selectedFriend = friend
         } label: {
             VStack(spacing: 6) {
-                Circle()
-                    .fill(Color.white.opacity(0.12))
-                    .frame(width: 56, height: 56)
-                    .overlay(
-                        Text(String(friend.username.prefix(1)).uppercased())
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.8))
-                    )
-                    .overlay(
-                        Circle().stroke(isSelected ? Color(hex: "8B5CF6") : .clear, lineWidth: 3)
-                    )
+                BetAvatarView(
+                    username: friend.username,
+                    avatarUrl: friend.avatarUrl,
+                    size: 56,
+                    ringColor: isSelected ? Color(hex: "8B5CF6") : nil
+                )
                 Text(friend.username)
                     .font(.system(size: 11))
                     .foregroundColor(isSelected ? .white : .white.opacity(0.6))
@@ -154,6 +176,8 @@ struct CreateBetView: View {
                     Text(type.conditionDescription)
                         .font(.system(size: 12))
                         .foregroundColor(.white.opacity(0.6))
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .padding(12)
@@ -174,11 +198,16 @@ struct CreateBetView: View {
         VStack(alignment: .leading, spacing: 10) {
             sectionTitle(NSLocalizedString("bets_create_pick_duration", comment: ""))
 
+            Text(NSLocalizedString("bets_create_duration_hint", comment: ""))
+                .font(.system(size: 12))
+                .foregroundColor(.white.opacity(0.45))
+
             Picker("", selection: $durationMode) {
                 Text(NSLocalizedString("bet_duration_mode_period", comment: "")).tag(BetDurationMode.period)
                 Text(NSLocalizedString("bet_duration_mode_date", comment: "")).tag(BetDurationMode.fixedDate)
             }
             .pickerStyle(.segmented)
+            .colorScheme(.dark)
 
             if durationMode == .period {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {

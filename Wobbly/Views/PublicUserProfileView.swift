@@ -31,6 +31,7 @@ struct PublicUserProfileView: View {
     @State private var infoOverlayShowing = false
     @State private var infoOverlayTitle = ""
     @State private var infoOverlayBody = ""
+    @State private var showCreateBet = false
     
     enum FollowStatus {
         case notFollowing
@@ -162,6 +163,15 @@ struct PublicUserProfileView: View {
             if let url = makeFullURL(path: item.avatarUrl) {
                 AvatarFullscreenView(url: url, isPresented: $showFullScreenAvatar)
             }
+        }
+        .sheet(isPresented: $showCreateBet) {
+            CreateBetView(preselectedOpponent: FollowModel(
+                userId: item.userId,
+                username: item.username,
+                avatarUrl: item.avatarUrl,
+                isMutual: true,
+                createdAt: nil
+            ))
         }
     }
     
@@ -310,34 +320,59 @@ struct PublicUserProfileView: View {
             .padding(.horizontal, 40)
 
         case .following(let isMutual):
-            HStack {
-                Text(NSLocalizedString(
-                    isMutual ? "follow_status_mutual" : "follow_status_following",
-                    comment: ""
-                ))
-                .font(.system(size: 15, weight: .medium))
-                .foregroundColor(.white.opacity(0.85))
+            VStack(spacing: 10) {
+                HStack {
+                    Text(NSLocalizedString(
+                        isMutual ? "follow_status_mutual" : "follow_status_following",
+                        comment: ""
+                    ))
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.white.opacity(0.85))
 
-                Spacer()
+                    Spacer()
 
-                Menu {
-                    Button(role: .destructive) {
-                        Task { await unfollow() }
+                    Menu {
+                        Button(role: .destructive) {
+                            Task { await unfollow() }
+                        } label: {
+                            Label(NSLocalizedString("unfollow_button", comment: ""), systemImage: "trash")
+                        }
                     } label: {
-                        Label(NSLocalizedString("unfollow_button", comment: ""), systemImage: "trash")
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+                            .padding(8)
                     }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
-                        .padding(8)
+                    .background(Color.clear.environment(\.colorScheme, .dark))
                 }
-                .background(Color.clear.environment(\.colorScheme, .dark))
+                .padding(.vertical, 8)
+                .padding(.horizontal, 20)
+                .background(Color.white.opacity(0.07))
+                .cornerRadius(12)
+
+                if isMutual {
+                    Button {
+                        showCreateBet = true
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "flag.checkered")
+                            Text(NSLocalizedString("bets_challenge_from_profile", comment: ""))
+                        }
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            LinearGradient(
+                                colors: [Color(hex: "8B5CF6"), Color(hex: "4B3A91")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(12)
+                    }
+                }
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 20)
-            .background(Color.white.opacity(0.07))
-            .cornerRadius(12)
             .padding(.horizontal, 16)
         }
     }
