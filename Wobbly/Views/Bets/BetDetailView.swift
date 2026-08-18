@@ -158,7 +158,10 @@ struct BetDetailView: View {
         }()
         func color(isChallenger: Bool) -> Color {
             guard let challengerLeads = challengerLeads else { return .white }
-            return challengerLeads == isChallenger ? Color(hex: "C7FF00") : Color(hex: "FF0072")
+            return challengerLeads == isChallenger ? Color(hex: "C7FF00") : .white.opacity(0.4)
+        }
+        func weight(isChallenger: Bool) -> Font.Weight {
+            challengerLeads == isChallenger ? .bold : .regular
         }
 
         return VStack(alignment: .leading, spacing: 8) {
@@ -171,7 +174,7 @@ struct BetDetailView: View {
                     .foregroundColor(.white.opacity(0.7))
                 Spacer()
                 Text(snapshot["challengerValue"]?.displayString ?? "—")
-                    .fontWeight(.semibold)
+                    .fontWeight(weight(isChallenger: true))
                     .foregroundColor(color(isChallenger: true))
             }
             HStack {
@@ -179,7 +182,7 @@ struct BetDetailView: View {
                     .foregroundColor(.white.opacity(0.7))
                 Spacer()
                 Text(snapshot["opponentValue"]?.displayString ?? "—")
-                    .fontWeight(.semibold)
+                    .fontWeight(weight(isChallenger: false))
                     .foregroundColor(color(isChallenger: false))
             }
         }

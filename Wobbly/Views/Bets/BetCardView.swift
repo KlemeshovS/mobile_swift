@@ -92,7 +92,7 @@ struct BetCardView: View {
 
     private func liveValueColor(isChallenger: Bool) -> Color {
         guard let leader = liveLeader else { return .white.opacity(0.7) }
-        return leader == isChallenger ? Color(hex: "C7FF00") : Color(hex: "FF0072")
+        return leader == isChallenger ? Color(hex: "C7FF00") : .white.opacity(0.4)
     }
 
     var body: some View {
@@ -129,13 +129,15 @@ struct BetCardView: View {
                    let o = snapshot["opponentValue"]?.displayString {
                     HStack(spacing: 4) {
                         Text(c)
+                            .fontWeight(liveLeader == true ? .bold : .regular)
                             .foregroundColor(liveValueColor(isChallenger: true))
                         Text(":")
                             .foregroundColor(.white.opacity(0.3))
                         Text(o)
+                            .fontWeight(liveLeader == false ? .bold : .regular)
                             .foregroundColor(liveValueColor(isChallenger: false))
                     }
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 12))
                 }
             }
 
