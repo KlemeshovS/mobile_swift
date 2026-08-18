@@ -78,11 +78,40 @@ struct BetCardView: View {
         }
     }
 
+    /// Кто сейчас лидирует по live-снапшоту (для активного пари) — красим имена под этот исход.
+    private var liveLeader: Bool? {
+        guard bet.status == .active,
+              let snapshot = bet.liveSnapshot,
+              let c = snapshot["challengerValue"]?.intValue,
+              let o = snapshot["opponentValue"]?.intValue,
+              c != o
+        else { return nil }
+        let challengerAhead = bet.betType.higherValueLeads ? c > o : c < o
+        return challengerAhead
+    }
+
+    private func liveValueColor(isChallenger: Bool) -> Color {
+        guard let leader = liveLeader else { return .white.opacity(0.7) }
+        return leader == isChallenger ? Color(hex: "C7FF00") : Color(hex: "FF0072")
+    }
+
     var body: some View {
         HStack(spacing: 14) {
             HStack(spacing: -10) {
-                BetAvatarView(username: bet.challenger.username, avatarUrl: bet.challenger.avatarUrl, size: 44)
-                BetAvatarView(username: bet.opponent.username, avatarUrl: bet.opponent.avatarUrl, size: 44)
+                BetAvatarView(
+                    username: bet.challenger.username,
+                    avatarUrl: bet.challenger.avatarUrl,
+                    size: 44,
+                    ringColor: bet.status == .resolved && bet.winnerId == bet.challenger.userId ? Color(hex: "C7FF00") : nil
+                )
+                .opacity(bet.status == .resolved && bet.winnerId == bet.opponent.userId ? 0.4 : 1)
+                BetAvatarView(
+                    username: bet.opponent.username,
+                    avatarUrl: bet.opponent.avatarUrl,
+                    size: 44,
+                    ringColor: bet.status == .resolved && bet.winnerId == bet.opponent.userId ? Color(hex: "C7FF00") : nil
+                )
+                .opacity(bet.status == .resolved && bet.winnerId == bet.challenger.userId ? 0.4 : 1)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -94,6 +123,20 @@ struct BetCardView: View {
                 Text(bet.betType.localizedTitle)
                     .font(.system(size: 12))
                     .foregroundColor(.white.opacity(0.6))
+
+                if let snapshot = bet.liveSnapshot,
+                   let c = snapshot["challengerValue"]?.displayString,
+                   let o = snapshot["opponentValue"]?.displayString {
+                    HStack(spacing: 4) {
+                        Text(c)
+                            .foregroundColor(liveValueColor(isChallenger: true))
+                        Text(":")
+                            .foregroundColor(.white.opacity(0.3))
+                        Text(o)
+                            .foregroundColor(liveValueColor(isChallenger: false))
+                    }
+                    .font(.system(size: 12, weight: .bold))
+                }
             }
 
             Spacer()

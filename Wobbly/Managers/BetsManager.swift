@@ -56,7 +56,9 @@ final class BetsManager: ObservableObject {
     }
 
     var history: [Bet] {
-        bets.filter { $0.status == .resolved }
+        // Отменённые (отозванные автором до принятия) не несут ценности в истории —
+        // в отличие от отклонённых, которые оставляем как есть.
+        bets.filter { $0.status == .resolved && $0.resolutionType != .cancelled }
     }
 
     // MARK: - Бейдж на вкладке

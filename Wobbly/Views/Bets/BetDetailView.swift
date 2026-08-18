@@ -113,7 +113,7 @@ struct BetDetailView: View {
 
             Divider().background(Color.white.opacity(0.1))
 
-            infoRow(NSLocalizedString("bets_detail_duration", comment: ""), durationText(bet))
+            infoRow(durationLabel(bet), durationText(bet))
             infoRow(NSLocalizedString("bets_detail_status", comment: ""), statusText(bet))
         }
         .padding(16)
@@ -216,6 +216,12 @@ struct BetDetailView: View {
             }
         }
         .disabled(isPerformingAction)
+    }
+
+    private func durationLabel(_ bet: Bet) -> String {
+        bet.durationMode == .period
+            ? NSLocalizedString("bet_duration_mode_period", comment: "")
+            : NSLocalizedString("bets_detail_duration", comment: "")
     }
 
     private func durationText(_ bet: Bet) -> String {

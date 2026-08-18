@@ -32,6 +32,15 @@ enum BetType: String, CaseIterable, Codable {
         case .scoreDown: return NSLocalizedString("bet_type_score_down_condition", comment: "")
         }
     }
+
+    /// Для live-снапшота: у кого больше значение — тот сейчас лидирует.
+    /// Для scoreDown («кто больше пьёт») побеждает меньшее значение, поэтому false.
+    var higherValueLeads: Bool {
+        switch self {
+        case .scoreDown: return false
+        case .sobriety, .sport, .scoreUp: return true
+        }
+    }
 }
 
 enum BetDurationMode: String, Codable {
@@ -98,6 +107,11 @@ enum AnyCodableValue: Codable, Equatable {
         case .null: return "—"
         }
     }
+
+    var intValue: Int? {
+        if case .int(let value) = self { return value }
+        return nil
+    }
 }
 
 struct Bet: Codable, Identifiable, Equatable {
@@ -116,6 +130,7 @@ struct Bet: Codable, Identifiable, Equatable {
     let startAt: String?
     let endAt: String?
     let resultSnapshot: [String: AnyCodableValue]?
+    let liveSnapshot: [String: AnyCodableValue]?
     let createdAt: String
     let acceptedAt: String?
     let resolvedAt: String?

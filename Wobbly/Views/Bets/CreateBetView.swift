@@ -21,7 +21,7 @@ struct CreateBetView: View {
     @State private var selectedType: BetType = .sobriety
     @State private var durationMode: BetDurationMode = .period
     @State private var selectedDurationDays: Int = 14
-    @State private var selectedDate: Date = Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date()
+    @State private var selectedDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
 
     @State private var isSubmitting = false
     @State private var submitError: String?
