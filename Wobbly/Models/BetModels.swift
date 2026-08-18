@@ -173,7 +173,6 @@ struct Bet: Codable, Identifiable, Equatable {
         return isoFormatterFractional.date(from: value) ?? isoFormatter.date(from: value)
     }
 
-    var startDate: Date? { Bet.parseISODate(startAt) }
     var endDate: Date? { Bet.parseISODate(endAt) }
 
     /// Бэкенд считает все границы пари (`respondBy`/`startAt`/`endAt`) в UTC — сравнивать
@@ -185,30 +184,14 @@ struct Bet: Codable, Identifiable, Equatable {
         return calendar
     }()
 
-    /// Сколько дней длится пари целиком: для period — заданное число (точное, от сервера),
-    /// для fixed_date — считаем по календарным суткам от дня старта до `endAt`
-    /// (последний включает эксклюзивную границу "начало следующих суток").
-    var totalDurationDays: Int? {
-        if durationMode == .period, let days = durationDays { return days }
-        guard let start = startDate, let end = endDate else { return nil }
-        let startDay = Bet.utcCalendar.startOfDay(for: start)
-        let days = Bet.utcCalendar.dateComponents([.day], from: startDay, to: end).day ?? 0
-        return max(days, 1)
-    }
-
     /// Сколько дней осталось до конца активного пари — по календарным суткам от "сегодня"
-    /// (в UTC) до `endAt`. Считается той же мерой (целые календарные сутки), что и
-    /// totalDurationDays, чтобы elapsed/remaining всегда были согласованы.
+    /// (в UTC) до `endAt` (эксклюзивная граница — начало следующих суток после
+    /// последнего дня пари).
     var daysRemaining: Int? {
         guard status == .active, let end = endDate else { return nil }
         let todayStart = Bet.utcCalendar.startOfDay(for: Date())
         let days = Bet.utcCalendar.dateComponents([.day], from: todayStart, to: end).day ?? 0
         return max(days, 0)
-    }
-
-    var daysElapsed: Int? {
-        guard let total = totalDurationDays, let remaining = daysRemaining else { return nil }
-        return max(0, total - remaining)
     }
 }
 

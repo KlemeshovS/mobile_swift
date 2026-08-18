@@ -118,7 +118,7 @@ struct BetDetailView: View {
             infoRow(durationLabel(bet), durationText(bet))
             infoRow(NSLocalizedString("bets_detail_status", comment: ""), statusText(bet))
             if bet.status == .active, let remaining = bet.daysRemaining {
-                infoRow(NSLocalizedString("bets_detail_days_remaining", comment: ""), daysRemainingText(remaining, elapsed: bet.daysElapsed, total: bet.totalDurationDays))
+                infoRow(NSLocalizedString("bets_detail_days_remaining", comment: ""), "\(remaining) \(betDaysWord(remaining))")
             }
         }
         .padding(16)
@@ -269,12 +269,6 @@ struct BetDetailView: View {
         bet.durationMode == .period
             ? NSLocalizedString("bet_duration_mode_period", comment: "")
             : NSLocalizedString("bets_detail_duration", comment: "")
-    }
-
-    private func daysRemainingText(_ remaining: Int, elapsed: Int?, total: Int?) -> String {
-        let remainingText = "\(remaining) \(betDaysWord(remaining))"
-        guard let elapsed = elapsed, let total = total else { return remainingText }
-        return "\(remainingText) (\(elapsed)/\(total))"
     }
 
     private func durationText(_ bet: Bet) -> String {
