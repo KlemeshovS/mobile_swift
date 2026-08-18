@@ -176,26 +176,39 @@ struct Bet: Codable, Identifiable, Equatable {
     var startDate: Date? { Bet.parseISODate(startAt) }
     var endDate: Date? { Bet.parseISODate(endAt) }
 
-    /// Сколько дней длится пари целиком: для period — заданное число, для fixed_date — считаем от старта до конца.
+    /// Бэкенд считает все границы пари (`respondBy`/`startAt`/`endAt`) в UTC — сравнивать
+    /// даты нужно в том же календаре, иначе "сегодня" по местному времени съезжает
+    /// относительно UTC-полуночи, которой оперирует сервер.
+    private static var utcCalendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        return calendar
+    }()
+
+    /// Сколько дней длится пари целиком: для period — заданное число (точное, от сервера),
+    /// для fixed_date — считаем по календарным суткам от дня старта до `endAt`
+    /// (последний включает эксклюзивную границу "начало следующих суток").
     var totalDurationDays: Int? {
         if durationMode == .period, let days = durationDays { return days }
         guard let start = startDate, let end = endDate else { return nil }
-        let days = Calendar.current.dateComponents([.day], from: start, to: end).day ?? 0
+        let startDay = Bet.utcCalendar.startOfDay(for: start)
+        let days = Bet.utcCalendar.dateComponents([.day], from: startDay, to: end).day ?? 0
         return max(days, 1)
     }
 
-    /// Сколько дней осталось до конца активного пари. `endAt` — эксклюзивная граница
-    /// (начало следующих суток после последнего дня пари), поэтому округляем вверх.
+    /// Сколько дней осталось до конца активного пари — по календарным суткам от "сегодня"
+    /// (в UTC) до `endAt`. Считается той же мерой (целые календарные сутки), что и
+    /// totalDurationDays, чтобы elapsed/remaining всегда были согласованы.
     var daysRemaining: Int? {
         guard status == .active, let end = endDate else { return nil }
-        let seconds = end.timeIntervalSinceNow
-        if seconds <= 0 { return 0 }
-        return Int(ceil(seconds / 86400))
+        let todayStart = Bet.utcCalendar.startOfDay(for: Date())
+        let days = Bet.utcCalendar.dateComponents([.day], from: todayStart, to: end).day ?? 0
+        return max(days, 0)
     }
 
     var daysElapsed: Int? {
         guard let total = totalDurationDays, let remaining = daysRemaining else { return nil }
-        return max(0, min(total, total - remaining))
+        return max(0, total - remaining)
     }
 }
 
