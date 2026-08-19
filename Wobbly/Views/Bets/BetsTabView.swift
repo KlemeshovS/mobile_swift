@@ -22,15 +22,9 @@ struct BetsTabView: View {
                 )
                 .ignoresSafeArea()
 
-                if betsManager.bets.isEmpty && !betsManager.isLoading {
-                    #if DEBUG
-                    list
-                    #else
-                    emptyState
-                    #endif
-                } else {
-                    list
-                }
+                // ВРЕМЕННО: всегда list (не emptyState), чтобы секция превью снизу
+                // была видна даже при пустом bets — уберётся вместе с debugPreviewSection.
+                list
             }
             .navigationTitle(NSLocalizedString("bets_tab_title", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
@@ -79,9 +73,7 @@ struct BetsTabView: View {
                     bets: betsManager.history
                 )
 
-                #if DEBUG
                 debugPreviewSection
-                #endif
 
                 Button {
                     showCreateBet = true
@@ -123,13 +115,13 @@ struct BetsTabView: View {
         }
     }
 
-    #if DEBUG
     /// ВРЕМЕННО (по просьбе Евгения) — превью карточек ничьей/победы/поражения без
     /// реальных данных на сервере. Не трогает BetsManager.shared.bets, так что
-    /// не влияет на счётчики ачивок. Убрать этот computed var, его использование
-    /// в `list` и в условии выше после того как посмотрит.
+    /// не влияет на счётчики ачивок. Собирается в любую конфигурацию (не только
+    /// Debug), т.к. Евгений ставит билд без дебага напрямую на телефон. Убрать
+    /// этот computed var и его использование в `list` после того как посмотрит.
     private var debugPreviewSection: some View {
-        let myId = AuthStateManager.shared.userId
+        let myId = AuthStateManager.shared.userId ?? 0
         let now = ISO8601DateFormatter().string(from: Date())
         let me = BetParticipant(userId: myId, username: "Ты", avatarUrl: nil)
 
@@ -174,7 +166,6 @@ struct BetsTabView: View {
             }
         }
     }
-    #endif
 
     private var emptyState: some View {
         VStack(spacing: 16) {
