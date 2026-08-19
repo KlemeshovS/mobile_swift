@@ -22,9 +22,11 @@ struct BetsTabView: View {
                 )
                 .ignoresSafeArea()
 
-                // ВРЕМЕННО: всегда list (не emptyState), чтобы секция превью снизу
-                // была видна даже при пустом bets — уберётся вместе с debugPreviewSection.
-                list
+                if betsManager.bets.isEmpty && !betsManager.isLoading {
+                    emptyState
+                } else {
+                    list
+                }
             }
             .navigationTitle(NSLocalizedString("bets_tab_title", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
@@ -73,8 +75,6 @@ struct BetsTabView: View {
                     bets: betsManager.history
                 )
 
-                debugPreviewSection
-
                 Button {
                     showCreateBet = true
                 } label: {
@@ -111,58 +111,6 @@ struct BetsTabView: View {
                         BetCardView(bet: bet)
                     }
                 }
-            }
-        }
-    }
-
-    /// ВРЕМЕННО (по просьбе Евгения) — превью карточек ничьей/победы/поражения без
-    /// реальных данных на сервере. Не трогает BetsManager.shared.bets, так что
-    /// не влияет на счётчики ачивок. Собирается в любую конфигурацию (не только
-    /// Debug), т.к. Евгений ставит билд без дебага напрямую на телефон. Убрать
-    /// этот computed var и его использование в `list` после того как посмотрит.
-    private var debugPreviewSection: some View {
-        let myId = AuthStateManager.shared.userId ?? 0
-        let now = ISO8601DateFormatter().string(from: Date())
-        let me = BetParticipant(userId: myId, username: "Ты", avatarUrl: nil)
-
-        func fakeBet(id: Int, opponentName: String, winnerId: Int?) -> Bet {
-            Bet(
-                id: id,
-                challenger: me,
-                opponent: BetParticipant(userId: -id, username: opponentName, avatarUrl: nil),
-                betType: .sobriety,
-                durationMode: .period,
-                durationDays: 14,
-                targetEndDate: nil,
-                status: .resolved,
-                resolutionType: .natural,
-                winnerId: winnerId,
-                forfeitedBy: nil,
-                respondBy: now,
-                startAt: now,
-                endAt: now,
-                resultSnapshot: nil,
-                liveSnapshot: nil,
-                createdAt: now,
-                acceptedAt: now,
-                resolvedAt: now
-            )
-        }
-
-        let previewBets = [
-            fakeBet(id: -9001, opponentName: "Тест: ничья", winnerId: nil),
-            fakeBet(id: -9002, opponentName: "Тест: победа", winnerId: myId),
-            fakeBet(id: -9003, opponentName: "Тест: поражение", winnerId: -9003),
-        ]
-
-        return VStack(alignment: .leading, spacing: 10) {
-            Text("DEBUG PREVIEW (не настоящие пари)")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Color(hex: "FFCD3E"))
-                .textCase(.uppercase)
-
-            ForEach(previewBets) { bet in
-                BetCardView(bet: bet)
             }
         }
     }
