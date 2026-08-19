@@ -58,6 +58,10 @@ struct BetsTabView: View {
     private var list: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                if !betsManager.active.isEmpty {
+                    BetsStatsWidgetView()
+                }
+
                 section(
                     title: NSLocalizedString("bets_section_incoming", comment: ""),
                     bets: betsManager.incomingChallenges
