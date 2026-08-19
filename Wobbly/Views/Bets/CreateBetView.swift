@@ -21,7 +21,9 @@ struct CreateBetView: View {
     @State private var selectedType: BetType = .sobriety
     @State private var durationMode: BetDurationMode = .period
     @State private var selectedDurationDays: Int = 14
-    @State private var selectedDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+    /// Ничего не выбрано по умолчанию — покажем только маркер "сегодня", а не фиолетовый
+    /// кружок на случайной дате, пока пользователь реально не тапнет по календарю.
+    @State private var selectedDate: Date?
 
     @State private var isSubmitting = false
     @State private var submitError: String?
@@ -216,15 +218,10 @@ struct CreateBetView: View {
                     }
                 }
             } else {
-                DatePicker(
-                    "",
-                    selection: $selectedDate,
-                    in: Calendar.current.date(byAdding: .day, value: 1, to: Date())!...,
-                    displayedComponents: .date
+                BetDatePickerView(
+                    selectedDate: $selectedDate,
+                    minimumDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
                 )
-                .datePickerStyle(.graphical)
-                .colorScheme(.dark)
-                .accentColor(Color(hex: "8B5CF6"))
             }
         }
     }
@@ -253,7 +250,9 @@ struct CreateBetView: View {
     // MARK: - Submit
 
     private var canSubmit: Bool {
-        selectedFriend != nil && !isSubmitting
+        guard selectedFriend != nil, !isSubmitting else { return false }
+        if durationMode == .fixedDate { return selectedDate != nil }
+        return true
     }
 
     private var submitButton: some View {
@@ -292,12 +291,13 @@ struct CreateBetView: View {
 
     private func submit() async {
         guard let friend = selectedFriend else { return }
+        if durationMode == .fixedDate && selectedDate == nil { return }
         isSubmitting = true
         submitError = nil
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        let targetEndDate = durationMode == .fixedDate ? formatter.string(from: selectedDate) : nil
+        let targetEndDate = (durationMode == .fixedDate ? selectedDate : nil).map { formatter.string(from: $0) }
 
         do {
             _ = try await BetsManager.shared.createBet(

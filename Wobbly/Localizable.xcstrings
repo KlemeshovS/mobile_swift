@@ -4035,13 +4035,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Same counter, reversed: the worse your score, the «better»."
+            "value" : "Score resets to zero from the bet's start. Lower wins."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тот же счётчик, только наоборот: чем хуже — тем «лучше»."
+            "value" : "Очки считаем с нуля от старта пари. Меньше — выиграл."
           }
         }
       }
@@ -4137,13 +4137,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Whoever logs more sport days over the period wins. Respect."
+            "value" : "Whoever logs more sport days wins. Respect."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Кто сделает больше спортивных дней за срок — красавчик."
+            "value" : "Кто сделает больше спортивных дней — красавчик."
           }
         }
       }
@@ -4722,6 +4722,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пари с этим другом"
+          }
+        }
+      }
+    },
+    "bets_stat_lost_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проигрышные пари"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lost bets"
+          }
+        }
+      }
+    },
+    "bets_stat_won_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выигрышные пари"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Won bets"
           }
         }
       }

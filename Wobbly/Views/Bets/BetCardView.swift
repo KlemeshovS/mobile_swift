@@ -42,6 +42,27 @@ struct BetAvatarView: View {
     }
 }
 
+/// Молния между аватарками — с лёгкой пульсацией, чтобы не выглядела статичной иконкой.
+struct PulsingBoltView: View {
+    var size: CGFloat = 22
+    var color: Color = Color(hex: "8B5CF6")
+
+    @State private var pulse = false
+
+    var body: some View {
+        Image(systemName: "bolt.fill")
+            .font(.system(size: size))
+            .foregroundColor(color)
+            .scaleEffect(pulse ? 1.15 : 1.0)
+            .opacity(pulse ? 1.0 : 0.7)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                    pulse = true
+                }
+            }
+    }
+}
+
 struct BetCardView: View {
     let bet: Bet
 

@@ -223,3 +223,23 @@ func betDaysWord(_ n: Int) -> String {
         return n == 1 ? "day" : "days"
     }
 }
+
+/// Форматирует дату вида "2026-08-08" в "8 авг 2026" (кратко, без точек/суффиксов) —
+/// стандартный DateFormatter в ru-локали даёт "8 авг. 2026 г.", что не совпадает с
+/// принятым в приложении коротким стилем.
+func formatBetDate(_ isoDate: String) -> String {
+    let parts = isoDate.split(separator: "-")
+    guard parts.count == 3,
+          let year = Int(parts[0]), let month = Int(parts[1]), let day = Int(parts[2]),
+          (1...12).contains(month)
+    else { return isoDate }
+
+    let lang = LanguageManager.shared.currentLanguage
+    let months: [String]
+    if lang == .russian {
+        months = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"]
+    } else {
+        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    }
+    return "\(day) \(months[month - 1]) \(year)"
+}

@@ -274,7 +274,13 @@ struct StatsTabView: View {
                                 )
                             }
                             .padding(.horizontal, 5)
-                            
+
+                            // Пари: выигрыши/поражения
+                            if AuthStateManager.shared.sessionType == .authenticated {
+                                BetsStatsWidgetView()
+                                    .padding(.horizontal, 5)
+                            }
+
                             // Алкоголь vs Спорт
                             VStack(alignment: .leading, spacing: 12) {
                                 // Получаем статистику за год

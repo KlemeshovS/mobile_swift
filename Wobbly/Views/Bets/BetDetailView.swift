@@ -63,9 +63,7 @@ struct BetDetailView: View {
             VStack(spacing: 24) {
                 HStack(spacing: 24) {
                     participantColumn(bet.challenger, isWinner: bet.winnerId == bet.challenger.userId)
-                    Image(systemName: "bolt.fill")
-                        .font(.system(size: 22))
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                    PulsingBoltView()
                     participantColumn(bet.opponent, isWinner: bet.winnerId == bet.opponent.userId)
                 }
                 .padding(.top, 12)
@@ -281,7 +279,7 @@ struct BetDetailView: View {
         if bet.durationMode == .period, let days = bet.durationDays {
             return String(format: NSLocalizedString("bets_duration_days_format", comment: ""), days)
         } else if let targetEndDate = bet.targetEndDate {
-            return targetEndDate
+            return formatBetDate(targetEndDate)
         }
         return "—"
     }
